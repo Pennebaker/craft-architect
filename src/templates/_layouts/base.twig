@@ -1,0 +1,42 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("pennebaker\\architect\\assetbundles\\indexcpsection\\IndexCPSectionAsset") %}
+
+{# Link for the ? icon at the bottom of the page #}
+{% set docsUrl = "https://github.com/Pennebaker/architect/blob/master/README.md" %}
+
+{# The title of this CP section #}
+{% set title = "Architect" %}
+
+{# The URL to this plugin's base CP section #}
+{% set pluginCpUrl = url('architect') %}
+
+{% set sidebar %}
+
+    <nav>
+        <ul>
+            {#<li class="heading"><span>{{"Export"|t('architect') }}</span></li>#}
+            <li>
+                <a  href="{{ cpUrl('architect/import') }}" {% if selectedSubnavItem|default('') == 'import' %}class="sel"{% endif %}><span class="icon">{{ svg('@app/icons/arrow-up.svg') }}</span>&nbsp;{{"Import"|t('architect')}}
+                </a>
+            </li>
+            <li>
+                <a  href="{{ cpUrl('architect/export') }}" {% if selectedSubnavItem == 'export' %}class="sel"{% endif %}><span class="icon">{{ svg('@app/icons/database.svg') }}</span>&nbsp;{{"Export"|t('architect')}}
+                </a>
+            </li>
+            <li>
+                <a  href="{{ cpUrl('architect/migrations') }}" {% if selectedSubnavItem == 'migrations' %}class="sel"{% endif %}><span class="icon">{{ svg('@app/icons/buoey.svg') }}</span>&nbsp;{{"Migrations"|t('architect')}}
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+
+{% endset %}
+
+{# Content that should appear in the page header#}
+{% set contextMenu %}
+    <a href="{{ pluginCpUrl }}" class="btn submit add icon">{{ "Click Me!"|t('architect') }}</a>
+{% endset %}

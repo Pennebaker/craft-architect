@@ -1,0 +1,34 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Architect plugin for Craft CMS 3.x
+ *
+ * Architect import.twig
+ *
+ * @author    Pennebaker
+ * @copyright Copyright (c) 2018 Pennebaker
+ * @link      https://pennebaker.com
+ * @package   Architect
+ * @since     1.0.0
+ */
+#}
+
+{% extends "architect/_layouts/base" %}
+
+{% set selectedSubnavItem = 'export' %}
+
+{% set crumbs = [
+    { label: "Settings"|t,  url: cpUrl('settings') },
+    { label: "Architect"|t('architect'), url: cpUrl('architect') },
+    { label: "Export"|t('architect'), url: cpUrl('export') },
+] %}
+
+{# Get a URL to an image in our AssetBundle #}
+{% set iconUrl = view.getAssetManager().getPublishedUrl('@pennebaker/architect/assetbundles/indexcpsection/dist', true) ~ '/img/Index-icon.svg' %}
+
+{# The content of the CP SectionProcessor #}
+{% set content %}
+    <h2>{{ "Export CP Section body goes here"|t('architect') }}</h2>
+    <img src="{{ iconUrl }}" height="128" width="128" />
+    <p class="textline">Test</p>
+{% endset %}
