@@ -1,5 +1,5 @@
 {
-    "name": "pennebaker/craft3-architect",
+    "name": "pennebaker/craft-architect",
     "description": "CraftCMS plugin to generate content models from JSON data.",
     "type": "craft-plugin",
     "version": "1.0.0",
@@ -36,7 +36,7 @@
         "developer": "Pennebaker",
         "hasCpSettings": false,
         "hasCpSection": true,
-        "changelogUrl": "https://raw.githubusercontent.com/Pennebaker/craft3-architect/master/CHANGELOG.md",
+        "changelogUrl": "https://raw.githubusercontent.com/Pennebaker/craft-architect/master/CHANGELOG.md",
         "components": {
             "architectService": "pennebaker\\architect\\services\\ArchitectService"
         },
