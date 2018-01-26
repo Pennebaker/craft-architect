@@ -46,7 +46,7 @@ class CpController extends Controller
      *         The actions must be in 'kebab-case'
      * @access protected
      */
-    protected $allowAnonymous = ['index', 'do-something'];
+//    protected $allowAnonymous = [];
 
     // Public Methods
     // =========================================================================
@@ -70,25 +70,7 @@ class CpController extends Controller
      */
     public function actionImport()
     {
-
-        $item = [
-            'name' => 'News',
-            'handle' => 'news',
-            'type' => 'channel',
-            'siteSettings' => [
-                'enabledByDefault' => true,
-                'hasUrls' => true,
-                'uriFormat' => 'foo/{slug}',
-                'template' => 'foo/_entry',
-            ]
-        ];
-
-        $section = Architect::$processors->section->parse($item);
-        $success = Architect::$processors->section->save($section);
-
-        $this->renderTemplate('architect/import', [
-            'success' => $success,
-        ]);
+        $this->renderTemplate('architect/import');
     }
 
     /**

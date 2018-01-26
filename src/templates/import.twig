@@ -14,6 +14,7 @@
 #}
 
 {% extends "architect/_layouts/base" %}
+{% import "_includes/forms" as forms %}
 
 {% set selectedSubnavItem = 'import' %}
 
@@ -23,12 +24,28 @@
     { label: "Import"|t('architect'), url: cpUrl('import') },
 ] %}
 
-{# Get a URL to an image in our AssetBundle #}
-{% set iconUrl = view.getAssetManager().getPublishedUrl('@pennebaker/architect/assetbundles/indexcpsection/dist', true) ~ '/img/Index-icon.svg' %}
-
 {# The content of the CP Section #}
 {% set content %}
     <h2>{{ "Import CP Section body goes here"|t('architect') }}</h2>
-    <img src="{{ iconUrl }}" height="128" width="128" />
-    <p class="textline">Creating new section "News" was {{ (success) ? 'successful!' : 'unsuccessful.' }}</p>
+
+    <form method="post" action="">
+
+        {{ csrfInput() }}
+
+        {% set jsonData = source('architect/test.json') %}
+
+        {{ forms.textareaField({
+            label: "JSON Data"|t('architect'),
+            instructions: "Put your json import data here."|t('architect'),
+            id: 'jsonData',
+            class: 'code',
+            name: 'jsonData',
+            value: jsonData,
+            rows: 30
+        }) }}
+
+        <input type="submit" class="btn submit" value="{{ 'Import'|t('architect') }}" />
+
+    </form>
+
 {% endset %}
