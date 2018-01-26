@@ -10,8 +10,6 @@
 
 namespace pennebaker\architect\base;
 
-use pennebaker\architect\base\SectionProcessor;
-
 /**
  * Craft plugins are very much like little applications in and of themselves. We’ve made
  * it as simple as we can, but the training wheels are off. A little prior knowledge is
@@ -26,14 +24,16 @@ use pennebaker\architect\base\SectionProcessor;
  * @package   Architect
  * @since     2.0.0
  *
- * @property  ArchitectService $architectService
+ * @property  Processors $processors
  */
 class Processors
 {
     public $section;
+    public $field;
 
     public function __construct()
     {
         $this->section = new SectionProcessor();
+        $this->field = new FieldProcessor();
     }
 }
