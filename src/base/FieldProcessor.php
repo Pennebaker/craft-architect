@@ -13,7 +13,7 @@ namespace pennebaker\architect\base;
 use Craft;
 
 /**
- * SectionProcessor defines the common interface to be implemented by plugin classes.
+ * FieldProcessor defines the common interface to be implemented by plugin classes.
  *
  * @author    Pennebaker
  * @package   Architect
