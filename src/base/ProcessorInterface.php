@@ -10,9 +10,6 @@
 
 namespace pennebaker\architect\base;
 
-use craft\base\Model;
-use craft\base\SavableComponentInterface;
-
 /**
  * ProcessorInterface defines the common interface to be implemented by plugin classes.
  *
@@ -29,14 +26,14 @@ interface ProcessorInterface
      *
      * @param array $item The item to save
      *
-     * @return object|null
+     * @return array
      */
     public function parse(array $item);
 
     /**
      * Saves the object to the database
      *
-     * @param Model|SavableComponentInterface $item The item to save
+     * @param mixed $item The item to save
      * @param bool $update The item to save
      *
      * @return object
