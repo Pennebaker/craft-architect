@@ -46,34 +46,63 @@ class DefaultController extends Controller
      *         The actions must be in 'kebab-case'
      * @access protected
      */
-    protected $allowAnonymous = ['index', 'do-something'];
+//    protected $allowAnonymous = [];
 
     // Public Methods
     // =========================================================================
 
     /**
-     * Handle a request going to our plugin's index action URL,
-     * e.g.: actions/architect/default
-     *
-     * @return mixed
+     * Handle importing json object,
+     * e.g.: actions/architect/default/import
      */
-    public function actionIndex()
+    public function actionImport()
     {
-        $result = 'Welcome to the DefaultController actionIndex() method';
+        $jsonData = Craft::$app->request->getBodyParam('jsonData');
+        $jsonObj = json_decode($jsonData, true);
 
-        return $result;
-    }
+//        $backup = Craft::$app->getDb()->backup();
 
-    /**
-     * Handle a request going to our plugin's actionDoSomething URL,
-     * e.g.: actions/architect/default/do-something
-     *
-     * @return mixed
-     */
-    public function actionDoSomething()
-    {
-        $result = 'Welcome to the DefaultController actionDoSomething() method';
+        $fieldGroupResults = [];
+        foreach ($jsonObj['groups'] as $groupName) {
+            list($fieldGroup, $fieldGroupErrors) = Architect::$processors->fieldGroup->parse(['name' => $groupName]);
 
-        return $result;
+            if ($fieldGroup) {
+                $fieldGroupSuccess = Architect::$processors->fieldGroup->save($fieldGroup);;
+                $fieldGroupErrors = $fieldGroup->getErrors();
+            } else {
+                $fieldGroupSuccess = false;
+            }
+
+            $fieldGroupResults[] = [
+                'item' => ($fieldGroup) ? $fieldGroup : ['name' => $groupName],
+                'success' => $fieldGroupSuccess,
+                'errors' => $fieldGroupErrors,
+            ];
+        }
+
+        $fieldResults = [];
+        foreach ($jsonObj['fields'] as $fieldObj) {
+            list($field, $fieldErrors) = Architect::$processors->field->parse($fieldObj);
+
+            if ($field) {
+                $fieldSuccess = Architect::$processors->field->save($field);
+                $fieldErrors = $field->getErrors();
+            } else {
+                $fieldSuccess = false;
+            }
+
+            $fieldResults[] = [
+                'item' => ($field) ? $field : $fieldObj,
+                'success' => $fieldSuccess,
+                'errors' => $fieldErrors,
+            ];
+        }
+
+        $this->renderTemplate('architect/import_results', [
+            'fieldGroupResults' => $fieldGroupResults,
+            'fieldResults' => $fieldResults,
+            'jsonData' => $jsonData,
+        ]);
+
     }
 }

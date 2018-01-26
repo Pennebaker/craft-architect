@@ -23,3 +23,20 @@
 {
     fill: #27AE60;
 }
+table.data.importresults thead + tbody tr td:last-child
+{
+    text-align: center;
+}
+table.data.importresults [data-attribute="errors"]
+{
+    text-align: center;
+}
+table.data.importresults .error-list
+{
+    text-align: center;
+    font-size: 13px;
+}
+table.data.importresults .error-list li.heading
+{
+    font-size: 11px;
+}

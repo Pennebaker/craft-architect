@@ -21,4 +21,16 @@ use Craft;
  */
 abstract class Processor implements ProcessorInterface
 {
+    /**
+     * @param array|string $sources
+     */
+    public function mapVolumeSources(&$sources)
+    {
+        if (is_array($sources)) {
+            foreach ($sources as $k => $sourceHandle) {
+                $source = Craft::$app->volumes->getVolumeByHandle($sourceHandle);
+                $sources[$k] = 'folder:' . $source->id;
+            }
+        }
+    }
 }

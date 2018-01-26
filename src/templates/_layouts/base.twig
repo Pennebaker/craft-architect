@@ -1,6 +1,5 @@
 {# @var craft \craft\web\twig\variables\CraftVariable #}
 {% extends "_layouts/cp" %}
-{% import "_includes/forms" as forms %}
 
 {% do view.registerAssetBundle("pennebaker\\architect\\assetbundles\\indexcpsection\\IndexCPSectionAsset") %}
 
@@ -40,7 +39,11 @@
 
 {% endset %}
 
+
+{# Get a URL to an image in our AssetBundle #}
+{% set iconUrl = view.getAssetManager().getPublishedUrl('@pennebaker/architect/assetbundles/indexcpsection/dist', true) ~ '/img/Index-icon.svg' %}
+
 {# Content that should appear in the page header#}
-{% set contextMenu %}
-    <a href="{{ pluginCpUrl }}" class="btn submit add icon">{{ "Click Me!"|t('architect') }}</a>
-{% endset %}
+{% block contextMenu %}
+    <img src="{{ iconUrl }}" height="32" width="32" />
+{% endblock%}

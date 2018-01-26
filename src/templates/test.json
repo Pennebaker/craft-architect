@@ -1,0 +1,74 @@
+{
+  "groups": [
+    "Test"
+  ],
+  "fields": [
+    {
+      "group": "Test",
+      "name": "Caption",
+      "handle": "assetCaption",
+      "instructions": "Write a descriptive caption for this image.",
+      "required": false,
+      "type": "craft\\fields\\PlainText",
+      "placeholder": "",
+      "charLimit": 140,
+      "multiline": 0
+    },
+    {
+      "group": "Test",
+      "name": "Body",
+      "handle": "body",
+      "instructions": "This is the body of the page.",
+      "required": false,
+      "type": "PlainText",
+      "typesettings": {
+        "placeholder": "",
+        "maxLength": 50,
+        "multiline": 0
+      }
+    },
+    {
+      "group": "Test",
+      "name": "Banner Image",
+      "handle": "bannerImage",
+      "instructions": "The image used for the banner of the page.",
+      "required": false,
+      "type": "craft\\fields\\Assets",
+      "useSingleFolder": 0,
+      "sources": [
+        "media"
+      ],
+      "defaultUploadLocationSubpath": "",
+      "restrictFiles": 1,
+      "allowedKinds": [
+        "image"
+      ],
+      "limit": 1,
+      "viewMode": "large",
+      "selectionLabel": "Select a poster image"
+    },
+    {
+      "group": "Test",
+      "name": "Video",
+      "handle": "video",
+      "instructions": "Choose the video for this block.",
+      "required": false,
+      "type": "Assets",
+      "typesettings": {
+        "useSingleFolder": "1",
+        "sources": "",
+        "defaultUploadLocationSource": "media",
+        "defaultUploadLocationSubpath": "",
+        "singleUploadLocationSource": "media",
+        "singleUploadLocationSubpath": "",
+        "restrictFiles": "1",
+        "allowedKinds": [
+          "video"
+        ],
+        "limit": "1",
+        "viewMode": "large",
+        "selectionLabel": "Select a video"
+      }
+    }
+  ]
+}
