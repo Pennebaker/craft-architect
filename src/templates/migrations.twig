@@ -23,12 +23,8 @@
     { label: "Migrations"|t('architect'), url: cpUrl('migrations') },
 ] %}
 
-{# Get a URL to an image in our AssetBundle #}
-{% set iconUrl = view.getAssetManager().getPublishedUrl('@pennebaker/architect/assetbundles/indexcpsection/dist', true) ~ '/img/Index-icon.svg' %}
-
 {# The content of the CP Section #}
 {% set content %}
     <h2>{{ "Migrations CP Section body goes here"|t('architect') }}</h2>
-    <img src="{{ iconUrl }}" height="128" width="128" />
-    <p class="textline">Test</p>
+    <p class="textline">This is just some copy.</p>
 {% endset %}
