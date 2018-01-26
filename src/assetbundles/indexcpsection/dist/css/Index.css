@@ -9,3 +9,17 @@
  * @package   Architect
  * @since     2.0.0
  */
+
+.icon.failure svg,
+.icon.success svg
+{
+    max-width: 11px;
+}
+.icon.failure svg path
+{
+    fill: #da5a47;
+}
+.icon.success svg path
+{
+    fill: #27AE60;
+}
