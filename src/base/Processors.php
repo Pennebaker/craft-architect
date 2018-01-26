@@ -24,7 +24,7 @@ use pennebaker\architect\base\SectionProcessor;
  *
  * @author    Pennebaker
  * @package   Architect
- * @since     1.0.0
+ * @since     2.0.0
  *
  * @property  ArchitectService $architectService
  */

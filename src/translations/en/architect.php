@@ -18,7 +18,7 @@
  *
  * @author    Pennebaker
  * @package   Architect
- * @since     1.0.0
+ * @since     2.0.0
  */
 return [
     'Architect plugin loaded' => 'Architect plugin loaded',

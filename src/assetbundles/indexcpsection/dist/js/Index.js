@@ -7,5 +7,5 @@
  * @copyright Copyright (c) 2018 Pennebaker
  * @link      https://pennebaker.com
  * @package   Architect
- * @since     1.0.0
+ * @since     2.0.0
  */

@@ -6,8 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## 1.0.0 - 2018-xx-xx
+## 2.0.0 - 2018-xx-xx
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/pennebaker/craft/compare/1.0.0...HEAD
+[Unreleased]: https://github.com/pennebaker/craft/compare/2.0.0...HEAD

@@ -19,7 +19,7 @@ use craft\models\Section_SiteSettings;
  *
  * @author    Pennebaker
  * @package   Architect
- * @since     1.0.0
+ * @since     2.0.0
  */
 class SectionProcessor implements ProcessorInterface
 {

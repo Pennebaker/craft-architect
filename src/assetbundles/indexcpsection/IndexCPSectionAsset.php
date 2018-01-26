@@ -30,7 +30,7 @@ use craft\web\assets\cp\CpAsset;
  *
  * @author    Pennebaker
  * @package   Architect
- * @since     1.0.0
+ * @since     2.0.0
  */
 class IndexCPSectionAsset extends AssetBundle
 {
