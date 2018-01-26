@@ -21,8 +21,15 @@ use craft\models\Section_SiteSettings;
  * @package   Architect
  * @since     2.0.0
  */
-class SectionProcessor implements ProcessorInterface
+class SectionProcessor extends Processor
 {
+    /**
+     * @param array $item
+     *
+     * @return array
+     *
+     * @throws \craft\errors\SiteNotFoundException
+     */
     public function parse(array $item)
     {
         // TODO: Implement parse() method.
@@ -38,13 +45,20 @@ class SectionProcessor implements ProcessorInterface
         ];
         $section = new Section($sectionObject);
 
-        return $section;
+        return [$section, null];
     }
 
+    /**
+     * @param $item
+     * @param bool $update
+     *
+     * @return bool|object
+     *
+     * @throws \Throwable
+     * @throws \craft\errors\SectionNotFoundException
+     */
     public function save($item, bool $update = false)
     {
-        // TODO: Implement save() method.
-
         return Craft::$app->sections->saveSection($item);
     }
 }
