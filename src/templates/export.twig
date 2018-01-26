@@ -17,12 +17,6 @@
 
 {% set selectedSubnavItem = 'export' %}
 
-{% set crumbs = [
-    { label: "Settings"|t,  url: cpUrl('settings') },
-    { label: "Architect"|t('architect'), url: cpUrl('architect') },
-    { label: "Export"|t('architect'), url: cpUrl('export') },
-] %}
-
 {# The content of the CP SectionProcessor #}
 {% set content %}
     <h2>{{ "Export CP Section body goes here"|t('architect') }}</h2>

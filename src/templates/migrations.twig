@@ -17,12 +17,6 @@
 
 {% set selectedSubnavItem = 'migrations' %}
 
-{% set crumbs = [
-    { label: "Settings"|t,  url: cpUrl('settings') },
-    { label: "Architect"|t('architect'), url: cpUrl('architect') },
-    { label: "Migrations"|t('architect'), url: cpUrl('migrations') },
-] %}
-
 {# The content of the CP Section #}
 {% set content %}
     <h2>{{ "Migrations CP Section body goes here"|t('architect') }}</h2>
