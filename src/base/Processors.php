@@ -30,10 +30,12 @@ class Processors
 {
     public $section;
     public $field;
+    public $fieldGroup;
 
     public function __construct()
     {
         $this->section = new SectionProcessor();
         $this->field = new FieldProcessor();
+        $this->fieldGroup = new FieldGroupProcessor();
     }
 }
