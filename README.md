@@ -4,6 +4,8 @@ CraftCMS plugin to generate content models from JSON data.
 
 ![Screenshot](resources/img/the-architect.png)
 
+Related: [Architect for Craft 2.x](https://github.com/Pennebaker/craftcms-thearchitect)
+
 ## Requirements
 
 This plugin requires Craft CMS 3.0.0-RC1 or later.
