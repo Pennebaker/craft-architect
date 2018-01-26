@@ -70,7 +70,7 @@ class CpController extends Controller
      */
     public function actionImport()
     {
-        $this->renderTemplate('architect/import');
+        $this->renderTemplate('architect/import', [ 'invalidJson' => false ]);
     }
 
     /**

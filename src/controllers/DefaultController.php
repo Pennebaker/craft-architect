@@ -58,9 +58,17 @@ class DefaultController extends Controller
     public function actionImport()
     {
         $jsonData = Craft::$app->request->getBodyParam('jsonData');
+
         $jsonObj = json_decode($jsonData, true);
 
-//        $backup = Craft::$app->getDb()->backup();
+        if ($jsonObj === null) {
+            $this->renderTemplate('architect/import', [
+                'invalidJson' => json_last_error(),
+                'jsonData' => $jsonData,
+            ]);
+            return;
+        }
+
 
         $fieldGroupResults = [];
         foreach ($jsonObj['groups'] as $groupName) {

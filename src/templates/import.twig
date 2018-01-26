@@ -26,7 +26,9 @@
 
         {{ csrfInput() }}
 
-        {% set jsonData = source('architect/test.json') %}
+        {% if jsonData is not defined %}
+            {% set jsonData = source('architect/test.json') %}
+        {% endif %}
 
         {{ forms.textareaField({
             label: "JSON Data"|t('architect'),
@@ -37,6 +39,23 @@
             value: jsonData,
             rows: 30
         }) }}
+
+        {% if invalidJson %}
+            <p class="error">JSON:
+                {% switch invalidJson %}
+                    {% case 1 %}
+                        The maximum stack depth has been exceeded.
+                    {% case 2 %}
+                        Occurs with underflow or with the modes mismatch.
+                    {% case 3 %}
+                        Control character error, possibly incorrectly encoded.
+                    {% case 4 %}
+                        Syntax error.
+                    {% case 5 %}
+                        Malformed UTF-8 characters, possibly incorrectly encoded.
+                {% endswitch %}
+            </p>
+        {% endif %}
 
         <input type="submit" class="btn submit" value="{{ 'Import'|t('architect') }}" />
 
