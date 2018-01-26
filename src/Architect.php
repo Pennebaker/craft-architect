@@ -88,9 +88,12 @@ class Architect extends Plugin
              UrlManager::EVENT_REGISTER_CP_URL_RULES,
              function (RegisterUrlRulesEvent $event) {
                  $event->rules['architect/'] = 'architect/cp';
-                 $event->rules['architect/import'] = 'architect/cp/import';
-                 $event->rules['architect/export'] = 'architect/cp/export';
-                 $event->rules['architect/migrations'] = 'architect/cp/migrations';
+                 $event->rules['GET architect/import'] = 'architect/cp/import';
+                 $event->rules['GET architect/export'] = 'architect/cp/export';
+                 $event->rules['GET architect/migrations'] = 'architect/cp/migrations';
+                 $event->rules['POST architect/import'] = 'architect/default/import';
+                 $event->rules['POST architect/export'] = 'architect/export';
+                 $event->rules['POST architect/migrations'] = 'architect/migrations';
              }
          );
 
