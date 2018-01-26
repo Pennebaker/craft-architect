@@ -13,21 +13,25 @@
 {# The URL to this plugin's base CP section #}
 {% set pluginCpUrl = url('architect') %}
 
+{% set importIcon = '@pennebaker/architect/assetbundles/indexcpsection/dist/img/inbox-in.svg' %}
+{% set exportIcon = '@pennebaker/architect/assetbundles/indexcpsection/dist/img/inbox-out.svg' %}
+{% set migrationIcon = '@pennebaker/architect/assetbundles/indexcpsection/dist/img/truck.svg' %}
+
 {% set sidebar %}
 
     <nav>
         <ul>
             {#<li class="heading"><span>{{"Export"|t('architect') }}</span></li>#}
             <li>
-                <a  href="{{ cpUrl('architect/import') }}" {% if selectedSubnavItem|default('') == 'import' %}class="sel"{% endif %}><span class="icon">{{ svg('@app/icons/arrow-up.svg') }}</span>&nbsp;{{"Import"|t('architect')}}
+                <a  href="{{ cpUrl('architect/import') }}" {% if selectedSubnavItem|default('') == 'import' %}class="sel"{% endif %}><span class="icon icon-mask">{{ svg(importIcon) }}</span>&nbsp;{{"Import"|t('architect')}}
                 </a>
             </li>
             <li>
-                <a  href="{{ cpUrl('architect/export') }}" {% if selectedSubnavItem == 'export' %}class="sel"{% endif %}><span class="icon">{{ svg('@app/icons/database.svg') }}</span>&nbsp;{{"Export"|t('architect')}}
+                <a  href="{{ cpUrl('architect/export') }}" {% if selectedSubnavItem == 'export' %}class="sel"{% endif %}><span class="icon icon-mask">{{ svg(exportIcon) }}</span>&nbsp;{{"Export"|t('architect')}}
                 </a>
             </li>
             <li>
-                <a  href="{{ cpUrl('architect/migrations') }}" {% if selectedSubnavItem == 'migrations' %}class="sel"{% endif %}><span class="icon">{{ svg('@app/icons/buoey.svg') }}</span>&nbsp;{{"Migrations"|t('architect')}}
+                <a  href="{{ cpUrl('architect/migrations') }}" {% if selectedSubnavItem == 'migrations' %}class="sel"{% endif %}><span class="icon icon-mask">{{ svg(migrationIcon) }}</span>&nbsp;{{"Migrations"|t('architect')}}
                 </a>
             </li>
 
