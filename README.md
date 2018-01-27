@@ -50,6 +50,8 @@ If you're using the [Atom text editor](https://atom.io/), you can download a [sn
 Visit architect in the admin CP for importing / exporting just about anything using JSON.
 
 Current Working Imports:
+- Sections
+- Entry Types
 - Field Groups
 - Fields
 
