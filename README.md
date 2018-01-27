@@ -20,7 +20,7 @@ To install the plugin, follow these instructions.
 
 2. Then tell Composer to load the plugin:
 
-        composer require Pennebaker/craft-architect
+        composer require pennebaker/craft-architect
 
 3.
     a. In the terminal run
