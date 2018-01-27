@@ -24,6 +24,11 @@
 {% set content %}
     <h2>{{ "Import Results"|t('architect') }}</h2>
 
+    {% if not noErrors %}
+        <p class="error">Since Architect encountered errors it did not delete the database backup located at:</p>
+        <code>{{ backupLocation }}</code>
+    {% endif %}
+
     <div class="elements">
         <div class="tableview">
             <table class="data fullwidth importresults">
@@ -31,7 +36,6 @@
                 <tr>
                     <th scope="col" data-attribute="name" class="orderable">Name</th>
                     <th scope="col" data-attribute="handle">Handle</th>
-                    <th scope="col" data-attribute="type">Type</th>
                     <th scope="col" data-attribute="errors">Errors</th>
                     <th class="thin" data-attribute="success">Success</th>
                 </tr>
@@ -41,7 +45,6 @@
                     <tr>
                         <td>{{ result.item.name }}</td>
                         <td>{{ ('handle' in result.item|keys) ? result.item.handle : '' }}</td>
-                        <td>{{ ('type' in result.item|keys) ? result.item.type : '' }}</td>
                         <td>
                             <ul class="error-list">
                                 {% for type, errors in result.errors %}
@@ -61,7 +64,6 @@
                     <tr>
                         <td>{{ result.item.name }}</td>
                         <td>{{ ('handle' in result.item|keys) ? result.item.handle : '' }}</td>
-                        <td>{{ ('type' in result.item|keys) ? result.item.type : '' }}</td>
                         <td>
                             <ul class="error-list">
                                 {% for type, errors in result.errors %}

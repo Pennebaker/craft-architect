@@ -69,44 +69,63 @@ class DefaultController extends Controller
             return;
         }
 
+        $backup = Craft::$app->getDb()->backup(); // TODO: Create backup before performing import
+
+        $noErrors = true;
 
         $fieldGroupResults = [];
-        foreach ($jsonObj['groups'] as $groupName) {
-            list($fieldGroup, $fieldGroupErrors) = Architect::$processors->fieldGroup->parse(['name' => $groupName]);
+        if (isset($jsonObj['groups']) && is_array($jsonObj['groups'])) {
+            foreach ($jsonObj['groups'] as $groupName) {
+                list($fieldGroup, $fieldGroupErrors) = Architect::$processors->fieldGroup->parse(['name' => $groupName]);
 
-            if ($fieldGroup) {
-                $fieldGroupSuccess = Architect::$processors->fieldGroup->save($fieldGroup);;
-                $fieldGroupErrors = $fieldGroup->getErrors();
-            } else {
-                $fieldGroupSuccess = false;
+                if ($fieldGroup) {
+                    $fieldGroupSuccess = Architect::$processors->fieldGroup->save($fieldGroup);;
+                    $fieldGroupErrors = $fieldGroup->getErrors();
+                } else {
+                    $fieldGroupSuccess = false;
+                }
+
+                if (!$fieldGroupSuccess) $noErrors = false;
+
+                $fieldGroupResults[] = [
+                    'item' => ($fieldGroup) ? $fieldGroup : ['name' => $groupName],
+                    'success' => $fieldGroupSuccess,
+                    'errors' => $fieldGroupErrors,
+                ];
             }
-
-            $fieldGroupResults[] = [
-                'item' => ($fieldGroup) ? $fieldGroup : ['name' => $groupName],
-                'success' => $fieldGroupSuccess,
-                'errors' => $fieldGroupErrors,
-            ];
         }
 
         $fieldResults = [];
-        foreach ($jsonObj['fields'] as $fieldObj) {
-            list($field, $fieldErrors) = Architect::$processors->field->parse($fieldObj);
+        if (isset($jsonObj['fields']) && is_array($jsonObj['fields'])) {
+            foreach ($jsonObj['fields'] as $fieldObj) {
+                list($field, $fieldErrors) = Architect::$processors->field->parse($fieldObj);
 
-            if ($field) {
-                $fieldSuccess = Architect::$processors->field->save($field);
-                $fieldErrors = $field->getErrors();
-            } else {
-                $fieldSuccess = false;
+                if ($field) {
+                    $fieldSuccess = Architect::$processors->field->save($field);
+                    $fieldErrors = $field->getErrors();
+                } else {
+                    $fieldSuccess = false;
+                }
+
+                if (!$fieldSuccess) $noErrors = false;
+
+                $fieldResults[] = [
+                    'item' => ($field) ? $field : $fieldObj,
+                    'success' => $fieldSuccess,
+                    'errors' => $fieldErrors,
+                ];
             }
+        }
 
-            $fieldResults[] = [
-                'item' => ($field) ? $field : $fieldObj,
-                'success' => $fieldSuccess,
-                'errors' => $fieldErrors,
-            ];
+        if ($noErrors) {
+            unlink($backup);
+        } else {
+            Architect::warning('Architect encountered errors performing an import, there is a database backup located at: ' . $backup);
         }
 
         $this->renderTemplate('architect/import_results', [
+            'noErrors' => $noErrors,
+            'backupLocation' => $backup,
             'fieldGroupResults' => $fieldGroupResults,
             'fieldResults' => $fieldResults,
             'jsonData' => $jsonData,
