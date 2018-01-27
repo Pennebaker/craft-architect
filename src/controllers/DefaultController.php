@@ -76,8 +76,8 @@ class DefaultController extends Controller
         $noErrors = true;
 
         $parseOrder = [
-            'groups',
             'sections',
+            'fieldGroups',
             'fields',
             'entryTypes',
         ];
@@ -86,7 +86,7 @@ class DefaultController extends Controller
             'sections' => 'section',
             'entryTypes' => 'entryType',
             'fields' => 'field',
-            'groups' => 'fieldGroup',
+            'fieldGroups' => 'fieldGroup',
         ];
 
         $results = [];
@@ -97,7 +97,7 @@ class DefaultController extends Controller
             if (isset($jsonObj[$parseKey]) && is_array($jsonObj[$parseKey])) {
                 $results[$parseKey] = [];
                 foreach ($jsonObj[$parseKey] as $itemObj) {
-                    if ($parseKey === 'groups') {
+                    if ($parseKey === 'fieldGroups') {
                         list($item, $itemErrors) = Architect::$processors->$processor->parse(['name' => $itemObj]);
                     } else {
                         list($item, $itemErrors) = Architect::$processors->$processor->parse($itemObj);
@@ -138,7 +138,7 @@ class DefaultController extends Controller
 
                     if (!$itemSuccess) $noErrors = false;
 
-                    if ($parseKey === 'groups') {
+                    if ($parseKey === 'fieldGroups') {
                         $item = ($item) ? $item : ['name' => $itemObj];
                     } else {
                         $item = ($item) ? $item : $itemObj;
