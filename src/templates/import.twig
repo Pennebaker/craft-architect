@@ -26,9 +26,9 @@
 
         {{ csrfInput() }}
 
-        {% if jsonData is not defined %}
-            {% set jsonData = source('architect/test.json') %}
-        {% endif %}
+        {#{% if jsonData is not defined %}#}
+            {#{% set jsonData = source('architect/test.json') %}#}
+        {#{% endif %}#}
 
         {{ forms.textareaField({
             label: "JSON Data"|t('architect'),
@@ -36,7 +36,7 @@
             id: 'jsonData',
             class: 'code',
             name: 'jsonData',
-            value: jsonData,
+            value: (jsonData is defined) ? jsonData : '',
             rows: 30
         }) }}
 
