@@ -31,6 +31,7 @@ table.data.importresults [data-attribute="errors"]
 {
     text-align: center;
 }
+table.data.importresults .section,
 table.data.importresults .error-list
 {
     text-align: center;

@@ -73,47 +73,67 @@ class DefaultController extends Controller
 
         $noErrors = true;
 
-        $fieldGroupResults = [];
-        if (isset($jsonObj['groups']) && is_array($jsonObj['groups'])) {
-            foreach ($jsonObj['groups'] as $groupName) {
-                list($fieldGroup, $fieldGroupErrors) = Architect::$processors->fieldGroup->parse(['name' => $groupName]);
+        $parseOrder = [
+            'groups',
+            'sections',
+            'fields',
+            'entryTypes',
+        ];
 
-                if ($fieldGroup) {
-                    $fieldGroupSuccess = Architect::$processors->fieldGroup->save($fieldGroup);;
-                    $fieldGroupErrors = $fieldGroup->getErrors();
-                } else {
-                    $fieldGroupSuccess = false;
+        $processors = [
+            'sections' => 'section',
+            'entryTypes' => 'entryType',
+            'fields' => 'field',
+            'groups' => 'fieldGroup',
+        ];
+
+        $results = [];
+        foreach ($parseOrder as $parseKey) {
+            $results[$parseKey] = [];
+            $processor = $processors[$parseKey];
+            if (isset($jsonObj[$parseKey]) && is_array($jsonObj[$parseKey])) {
+                foreach ($jsonObj[$parseKey] as $itemObj) {
+                    if ($parseKey === 'groups') {
+                        list($item, $itemErrors) = Architect::$processors->$processor->parse(['name' => $itemObj]);
+                    } else {
+                        list($item, $itemErrors) = Architect::$processors->$processor->parse($itemObj);
+                    }
+
+                    if ($item) {
+                        $itemSuccess = Architect::$processors->$processor->save($item);
+                        if ($parseKey === 'sections') {
+                            $itemErrors = [];
+
+                            foreach ($item->getSiteSettings() as $settings) {
+                                foreach ($settings->getErrors() as $errorKey => $errors) {
+                                    if (isset($itemErrors[$errorKey])) {
+                                        $itemErrors[$errorKey] = array_merge($itemErrors[$errorKey], $errors);
+                                    } else {
+                                        $itemErrors[$errorKey] = $errors;
+                                    }
+                                }
+                            }
+                            $itemErrors = array_merge($itemErrors, $item->getErrors());
+                        } else {
+                            $itemErrors = $item->getErrors();
+                        }
+                    } else {
+                        $itemSuccess = false;
+                    }
+
+                    if (!$itemSuccess) $noErrors = false;
+
+                    if ($parseKey === 'groups') {
+                        $item = ($item) ? $item : ['name' => $itemObj];
+                    } else {
+                        $item = ($item) ? $item : $itemObj;
+                    }
+                    $results[$parseKey][] = [
+                        'item' => $item,
+                        'success' => $itemSuccess,
+                        'errors' => $itemErrors,
+                    ];
                 }
-
-                if (!$fieldGroupSuccess) $noErrors = false;
-
-                $fieldGroupResults[] = [
-                    'item' => ($fieldGroup) ? $fieldGroup : ['name' => $groupName],
-                    'success' => $fieldGroupSuccess,
-                    'errors' => $fieldGroupErrors,
-                ];
-            }
-        }
-
-        $fieldResults = [];
-        if (isset($jsonObj['fields']) && is_array($jsonObj['fields'])) {
-            foreach ($jsonObj['fields'] as $fieldObj) {
-                list($field, $fieldErrors) = Architect::$processors->field->parse($fieldObj);
-
-                if ($field) {
-                    $fieldSuccess = Architect::$processors->field->save($field);
-                    $fieldErrors = $field->getErrors();
-                } else {
-                    $fieldSuccess = false;
-                }
-
-                if (!$fieldSuccess) $noErrors = false;
-
-                $fieldResults[] = [
-                    'item' => ($field) ? $field : $fieldObj,
-                    'success' => $fieldSuccess,
-                    'errors' => $fieldErrors,
-                ];
             }
         }
 
@@ -126,8 +146,7 @@ class DefaultController extends Controller
         $this->renderTemplate('architect/import_results', [
             'noErrors' => $noErrors,
             'backupLocation' => $backup,
-            'fieldGroupResults' => $fieldGroupResults,
-            'fieldResults' => $fieldResults,
+            'results' => $results,
             'jsonData' => $jsonData,
         ]);
 

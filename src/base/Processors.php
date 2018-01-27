@@ -29,12 +29,14 @@ namespace pennebaker\architect\base;
 class Processors
 {
     public $section;
+    public $entryType;
     public $field;
     public $fieldGroup;
 
     public function __construct()
     {
         $this->section = new SectionProcessor();
+        $this->entryType = new EntryTypeProcessor();
         $this->field = new FieldProcessor();
         $this->fieldGroup = new FieldGroupProcessor();
     }

@@ -2,6 +2,46 @@
   "groups": [
     "Test"
   ],
+  "sections": [
+    {
+      "name": "Home Page",
+      "handle": "homePage",
+      "type": "single",
+      "enableVersioning": true,
+      "siteSettings": [
+        {
+          "hasUrls": true,
+          "uriFormat": "__home__",
+          "template": "_home"
+        },
+        {
+          "siteId": "french",
+          "hasUrls": true,
+          "uriFormat": "__home__",
+          "template": "_home"
+        }
+      ]
+    },
+    {
+      "name": "Blog",
+      "handle": "blog",
+      "type": "channel",
+      "enableVersioning": true,
+      "siteSettings": [
+        {
+          "hasUrls": true,
+          "uriFormat": "blog/{slug}",
+          "template": "blog/_entry"
+        },
+        {
+          "siteId": "french",
+          "hasUrls": true,
+          "uriFormat": "blog/{slug}",
+          "template": "blog/_entry"
+        }
+      ]
+    }
+  ],
   "fields": [
     {
       "group": "Test",
@@ -578,6 +618,76 @@
         ],
         "selectionLabel": "Select a User"
       }
+    }
+  ],
+  "entryTypes": [
+    {
+      "sectionHandle": "homePage",
+      "hasTitleField": false,
+      "titleLabel": "Title",
+      "titleFormat": "{section.name|raw}",
+      "fieldLayout": {
+        "Blog Content": [
+          "newAsset",
+          "newMatrix"
+        ],
+        "Meta Data": [
+          "newPlainText",
+          "newColor"
+        ]
+      },
+      "requiredFields": [
+        "newAsset",
+        "newPlainText"
+      ]
+    },
+    {
+      "sectionHandle": "blog",
+      "hasTitleField": true,
+      "titleLabel": "Title",
+      "titleFormat": "{section.name|raw}",
+      "name": "Blog",
+      "handle": "blog",
+      "fieldLayout": {
+        "Blog Content": [
+          "newPlainText",
+          "newDate",
+          "newMatrix",
+          "newAsset"
+        ],
+        "Meta Data": [
+          "newColor",
+          "newUsers"
+        ]
+      },
+      "requiredFields": [
+        "newPlainText",
+        "newColor"
+      ]
+    },
+    {
+      "sectionHandle": "blog",
+      "hasTitleField": true,
+      "titleLabel": "Title",
+      "titleFormat": "{section.name|raw}",
+      "name": "Article",
+      "handle": "article",
+      "fieldLayout": {
+        "Blog Content": [
+          "newPlainText",
+          "newDate",
+          "newMatrix",
+          "newAsset"
+        ],
+        "Meta Data": [
+          "newColor",
+          "newUsers"
+        ]
+      },
+      "requiredFields": [
+        "newPlainText",
+        "newColor"
+      ]
     }
   ]
 }

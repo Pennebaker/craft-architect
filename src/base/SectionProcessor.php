@@ -32,18 +32,13 @@ class SectionProcessor extends Processor
      */
     public function parse(array $item)
     {
-        // TODO: Implement parse() method.
-        $sectionObject = [
-            'name' => $item['name'],
-            'handle' => $item['handle'],
-            'type' => $item['type']
-        ];
-        $sectionObject['siteSettings'] = [
-            new Section_SiteSettings(array_merge($item['siteSettings'], [
-                'siteId' => Craft::$app->sites->getPrimarySite()->id,
-            ])),
-        ];
-        $section = new Section($sectionObject);
+        foreach ($item['siteSettings'] as $settingKey => $settings) {
+            $siteSettings = new Section_SiteSettings(array_merge($settings, [
+                'siteId' => (isset($settings['siteId'])) ? Craft::$app->sites->getSiteByHandle($settings['siteId'])->id : Craft::$app->sites->getPrimarySite()->id,
+            ]));
+            $item['siteSettings'][$settingKey] = $siteSettings;
+        }
+        $section = new Section($item);
 
         return [$section, null];
     }
