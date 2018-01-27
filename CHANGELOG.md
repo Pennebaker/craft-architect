@@ -13,4 +13,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 -
 
-[Unreleased]: https://github.com/pennebaker/craft/compare/2.0.0-beta.1...HEAD
+[Unreleased]: https://github.com/pennebaker/craft/compare/2.0.0-beta.1...develop
