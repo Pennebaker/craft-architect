@@ -646,8 +646,8 @@
       "hasTitleField": true,
       "titleLabel": "Title",
       "titleFormat": "{section.name|raw}",
-      "name": "Blog",
-      "handle": "blog",
+      "name": "Blog Alt",
+      "handle": "blogAlt",
       "fieldLayout": {
         "Blog Content": [
           "newPlainText",

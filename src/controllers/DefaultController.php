@@ -54,6 +54,8 @@ class DefaultController extends Controller
     /**
      * Handle importing json object,
      * e.g.: actions/architect/default/import
+     *
+     * @throws \Throwable
      */
     public function actionImport()
     {
@@ -88,15 +90,28 @@ class DefaultController extends Controller
         ];
 
         $results = [];
+        $successfulSections = [];
+        $addedEntryTypes = [];
         foreach ($parseOrder as $parseKey) {
-            $results[$parseKey] = [];
             $processor = $processors[$parseKey];
             if (isset($jsonObj[$parseKey]) && is_array($jsonObj[$parseKey])) {
+                $results[$parseKey] = [];
                 foreach ($jsonObj[$parseKey] as $itemObj) {
                     if ($parseKey === 'groups') {
                         list($item, $itemErrors) = Architect::$processors->$processor->parse(['name' => $itemObj]);
                     } else {
                         list($item, $itemErrors) = Architect::$processors->$processor->parse($itemObj);
+                    }
+
+                    if ($parseKey === 'entryTypes' && array_search($itemObj['sectionHandle'], $successfulSections) === false) {
+                        if (!isset($itemObj['name'])) $itemObj['name'] = '';
+                        if (!isset($itemObj['handle'])) $itemObj['handle'] = $itemObj['sectionHandle'];
+                        $item = false;
+                        $itemErrors = [
+                            'parent' => [
+                                'Section parent "' . $itemObj['sectionHandle'] . '" was not imported successfully.'
+                            ]
+                        ];
                     }
 
                     if ($item) {
@@ -127,6 +142,16 @@ class DefaultController extends Controller
                         $item = ($item) ? $item : ['name' => $itemObj];
                     } else {
                         $item = ($item) ? $item : $itemObj;
+                    }
+                    if ($itemSuccess) {
+                        if ($parseKey === 'entryTypes') {
+                            $addedEntryTypes[] =  Craft::$app->sections->getSectionById($item->sectionId)->handle . ':' . $item->handle;
+                        }
+                        switch ($parseKey) {
+                            case 'sections':
+                                $successfulSections[] = $item->handle;
+                                break;
+                        }
                     }
                     $results[$parseKey][] = [
                         'item' => $item,
