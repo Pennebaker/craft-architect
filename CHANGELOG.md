@@ -6,8 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- Section Importing
-- Entry Type Importing
+- Site Group Importing
+- Site Importing
 
 ## [2.0.0-beta.2] - 2018-01-27
 ### Added

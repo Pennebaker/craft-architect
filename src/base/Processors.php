@@ -28,6 +28,8 @@ namespace pennebaker\architect\base;
  */
 class Processors
 {
+    public $siteGroup;
+    public $site;
     public $section;
     public $entryType;
     public $field;
@@ -35,6 +37,8 @@ class Processors
 
     public function __construct()
     {
+        $this->siteGroup = new SiteGroupProcessor();
+        $this->site = new SiteProcessor();
         $this->section = new SectionProcessor();
         $this->entryType = new EntryTypeProcessor();
         $this->field = new FieldProcessor();

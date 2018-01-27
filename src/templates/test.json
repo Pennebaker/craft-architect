@@ -1,4 +1,19 @@
 {
+  "siteGroups": [
+    "Craft3",
+    "languages"
+  ],
+  "sites": [
+    {
+      "group": "languages",
+      "name": "Craft 3 French",
+      "handle": "french",
+      "language": "fr",
+      "primary": false,
+      "hasUrls": true,
+      "baseUrl": "@web/fr"
+    }
+  ],
   "fieldGroups": [
     "Test"
   ],
