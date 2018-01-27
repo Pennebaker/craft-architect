@@ -162,6 +162,23 @@ class DefaultController extends Controller
             }
         }
 
+        /**
+         * Post Processing on Section Entry Types
+         * This is to loop over all entry types in a section and remove entry types that do not match one that was meant to be created.
+         * ex. A section was created for Employees but there is only entry types defined for Board Members & Management
+         */
+        if (isset($jsonObj['sections']) && is_array($jsonObj['sections']) && isset($jsonObj['entryTypes']) && is_array($jsonObj['entryTypes'])) {
+            forEach ($successfulSections as $sectionHandle) {
+                $section = Craft::$app->sections->getSectionByHandle($sectionHandle);
+                $entryTypes = $section->getEntryTypes();
+                foreach ($entryTypes as $entryType) {
+                    if (array_search($section->handle. ':' . $entryType->handle, $addedEntryTypes) === false) {
+                        Craft::$app->sections->deleteEntryType($entryType);
+                    }
+                }
+            }
+        }
+
         if ($noErrors) {
             unlink($backup);
         } else {
