@@ -29,7 +29,18 @@ abstract class Processor implements ProcessorInterface
         if (is_array($sources)) {
             foreach ($sources as $k => $sourceHandle) {
                 $source = Craft::$app->volumes->getVolumeByHandle($sourceHandle);
-                $sources[$k] = 'folder:' . $source->id;
+                if ($source) {
+                    $sources[$k] = 'folder:' . $source->id;
+                } else {
+                    unset($sources[$k]);
+                }
+            }
+        } else if (is_string($sources)) {
+            $source = Craft::$app->volumes->getVolumeByHandle($sources);
+            if ($source) {
+                $sources = 'folder:' . $source->id;
+            } else {
+                $sources = '*';
             }
         } else {
             $sources = '*';

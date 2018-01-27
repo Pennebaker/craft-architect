@@ -45,13 +45,15 @@
         {
           "hasUrls": true,
           "uriFormat": "blog/{slug}",
-          "template": "blog/_entry"
+          "template": "blog/_entry",
+          "enabledByDefault": true
         },
         {
           "siteId": "french",
           "hasUrls": true,
           "uriFormat": "blog/{slug}",
-          "template": "blog/_entry"
+          "template": "blog/_entry",
+          "enabledByDefault": true
         }
       ]
     }
@@ -68,7 +70,10 @@
       "sources": [
         "media"
       ],
+      "defaultUploadLocationSource": "media",
       "defaultUploadLocationSubpath": "",
+      "singleUploadLocationSource": "media",
+      "singleUploadLocationSubpath": "",
       "restrictFiles": true,
       "allowedKinds": [
         "image"

@@ -195,6 +195,8 @@ class FieldProcessor extends Processor
     {
         if ($item['type'] == 'craft\\fields\\Assets') {
             $this->mapVolumeSources($item['sources']);
+            $this->mapVolumeSources($item['defaultUploadLocationSource']);
+            $this->mapVolumeSources($item['singleUploadLocationSource']);
         }
         if ($item['type'] == 'craft\\fields\\Entries') {
             $this->mapSectionSources($item['sources']);
