@@ -1,0 +1,24 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Architect plugin for Craft CMS 3.x
+ *
+ * Architect import.twig
+ *
+ * @author    Pennebaker
+ * @copyright Copyright (c) 2018 Pennebaker
+ * @link      https://pennebaker.com
+ * @package   Architect
+ * @since     2.0.0
+ */
+#}
+
+{% extends "architect/_layouts/base" %}
+
+{% set selectedSubnavItem = 'migrations' %}
+
+{# The content of the CP Section #}
+{% set content %}
+    <h2>{{ "Migrations CP Section body goes here"|t('architect') }}</h2>
+    <p>This is just some copy.</p>
+{% endset %}

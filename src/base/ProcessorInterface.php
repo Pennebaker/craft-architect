@@ -1,0 +1,42 @@
+<?php
+/**
+ * Architect plugin for Craft CMS 3.x
+ *
+ * CraftCMS plugin to generate content models from JSON data.
+ *
+ * @link      https://pennebaker.com
+ * @copyright Copyright (c) 2018 Pennebaker
+ */
+
+namespace pennebaker\architect\base;
+
+/**
+ * ProcessorInterface defines the common interface to be implemented by plugin classes.
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  3.0
+ */
+interface ProcessorInterface
+{
+    // Public Methods
+    // =========================================================================
+
+    /**
+     * Returns the object of parsed data.
+     *
+     * @param array $item The item to save
+     *
+     * @return array
+     */
+    public function parse(array $item);
+
+    /**
+     * Saves the object to the database
+     *
+     * @param mixed $item The item to save
+     * @param bool $update The item to save
+     *
+     * @return object
+     */
+    public function save($item, bool $update);
+}

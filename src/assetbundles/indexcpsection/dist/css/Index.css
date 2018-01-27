@@ -1,0 +1,42 @@
+/**
+ * Architect plugin for Craft CMS
+ *
+ * Index Field CSS
+ *
+ * @author    Pennebaker
+ * @copyright Copyright (c) 2018 Pennebaker
+ * @link      https://pennebaker.com
+ * @package   Architect
+ * @since     2.0.0
+ */
+
+.icon.failure svg,
+.icon.success svg
+{
+    max-width: 11px;
+}
+.icon.failure svg path
+{
+    fill: #da5a47;
+}
+.icon.success svg path
+{
+    fill: #27AE60;
+}
+table.data.importresults thead + tbody tr td:last-child
+{
+    text-align: center;
+}
+table.data.importresults [data-attribute="errors"]
+{
+    text-align: center;
+}
+table.data.importresults .error-list
+{
+    text-align: center;
+    font-size: 13px;
+}
+table.data.importresults .error-list li.heading
+{
+    font-size: 11px;
+}

@@ -1,0 +1,97 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Architect plugin for Craft CMS 3.x
+ *
+ * Architect import.twig
+ *
+ * @author    Pennebaker
+ * @copyright Copyright (c) 2018 Pennebaker
+ * @link      https://pennebaker.com
+ * @package   Architect
+ * @since     2.0.0
+ */
+#}
+
+{% extends "architect/_layouts/base" %}
+{% import "_includes/forms" as forms %}
+
+{% set selectedSubnavItem = 'import' %}
+
+{% set iconUrlSuccess = view.getAssetManager().getPublishedUrl('@pennebaker/architect/assetbundles/indexcpsection/dist', true) ~ '/img/Index-icon.svg' %}
+
+{# The content of the CP Section #}
+{% set content %}
+    <h2>{{ "Import Results"|t('architect') }}</h2>
+
+    {% if not noErrors %}
+        <p class="error">Since Architect encountered errors it did not delete the database backup located at:</p>
+        <code>{{ backupLocation }}</code>
+    {% endif %}
+
+    <div class="elements">
+        <div class="tableview">
+            <table class="data fullwidth importresults">
+                <thead>
+                <tr>
+                    <th scope="col" data-attribute="name" class="orderable">Name</th>
+                    <th scope="col" data-attribute="handle">Handle</th>
+                    <th scope="col" data-attribute="errors">Errors</th>
+                    <th class="thin" data-attribute="success">Success</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for result in fieldGroupResults %}
+                    <tr>
+                        <td>{{ result.item.name }}</td>
+                        <td>{{ ('handle' in result.item|keys) ? result.item.handle : '' }}</td>
+                        <td>
+                            <ul class="error-list">
+                                {% for type, errors in result.errors %}
+                                    <li class="heading">type: {{ type }}</li>
+                                    {% for error in errors %}
+                                        <li>{{ error|raw }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>
+                            <span class="icon{{ (result.success) ? ' success' : ' failure' }}">{{ svg('@pennebaker/architect/assetbundles/indexcpsection/dist/img/' ~ ((result.success) ? 'check' : 'times') ~ '.svg') }}</span>
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% for result in fieldResults %}
+                    <tr>
+                        <td>{{ result.item.name }}</td>
+                        <td>{{ ('handle' in result.item|keys) ? result.item.handle : '' }}</td>
+                        <td>
+                            <ul class="error-list">
+                                {% for type, errors in result.errors %}
+                                    <li class="heading">type: {{ type }}</li>
+                                    {% for error in errors %}
+                                        <li>{{ error|raw }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>
+                            <span class="icon{{ (result.success) ? ' success' : ' failure' }}">{{ svg('@pennebaker/architect/assetbundles/indexcpsection/dist/img/' ~ ((result.success) ? 'check' : 'times') ~ '.svg') }}</span>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            {{ forms.textareaField({
+                label: "JSON Data"|t('architect'),
+                instructions: "This is the json data that was submitted."|t('architect'),
+                id: 'jsonData',
+                class: 'code',
+                value: jsonData,
+                readonly: true,
+                name: 'jsonData',
+                rows: 30
+            }) }}
+        </div>
+    </div>
+{% endset %}
