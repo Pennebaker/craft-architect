@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Site Group Importing
 - Site Importing
 
+### Fixed
+- Fixed error in imported Asset Fields causing issue with saving sections.
+
 ## [2.0.0-beta.2] - 2018-01-27
 ### Added
 - Section Importing
