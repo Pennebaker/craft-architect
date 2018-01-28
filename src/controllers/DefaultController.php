@@ -10,6 +10,7 @@
 
 namespace pennebaker\architect\controllers;
 
+use craft\models\Section_SiteSettings;
 use pennebaker\architect\Architect;
 
 use Craft;
@@ -108,7 +109,9 @@ class DefaultController extends Controller
                         if ($parseKey === 'sections') {
                             $itemErrors = [];
 
+                            /** @var mixed $item */
                             foreach ($item->getSiteSettings() as $settings) {
+                                /** @var Section_SiteSettings $settings */
                                 foreach ($settings->getErrors() as $errorKey => $errors) {
                                     if (isset($itemErrors[$errorKey])) {
                                         $itemErrors[$errorKey] = array_merge($itemErrors[$errorKey], $errors);
@@ -119,6 +122,7 @@ class DefaultController extends Controller
                             }
                             $itemErrors = array_merge($itemErrors, $item->getErrors());
                         } else {
+                            /** @var mixed $item */
                             $itemErrors = $item->getErrors();
                         }
                     } else {
