@@ -38,8 +38,10 @@ class DefaultController extends Controller
      */
     public function actionImport()
     {
+        // Load posted json data into a variable.
         $jsonData = Craft::$app->request->getBodyParam('jsonData');
 
+        // Convert json into an array.
         $jsonObj = json_decode($jsonData, true);
 
         if ($jsonObj === null) {
@@ -50,10 +52,13 @@ class DefaultController extends Controller
             return;
         }
 
-        $backup = Craft::$app->getDb()->backup(); // TODO: Create backup before performing import
+        // Create a database backup in the event of catastrophic failure
+        $backup = Craft::$app->getDb()->backup();
 
+        // Did we import everything without errors?
         $noErrors = true;
 
+        // The order things should be processed in.
         $parseOrder = [
             'siteGroups',
             'sites',
@@ -66,12 +71,17 @@ class DefaultController extends Controller
             'fields',
             'entryTypes',
         ];
+        // Successfully imported items needed for various post processing procedures.
         $successful = [
             'sections' => [],
             'volumes' => [],
             'tagGroups' => [],
             'categoryGroups' => [],
         ];
+        /**
+         * Things to process field layouts for after importing of fields.
+         * Things in this list are needed for fields to import properly but can also use fields in field layouts.
+         */
         $postProcessFieldLayouts = [
             'volumes',
             'tagGroups',
