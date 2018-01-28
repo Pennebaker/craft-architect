@@ -64,33 +64,23 @@ class DefaultController extends Controller
             'fields',
             'entryTypes',
         ];
-
-        $processors = [
-            'siteGroups' => 'siteGroup',
-            'sites' => 'site',
-            'sections' => 'section',
-            'entryTypes' => 'entryType',
-            'volumes' => 'volume',
-            'transforms' => 'transform',
-            'fields' => 'field',
-            'fieldGroups' => 'fieldGroup',
-        ];
-
-        $results = [];
         $successful = [
             'sections' => [],
             'volumes' => [],
         ];
+        $postProcessFieldLayouts = [
+            'volumes',
+        ];
         $addedEntryTypes = [];
+        $results = [];
         foreach ($parseOrder as $parseKey) {
-            $processor = $processors[$parseKey];
             if (isset($jsonObj[$parseKey]) && is_array($jsonObj[$parseKey])) {
                 $results[$parseKey] = [];
                 foreach ($jsonObj[$parseKey] as $itemKey => $itemObj) {
                     if ($parseKey === 'fieldGroups' || $parseKey === 'siteGroups') {
-                        list($item, $itemErrors) = Architect::$processors->$processor->parse(['name' => $itemObj]);
+                        list($item, $itemErrors) = Architect::$processors->$parseKey->parse(['name' => $itemObj]);
                     } else {
-                        list($item, $itemErrors) = Architect::$processors->$processor->parse($itemObj);
+                        list($item, $itemErrors) = Architect::$processors->$parseKey->parse($itemObj);
                     }
 
                     if ($parseKey === 'entryTypes' && array_search($itemObj['sectionHandle'], $successful['sections']) === false) {
@@ -105,7 +95,7 @@ class DefaultController extends Controller
                     }
 
                     if ($item) {
-                        $itemSuccess = Architect::$processors->$processor->save($item);
+                        $itemSuccess = Architect::$processors->$parseKey->save($item);
                         if ($parseKey === 'sections') {
                             $itemErrors = [];
 
@@ -159,12 +149,14 @@ class DefaultController extends Controller
         }
 
         /**
-         * Post Processing on Volumes to set Field Layouts
+         * Post Processing to set Field Layouts
          */
-        if (isset($jsonObj['volumes']) && is_array($jsonObj['volumes'])) {
-            foreach($successful['volumes'] as $volumeHandle => $itemKey) {
-                $item = $jsonObj['volumes'][$itemKey];
-                Architect::$processors->volume->setFieldLayout($item);
+        foreach ($postProcessFieldLayouts as $parseKey) {
+            if (isset($jsonObj[$parseKey]) && is_array($jsonObj[$parseKey])) {
+                foreach($successful[$parseKey] as $volumeHandle => $itemKey) {
+                    $item = $jsonObj[$parseKey][$itemKey];
+                    Architect::$processors->$parseKey->setFieldLayout($item);
+                }
             }
         }
 

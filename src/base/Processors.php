@@ -28,24 +28,26 @@ namespace pennebaker\architect\base;
  */
 class Processors
 {
-    public $siteGroup;
-    public $site;
-    public $section;
-    public $entryType;
-    public $volume;
-    public $transform;
-    public $field;
-    public $fieldGroup;
+    public $siteGroups;
+    public $sites;
+    public $sections;
+    public $entryTypes;
+    public $volumes;
+    public $transforms;
+    public $tagGroups;
+    public $fields;
+    public $fieldGroups;
 
     public function __construct()
     {
-        $this->siteGroup = new SiteGroupProcessor();
-        $this->site = new SiteProcessor();
-        $this->section = new SectionProcessor();
-        $this->entryType = new EntryTypeProcessor();
-        $this->volume = new VolumeProcessor();
-        $this->transform = new TransformProcessor();
-        $this->field = new FieldProcessor();
-        $this->fieldGroup = new FieldGroupProcessor();
+        $this->siteGroups = new SiteGroupProcessor();
+        $this->sites = new SiteProcessor();
+        $this->sections = new SectionProcessor();
+        $this->entryTypes = new EntryTypeProcessor();
+        $this->volumes = new VolumeProcessor();
+        $this->transforms = new TransformProcessor();
+        $this->tagGroups = new TagGroupProcessor();
+        $this->fields = new FieldProcessor();
+        $this->fieldGroups = new FieldGroupProcessor();
     }
 }
