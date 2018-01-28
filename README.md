@@ -64,4 +64,13 @@ Some things to do, and ideas for potential features:
 
 * Convert plugin for use with Craft 3
 
+[2.0.0]
+- Importing finished
+
+[2.1.0]
+- Exporting finished
+
+[2.2.0]
+- Migrations finished
+
 Brought to you by [Pennebaker](https://pennebaker.com)
