@@ -60,6 +60,7 @@ class DefaultController extends Controller
             'sections',
             'volumes',
             'transforms',
+            'tagGroups',
             'fieldGroups',
             'fields',
             'entryTypes',
@@ -67,9 +68,11 @@ class DefaultController extends Controller
         $successful = [
             'sections' => [],
             'volumes' => [],
+            'tagGroups' => [],
         ];
         $postProcessFieldLayouts = [
             'volumes',
+            'tagGroups',
         ];
         $addedEntryTypes = [];
         $results = [];
@@ -136,6 +139,9 @@ class DefaultController extends Controller
                                 break;
                             case 'volumes':
                                 $successful['volumes'][] = $itemKey;
+                                break;
+                            case 'tagGroups':
+                                $successful['tagGroups'][] = $itemKey;
                                 break;
                         }
                     }

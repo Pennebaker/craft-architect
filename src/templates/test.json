@@ -61,6 +61,44 @@
       "format": null
     }
   ],
+  "tagGroups": [
+    {
+      "name": "Tag Group A",
+      "handle": "tagGroupA",
+      "fieldLayout": {
+        "Content": [
+          "newPlainText",
+          "oldPlainText"
+        ]
+      },
+      "requiredFields": [
+        "oldPlainText"
+      ]
+    },
+    {
+      "name": "Tag Group B",
+      "handle": "tagGroupB",
+      "fieldLayout": {
+        "Content": [
+          "newPlainText",
+          "oldPlainText"
+        ]
+      },
+      "requiredFields": [
+        "newPlainText"
+      ]
+    },
+    {
+      "name": "Tag Group C",
+      "handle": "tagGroupC",
+      "fieldLayout": {
+        "Content": [
+          "newPlainText"
+        ]
+      },
+      "requiredFields": []
+    }
+  ],
   "sections": [
     {
       "name": "Home Page",
