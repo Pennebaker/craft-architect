@@ -269,7 +269,7 @@
       "handle": "newCategory",
       "instructions": "This is the new category structure.",
       "type": "craft\\fields\\Categories",
-      "source": "categoryB",
+      "source": "categoryGroupB",
       "branchLimit": 1,
       "selectionLabel": "Select a category"
     },
@@ -281,7 +281,7 @@
       "type": "Categories",
       "typesettings": {
         "source": [
-          "categoryC"
+          "categoryGroupC"
         ],
         "useSingleFolder": false,
         "limit": 1,
