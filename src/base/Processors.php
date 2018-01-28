@@ -38,6 +38,7 @@ class Processors
     public $categoryGroups;
     public $fields;
     public $fieldGroups;
+    public $globalSets;
 
     public function __construct()
     {
@@ -51,5 +52,6 @@ class Processors
         $this->categoryGroups = new CategoryGroupProcessor();
         $this->fields = new FieldProcessor();
         $this->fieldGroups = new FieldGroupProcessor();
+        $this->globalSets = new GlobalSetProcessor();
     }
 }

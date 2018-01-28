@@ -70,6 +70,7 @@ class DefaultController extends Controller
             'fieldGroups',
             'fields',
             'entryTypes',
+            'globalSets',
         ];
         // Successfully imported items needed for various post processing procedures.
         $successful = [

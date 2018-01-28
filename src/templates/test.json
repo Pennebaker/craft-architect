@@ -866,5 +866,25 @@
         "newColor"
       ]
     }
+  ],
+  "globalSets": [
+    {
+      "name": "Global Set A",
+      "handle": "globalSetA",
+      "fieldLayout": {
+        "Settings": [
+          "newAsset",
+          "newColor"
+        ],
+        "Meta Data": [
+          "newDate",
+          "newPlainText"
+        ]
+      },
+      "requiredFields": [
+        "newColor",
+        "newDate"
+      ]
+    }
   ]
 }
