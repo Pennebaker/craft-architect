@@ -48,9 +48,9 @@
                     {% for result in typeResults %}
                         <tr>
                             <td>{{ result.item.name }}</td>
-                            <td>{{ ('handle' in result.item|keys) ? result.item.handle : '' }}</td>
+                            <td class="code">{{ ('handle' in result.item|keys) ? result.item.handle : '' }}</td>
                             <td>
-                                <ul class="error-list">
+                                <ul class="error-list code">
                                     {% for type, errors in result.errors %}
                                         <li class="heading">type: {{ type }}</li>
                                         {% for error in errors %}

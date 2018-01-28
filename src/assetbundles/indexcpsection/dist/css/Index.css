@@ -31,7 +31,13 @@ table.data.importresults [data-attribute="errors"]
 {
     text-align: center;
 }
-table.data.importresults .section,
+table.data.importresults .section
+{
+    padding-right: 16px;
+    padding-left: 16px;
+    font-size: 16px;
+    background-color: #fafafa;
+}
 table.data.importresults .error-list
 {
     text-align: center;
