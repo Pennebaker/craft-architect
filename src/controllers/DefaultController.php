@@ -80,46 +80,64 @@ class DefaultController extends Controller
             if (isset($jsonObj[$parseKey]) && is_array($jsonObj[$parseKey])) {
                 $results[$parseKey] = [];
                 foreach ($jsonObj[$parseKey] as $itemKey => $itemObj) {
-                    if ($parseKey === 'fieldGroups' || $parseKey === 'siteGroups') {
-                        list($item, $itemErrors) = Architect::$processors->$parseKey->parse(['name' => $itemObj]);
-                    } else {
-                        list($item, $itemErrors) = Architect::$processors->$parseKey->parse($itemObj);
-                    }
+                    try {
+                        if ($parseKey === 'fieldGroups' || $parseKey === 'siteGroups') {
+                            list($item, $itemErrors) = Architect::$processors->$parseKey->parse(['name' => $itemObj]);
+                        } else {
+                            list($item, $itemErrors) = Architect::$processors->$parseKey->parse($itemObj);
+                        }
 
-                    if ($parseKey === 'entryTypes' && array_search($itemObj['sectionHandle'], $successful['sections']) === false) {
-                        if (!isset($itemObj['name'])) $itemObj['name'] = '';
-                        if (!isset($itemObj['handle'])) $itemObj['handle'] = $itemObj['sectionHandle'];
-                        $item = false;
-                        $itemErrors = [
-                            'parent' => [
-                                'Section parent "' . $itemObj['sectionHandle'] . '" was not imported successfully.'
-                            ]
-                        ];
-                    }
+                        if ($parseKey === 'entryTypes' && array_search($itemObj['sectionHandle'], $successful['sections']) === false) {
+                            if (!isset($itemObj['name'])) $itemObj['name'] = '';
+                            if (!isset($itemObj['handle'])) $itemObj['handle'] = $itemObj['sectionHandle'];
+                            $item = false;
+                            $itemErrors = [
+                                'parent' => [
+                                    'Section parent "' . $itemObj['sectionHandle'] . '" was not imported successfully.'
+                                ]
+                            ];
+                        }
 
-                    if ($item) {
-                        $itemSuccess = Architect::$processors->$parseKey->save($item);
-                        if ($parseKey === 'sections') {
-                            $itemErrors = [];
+                        if ($item) {
+                            $itemSuccess = Architect::$processors->$parseKey->save($item);
+                            if ($parseKey === 'sections') {
+                                $itemErrors = [];
 
-                            /** @var mixed $item */
-                            foreach ($item->getSiteSettings() as $settings) {
-                                /** @var Section_SiteSettings $settings */
-                                foreach ($settings->getErrors() as $errorKey => $errors) {
-                                    if (isset($itemErrors[$errorKey])) {
-                                        $itemErrors[$errorKey] = array_merge($itemErrors[$errorKey], $errors);
-                                    } else {
-                                        $itemErrors[$errorKey] = $errors;
+                                /** @var mixed $item */
+                                foreach ($item->getSiteSettings() as $settings) {
+                                    /** @var Section_SiteSettings $settings */
+                                    foreach ($settings->getErrors() as $errorKey => $errors) {
+                                        if (isset($itemErrors[$errorKey])) {
+                                            $itemErrors[$errorKey] = array_merge($itemErrors[$errorKey], $errors);
+                                        } else {
+                                            $itemErrors[$errorKey] = $errors;
+                                        }
                                     }
                                 }
+                                $itemErrors = array_merge($itemErrors, $item->getErrors());
+                            } else {
+                                /** @var mixed $item */
+                                $itemErrors = $item->getErrors();
                             }
-                            $itemErrors = array_merge($itemErrors, $item->getErrors());
                         } else {
-                            /** @var mixed $item */
-                            $itemErrors = $item->getErrors();
+                            $itemSuccess = false;
                         }
-                    } else {
+                    } catch (\Error $e) {
+                        $item = false;
                         $itemSuccess = false;
+                        $itemErrors = [
+                            'error' => [
+                                $e->getMessage()
+                            ]
+                        ];
+                    } catch (\Exception $e) {
+                        $item = false;
+                        $itemSuccess = false;
+                        $itemErrors = [
+                            'exception' => [
+                                $e->getMessage()
+                            ]
+                        ];
                     }
 
                     if (!$itemSuccess) $noErrors = false;
