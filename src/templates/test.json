@@ -1,6 +1,220 @@
 {
-  "groups": [
+  "siteGroups": [
+    "languages"
+  ],
+  "sites": [
+    {
+      "group": "languages",
+      "name": "French",
+      "handle": "french",
+      "language": "fr",
+      "primary": false,
+      "hasUrls": true,
+      "baseUrl": "@web/fr"
+    }
+  ],
+  "fieldGroups": [
     "Test"
+  ],
+  "volumes": [
+    {
+      "name": "Media",
+      "handle": "media",
+      "type": "craft\\volumes\\Local",
+      "hasUrls": true,
+      "url": "/media",
+      "settings": {
+        "path": "media"
+      },
+      "fieldLayout": {
+        "Properties": [
+          "newPlainText",
+          "oldPlainText"
+        ]
+      },
+      "requiredFields": [
+        "oldPlainText"
+      ]
+    }
+  ],
+  "transforms": [
+    {
+      "name": "Thumbnail",
+      "handle": "thumbnail",
+      "mode": "crop",
+      "position": "center-center",
+      "width": 128,
+      "height": 128,
+      "quality": 82,
+      "interlace": "none",
+      "format": "jpg"
+    },
+    {
+      "name": "Profile Pic",
+      "handle": "profilePic",
+      "mode": "crop",
+      "position": "center-center",
+      "width": 128,
+      "height": 192,
+      "quality": 0,
+      "interlace": "none",
+      "format": null
+    }
+  ],
+  "tagGroups": [
+    {
+      "name": "Tag Group A",
+      "handle": "tagGroupA",
+      "fieldLayout": {
+        "Content": [
+          "newPlainText",
+          "oldPlainText"
+        ]
+      },
+      "requiredFields": [
+        "oldPlainText"
+      ]
+    },
+    {
+      "name": "Tag Group B",
+      "handle": "tagGroupB",
+      "fieldLayout": {
+        "Content": [
+          "newPlainText",
+          "oldPlainText"
+        ]
+      },
+      "requiredFields": [
+        "newPlainText"
+      ]
+    },
+    {
+      "name": "Tag Group C",
+      "handle": "tagGroupC",
+      "fieldLayout": {
+        "Content": [
+          "newPlainText"
+        ]
+      },
+      "requiredFields": []
+    }
+  ],
+  "categoryGroups": [
+    {
+      "name": "Category Group A",
+      "handle": "categoryGroupA",
+      "maxLevels": null,
+      "siteSettings": [
+        {
+          "uriFormat": "",
+          "template": ""
+        },
+        {
+          "siteId": "french",
+          "uriFormat": "",
+          "template": ""
+        }
+      ],
+      "fieldLayout": {
+        "Properties": [
+          "newPlainText",
+          "oldPlainText"
+        ]
+      },
+      "requiredFields": [
+        "newPlainText"
+      ]
+    },
+    {
+      "name": "Category Group B",
+      "handle": "categoryGroupB",
+      "maxLevels": 2,
+      "siteSettings": [
+        {
+          "uriFormat": "category-b/{slug}",
+          "template": "category-b/_category"
+        },
+        {
+          "siteId": "french",
+          "uriFormat": "category-b/{slug}",
+          "template": "category-b/_category"
+        }
+      ],
+      "fieldLayout": {
+        "Properties": [
+          "newPlainText",
+          "oldPlainText"
+        ]
+      },
+      "requiredFields": [
+        "oldPlainText"
+      ]
+    },
+    {
+      "name": "Category Group C",
+      "handle": "categoryGroupC",
+      "maxLevels": null,
+      "siteSettings": [
+        {
+          "uriFormat": "",
+          "template": ""
+        },
+        {
+          "siteId": "french",
+          "uriFormat": "",
+          "template": ""
+        }
+      ],
+      "fieldLayout": {
+        "Properties": [
+          "newPlainText",
+          "oldPlainText"
+        ]
+      },
+      "requiredFields": []
+    }
+  ],
+  "sections": [
+    {
+      "name": "Home Page",
+      "handle": "homePage",
+      "type": "single",
+      "enableVersioning": true,
+      "siteSettings": [
+        {
+          "hasUrls": true,
+          "uriFormat": "__home__",
+          "template": "_home"
+        },
+        {
+          "siteId": "french",
+          "hasUrls": true,
+          "uriFormat": "__home__",
+          "template": "_home"
+        }
+      ]
+    },
+    {
+      "name": "Blog",
+      "handle": "blog",
+      "type": "channel",
+      "enableVersioning": true,
+      "siteSettings": [
+        {
+          "hasUrls": true,
+          "uriFormat": "blog/{slug}",
+          "template": "blog/_entry",
+          "enabledByDefault": true
+        },
+        {
+          "siteId": "french",
+          "hasUrls": true,
+          "uriFormat": "blog/{slug}",
+          "template": "blog/_entry",
+          "enabledByDefault": true
+        }
+      ]
+    }
   ],
   "fields": [
     {
@@ -14,7 +228,10 @@
       "sources": [
         "media"
       ],
+      "defaultUploadLocationSource": "media",
       "defaultUploadLocationSubpath": "",
+      "singleUploadLocationSource": "media",
+      "singleUploadLocationSubpath": "",
       "restrictFiles": true,
       "allowedKinds": [
         "image"
@@ -52,7 +269,7 @@
       "handle": "newCategory",
       "instructions": "This is the new category structure.",
       "type": "craft\\fields\\Categories",
-      "source": "categoryB",
+      "source": "categoryGroupB",
       "branchLimit": 1,
       "selectionLabel": "Select a category"
     },
@@ -64,7 +281,7 @@
       "type": "Categories",
       "typesettings": {
         "source": [
-          "categoryC"
+          "categoryGroupC"
         ],
         "useSingleFolder": false,
         "limit": 1,
@@ -578,6 +795,96 @@
         ],
         "selectionLabel": "Select a User"
       }
+    }
+  ],
+  "entryTypes": [
+    {
+      "sectionHandle": "homePage",
+      "hasTitleField": false,
+      "titleLabel": "Title",
+      "titleFormat": "{section.name|raw}",
+      "fieldLayout": {
+        "Blog Content": [
+          "newAsset",
+          "newMatrix"
+        ],
+        "Meta Data": [
+          "newPlainText",
+          "newColor"
+        ]
+      },
+      "requiredFields": [
+        "newAsset",
+        "newPlainText"
+      ]
+    },
+    {
+      "sectionHandle": "blog",
+      "hasTitleField": true,
+      "titleLabel": "Title",
+      "titleFormat": "{section.name|raw}",
+      "name": "Blog Alt",
+      "handle": "blogAlt",
+      "fieldLayout": {
+        "Blog Content": [
+          "newPlainText",
+          "newDate",
+          "newMatrix",
+          "newAsset"
+        ],
+        "Meta Data": [
+          "newColor",
+          "newUsers"
+        ]
+      },
+      "requiredFields": [
+        "newPlainText",
+        "newColor"
+      ]
+    },
+    {
+      "sectionHandle": "blog",
+      "hasTitleField": true,
+      "titleLabel": "Title",
+      "titleFormat": "{section.name|raw}",
+      "name": "Article",
+      "handle": "article",
+      "fieldLayout": {
+        "Blog Content": [
+          "newPlainText",
+          "newDate",
+          "newMatrix",
+          "newAsset"
+        ],
+        "Meta Data": [
+          "newColor",
+          "newUsers"
+        ]
+      },
+      "requiredFields": [
+        "newPlainText",
+        "newColor"
+      ]
+    }
+  ],
+  "globalSets": [
+    {
+      "name": "Global Set A",
+      "handle": "globalSetA",
+      "fieldLayout": {
+        "Settings": [
+          "newAsset",
+          "newColor"
+        ],
+        "Meta Data": [
+          "newDate",
+          "newPlainText"
+        ]
+      },
+      "requiredFields": [
+        "newColor",
+        "newDate"
+      ]
     }
   ]
 }

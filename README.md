@@ -20,7 +20,7 @@ To install the plugin, follow these instructions.
 
 2. Then tell Composer to load the plugin:
 
-        composer require Pennebaker/craft-architect
+        composer require pennebaker/craft-architect
 
 3.
     a. In the terminal run
@@ -50,6 +50,8 @@ If you're using the [Atom text editor](https://atom.io/), you can download a [sn
 Visit architect in the admin CP for importing / exporting just about anything using JSON.
 
 Current Working Imports:
+- Sections
+- Entry Types
 - Field Groups
 - Fields
 
@@ -61,5 +63,18 @@ Current Working Exports:
 Some things to do, and ideas for potential features:
 
 * Convert plugin for use with Craft 3
+
+[2.0.0]
+- Importing finished
+
+[2.1.0]
+- Exporting finished
+
+[2.2.0]
+- Importing Users
+- Exporting Users
+
+[2.3.0]
+- Migrations finished
 
 Brought to you by [Pennebaker](https://pennebaker.com)

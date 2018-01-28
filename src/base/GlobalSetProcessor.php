@@ -11,16 +11,16 @@
 namespace pennebaker\architect\base;
 
 use Craft;
-use craft\models\FieldGroup;
+use craft\elements\GlobalSet;
 
 /**
- * FieldGroupProcessor defines the common interface to be implemented by plugin classes.
+ * GlobalSetProcessor defines the common interface to be implemented by plugin classes.
  *
  * @author    Pennebaker
  * @package   Architect
  * @since     2.0.0
  */
-class FieldGroupProcessor extends Processor
+class GlobalSetProcessor extends Processor
 {
     /**
      * @param array $item
@@ -29,7 +29,15 @@ class FieldGroupProcessor extends Processor
      */
     public function parse(array $item)
     {
-        return [new FieldGroup($item), null];
+        $globalSet = new GlobalSet([
+            'name' => $item['name'],
+            'handle' => $item['handle'],
+        ]);
+
+        $fieldLayout = $this->createFieldLayout($item, GlobalSet::class);
+        $globalSet->setFieldLayout($fieldLayout);
+
+        return [$globalSet, null];
     }
 
     /**
@@ -42,6 +50,6 @@ class FieldGroupProcessor extends Processor
      */
     public function save($item, bool $update = false)
     {
-        return Craft::$app->fields->saveGroup($item);
+        return Craft::$app->globals->saveSet($item);
     }
 }

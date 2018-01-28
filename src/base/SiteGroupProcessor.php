@@ -11,16 +11,16 @@
 namespace pennebaker\architect\base;
 
 use Craft;
-use craft\models\FieldGroup;
+use craft\models\SiteGroup;
 
 /**
- * FieldGroupProcessor defines the common interface to be implemented by plugin classes.
+ * SiteGroupProcessor defines the common interface to be implemented by plugin classes.
  *
  * @author    Pennebaker
  * @package   Architect
  * @since     2.0.0
  */
-class FieldGroupProcessor extends Processor
+class SiteGroupProcessor extends Processor
 {
     /**
      * @param array $item
@@ -29,7 +29,7 @@ class FieldGroupProcessor extends Processor
      */
     public function parse(array $item)
     {
-        return [new FieldGroup($item), null];
+        return [new SiteGroup($item), null];
     }
 
     /**
@@ -42,6 +42,6 @@ class FieldGroupProcessor extends Processor
      */
     public function save($item, bool $update = false)
     {
-        return Craft::$app->fields->saveGroup($item);
+        return Craft::$app->sites->saveGroup($item);
     }
 }

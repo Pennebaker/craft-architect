@@ -11,16 +11,16 @@
 namespace pennebaker\architect\base;
 
 use Craft;
-use craft\models\FieldGroup;
+use craft\models\AssetTransform;
 
 /**
- * FieldGroupProcessor defines the common interface to be implemented by plugin classes.
+ * TransformProcessor defines the common interface to be implemented by plugin classes.
  *
  * @author    Pennebaker
  * @package   Architect
  * @since     2.0.0
  */
-class FieldGroupProcessor extends Processor
+class TransformProcessor extends Processor
 {
     /**
      * @param array $item
@@ -29,7 +29,13 @@ class FieldGroupProcessor extends Processor
      */
     public function parse(array $item)
     {
-        return [new FieldGroup($item), null];
+        $transform = new AssetTransform();
+
+        foreach ($item as $k => $v) {
+            $transform->$k = $v;
+        }
+
+        return [$transform, null];
     }
 
     /**
@@ -42,6 +48,6 @@ class FieldGroupProcessor extends Processor
      */
     public function save($item, bool $update = false)
     {
-        return Craft::$app->fields->saveGroup($item);
+        return Craft::$app->assetTransforms->saveTransform($item);
     }
 }

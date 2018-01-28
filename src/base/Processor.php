@@ -11,6 +11,7 @@
 namespace pennebaker\architect\base;
 
 use Craft;
+use craft\models\FieldLayout;
 
 /**
  * Processor defines the common interface to be implemented by plugin classes.
@@ -21,6 +22,38 @@ use Craft;
  */
 abstract class Processor implements ProcessorInterface
 {
+    public function createFieldLayout($item, $type) {
+        $fieldLayout = new FieldLayout();
+
+        if (isset($item['fieldLayout'])) {
+            foreach ($item['fieldLayout'] as $tab => $fields) {
+                foreach ($item['fieldLayout'][$tab] as $k => $fieldHandle) {
+                    $field = Craft::$app->fields->getFieldByHandle($fieldHandle);
+                    if ($field) {
+                        $item['fieldLayout'][$tab][$k] = $field->id;
+                    } else {
+                        unset($item['fieldLayout'][$tab][$k]);
+                    }
+                }
+            }
+            if (isset($item['requiredFields']) && is_array($item['requiredFields'])) {
+                foreach ($item['requiredFields'] as $k => $fieldHandle) {
+                    $field = Craft::$app->fields->getFieldByHandle($fieldHandle);
+                    if ($field) {
+                        $item['requiredFields'][$k] = $field->id;
+                    } else {
+                        unset($item['requiredFields'][$k]);
+                    }
+                }
+            } else {
+                $item['requiredFields'] = [];
+            }
+            $fieldLayout = Craft::$app->fields->assembleLayout($item['fieldLayout'], $item['requiredFields']);
+        }
+        $fieldLayout->type = $type;
+
+        return $fieldLayout;
+    }
     /**
      * @param array|string $sources
      */
@@ -29,7 +62,18 @@ abstract class Processor implements ProcessorInterface
         if (is_array($sources)) {
             foreach ($sources as $k => $sourceHandle) {
                 $source = Craft::$app->volumes->getVolumeByHandle($sourceHandle);
-                $sources[$k] = 'folder:' . $source->id;
+                if ($source) {
+                    $sources[$k] = 'folder:' . $source->id;
+                } else {
+                    unset($sources[$k]);
+                }
+            }
+        } else if (is_string($sources)) {
+            $source = Craft::$app->volumes->getVolumeByHandle($sources);
+            if ($source) {
+                $sources = 'folder:' . $source->id;
+            } else {
+                $sources = '*';
             }
         } else {
             $sources = '*';

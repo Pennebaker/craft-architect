@@ -41,43 +41,29 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for result in fieldGroupResults %}
+                {% for type, typeResults in results %}
                     <tr>
-                        <td>{{ result.item.name }}</td>
-                        <td>{{ ('handle' in result.item|keys) ? result.item.handle : '' }}</td>
-                        <td>
-                            <ul class="error-list">
-                                {% for type, errors in result.errors %}
-                                    <li class="heading">type: {{ type }}</li>
-                                    {% for error in errors %}
-                                        <li>{{ error|raw }}</li>
-                                    {% endfor %}
-                                {% endfor %}
-                            </ul>
-                        </td>
-                        <td>
-                            <span class="icon{{ (result.success) ? ' success' : ' failure' }}">{{ svg('@pennebaker/architect/assetbundles/indexcpsection/dist/img/' ~ ((result.success) ? 'check' : 'times') ~ '.svg') }}</span>
-                        </td>
+                        <th class="section" colspan="4">{{ type }}</th>
                     </tr>
-                {% endfor %}
-                {% for result in fieldResults %}
-                    <tr>
-                        <td>{{ result.item.name }}</td>
-                        <td>{{ ('handle' in result.item|keys) ? result.item.handle : '' }}</td>
-                        <td>
-                            <ul class="error-list">
-                                {% for type, errors in result.errors %}
-                                    <li class="heading">type: {{ type }}</li>
-                                    {% for error in errors %}
-                                        <li>{{ error|raw }}</li>
+                    {% for result in typeResults %}
+                        <tr>
+                            <td>{{ result.item.name }}</td>
+                            <td class="code">{{ ('handle' in result.item|keys) ? result.item.handle : '' }}</td>
+                            <td>
+                                <ul class="error-list code">
+                                    {% for type, errors in result.errors %}
+                                        <li class="heading">type: {{ type }}</li>
+                                        {% for error in errors %}
+                                            <li>{{ error|raw }}</li>
+                                        {% endfor %}
                                     {% endfor %}
-                                {% endfor %}
-                            </ul>
-                        </td>
-                        <td>
-                            <span class="icon{{ (result.success) ? ' success' : ' failure' }}">{{ svg('@pennebaker/architect/assetbundles/indexcpsection/dist/img/' ~ ((result.success) ? 'check' : 'times') ~ '.svg') }}</span>
-                        </td>
-                    </tr>
+                                </ul>
+                            </td>
+                            <td>
+                                <span class="icon{{ (result.success) ? ' success' : ' failure' }}">{{ svg('@pennebaker/architect/assetbundles/indexcpsection/dist/img/' ~ ((result.success) ? 'check' : 'times') ~ '.svg') }}</span>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 {% endfor %}
                 </tbody>
             </table>

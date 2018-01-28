@@ -10,6 +10,7 @@
 
 namespace pennebaker\architect\controllers;
 
+use craft\models\Section_SiteSettings;
 use pennebaker\architect\Architect;
 
 use Craft;
@@ -17,17 +18,6 @@ use craft\web\Controller;
 
 /**
  * Default Controller
- *
- * Generally speaking, controllers are the middlemen between the front end of
- * the CP/website and your plugin’s services. They contain action methods which
- * handle individual tasks.
- *
- * A common pattern used throughout Craft involves a controller action gathering
- * post data, saving it on a model, passing the model off to a service, and then
- * responding to the request appropriately depending on the service method’s response.
- *
- * Action methods begin with the prefix “action”, followed by a description of what
- * the method does (for example, actionSaveIngredient()).
  *
  * https://craftcms.com/docs/plugins/controllers
  *
@@ -37,28 +27,21 @@ use craft\web\Controller;
  */
 class DefaultController extends Controller
 {
-
-    // Protected Properties
-    // =========================================================================
-
-    /**
-     * @var    bool|array Allows anonymous access to this controller's actions.
-     *         The actions must be in 'kebab-case'
-     * @access protected
-     */
-//    protected $allowAnonymous = [];
-
     // Public Methods
     // =========================================================================
 
     /**
      * Handle importing json object,
      * e.g.: actions/architect/default/import
+     *
+     * @throws \Throwable
      */
     public function actionImport()
     {
+        // Load posted json data into a variable.
         $jsonData = Craft::$app->request->getBodyParam('jsonData');
 
+        // Convert json into an array.
         $jsonObj = json_decode($jsonData, true);
 
         if ($jsonObj === null) {
@@ -69,51 +52,169 @@ class DefaultController extends Controller
             return;
         }
 
-        $backup = Craft::$app->getDb()->backup(); // TODO: Create backup before performing import
+        // Create a database backup in the event of catastrophic failure
+        $backup = Craft::$app->getDb()->backup();
 
+        // Did we import everything without errors?
         $noErrors = true;
 
-        $fieldGroupResults = [];
-        if (isset($jsonObj['groups']) && is_array($jsonObj['groups'])) {
-            foreach ($jsonObj['groups'] as $groupName) {
-                list($fieldGroup, $fieldGroupErrors) = Architect::$processors->fieldGroup->parse(['name' => $groupName]);
+        // The order things should be processed in.
+        $parseOrder = [
+            'siteGroups',
+            'sites',
+            'sections',
+            'volumes',
+            'transforms',
+            'tagGroups',
+            'categoryGroups',
+            'fieldGroups',
+            'fields',
+            'entryTypes',
+            'globalSets',
+        ];
+        // Successfully imported items needed for various post processing procedures.
+        $successful = [
+            'sections' => [],
+            'volumes' => [],
+            'tagGroups' => [],
+            'categoryGroups' => [],
+        ];
+        /**
+         * Things to process field layouts for after importing of fields.
+         * Things in this list are needed for fields to import properly but can also use fields in field layouts.
+         */
+        $postProcessFieldLayouts = [
+            'volumes',
+            'tagGroups',
+            'categoryGroups',
+        ];
+        $addedEntryTypes = [];
+        $results = [];
+        foreach ($parseOrder as $parseKey) {
+            if (isset($jsonObj[$parseKey]) && is_array($jsonObj[$parseKey])) {
+                $results[$parseKey] = [];
+                foreach ($jsonObj[$parseKey] as $itemKey => $itemObj) {
+                    try {
+                        if ($parseKey === 'fieldGroups' || $parseKey === 'siteGroups') {
+                            list($item, $itemErrors) = Architect::$processors->$parseKey->parse(['name' => $itemObj]);
+                        } else {
+                            list($item, $itemErrors) = Architect::$processors->$parseKey->parse($itemObj);
+                        }
 
-                if ($fieldGroup) {
-                    $fieldGroupSuccess = Architect::$processors->fieldGroup->save($fieldGroup);;
-                    $fieldGroupErrors = $fieldGroup->getErrors();
-                } else {
-                    $fieldGroupSuccess = false;
+                        if ($parseKey === 'entryTypes' && array_search($itemObj['sectionHandle'], $successful['sections']) === false) {
+                            if (!isset($itemObj['name'])) $itemObj['name'] = '';
+                            if (!isset($itemObj['handle'])) $itemObj['handle'] = $itemObj['sectionHandle'];
+                            $item = false;
+                            $itemErrors = [
+                                'parent' => [
+                                    'Section parent "' . $itemObj['sectionHandle'] . '" was not imported successfully.'
+                                ]
+                            ];
+                        }
+
+                        if ($item) {
+                            $itemSuccess = Architect::$processors->$parseKey->save($item);
+                            if ($parseKey === 'sections') {
+                                $itemErrors = [];
+
+                                /** @var mixed $item */
+                                foreach ($item->getSiteSettings() as $settings) {
+                                    /** @var Section_SiteSettings $settings */
+                                    foreach ($settings->getErrors() as $errorKey => $errors) {
+                                        if (isset($itemErrors[$errorKey])) {
+                                            $itemErrors[$errorKey] = array_merge($itemErrors[$errorKey], $errors);
+                                        } else {
+                                            $itemErrors[$errorKey] = $errors;
+                                        }
+                                    }
+                                }
+                                $itemErrors = array_merge($itemErrors, $item->getErrors());
+                            } else {
+                                /** @var mixed $item */
+                                $itemErrors = $item->getErrors();
+                            }
+                        } else {
+                            $itemSuccess = false;
+                        }
+                    } catch (\Error $e) {
+                        $item = false;
+                        $itemSuccess = false;
+                        $itemErrors = [
+                            'error' => [
+                                $e->getMessage()
+                            ]
+                        ];
+                    } catch (\Exception $e) {
+                        $item = false;
+                        $itemSuccess = false;
+                        $itemErrors = [
+                            'exception' => [
+                                $e->getMessage()
+                            ]
+                        ];
+                    }
+
+                    if (!$itemSuccess) $noErrors = false;
+
+                    if ($parseKey === 'fieldGroups' || $parseKey === 'siteGroups') {
+                        $item = ($item) ? $item : ['name' => $itemObj];
+                    } else {
+                        $item = ($item) ? $item : $itemObj;
+                    }
+                    if ($itemSuccess) {
+                        if ($parseKey === 'entryTypes') {
+                            $addedEntryTypes[] =  Craft::$app->sections->getSectionById($item->sectionId)->handle . ':' . $item->handle;
+                        }
+                        switch ($parseKey) {
+                            case 'sections':
+                                $successful['sections'][] = $item->handle;
+                                break;
+                            case 'volumes':
+                                $successful['volumes'][] = $itemKey;
+                                break;
+                            case 'tagGroups':
+                                $successful['tagGroups'][] = $itemKey;
+                                break;
+                            case 'categoryGroups':
+                                $successful['categoryGroups'][] = $itemKey;
+                                break;
+                        }
+                    }
+                    $results[$parseKey][] = [
+                        'item' => $item,
+                        'success' => $itemSuccess,
+                        'errors' => $itemErrors,
+                    ];
                 }
-
-                if (!$fieldGroupSuccess) $noErrors = false;
-
-                $fieldGroupResults[] = [
-                    'item' => ($fieldGroup) ? $fieldGroup : ['name' => $groupName],
-                    'success' => $fieldGroupSuccess,
-                    'errors' => $fieldGroupErrors,
-                ];
             }
         }
 
-        $fieldResults = [];
-        if (isset($jsonObj['fields']) && is_array($jsonObj['fields'])) {
-            foreach ($jsonObj['fields'] as $fieldObj) {
-                list($field, $fieldErrors) = Architect::$processors->field->parse($fieldObj);
-
-                if ($field) {
-                    $fieldSuccess = Architect::$processors->field->save($field);
-                    $fieldErrors = $field->getErrors();
-                } else {
-                    $fieldSuccess = false;
+        /**
+         * Post Processing to set Field Layouts
+         */
+        foreach ($postProcessFieldLayouts as $parseKey) {
+            if (isset($jsonObj[$parseKey]) && is_array($jsonObj[$parseKey])) {
+                foreach($successful[$parseKey] as $volumeHandle => $itemKey) {
+                    $item = $jsonObj[$parseKey][$itemKey];
+                    Architect::$processors->$parseKey->setFieldLayout($item);
                 }
+            }
+        }
 
-                if (!$fieldSuccess) $noErrors = false;
-
-                $fieldResults[] = [
-                    'item' => ($field) ? $field : $fieldObj,
-                    'success' => $fieldSuccess,
-                    'errors' => $fieldErrors,
-                ];
+        /**
+         * Post Processing on Section Entry Types
+         * This is to loop over all entry types in a section and remove entry types that do not match one that was meant to be created.
+         * ex. A section was created for Employees but there is only entry types defined for Board Members & Management
+         */
+        if (isset($jsonObj['sections']) && is_array($jsonObj['sections']) && isset($jsonObj['entryTypes']) && is_array($jsonObj['entryTypes'])) {
+            forEach ($successful['sections'] as $sectionHandle) {
+                $section = Craft::$app->sections->getSectionByHandle($sectionHandle);
+                $entryTypes = $section->getEntryTypes();
+                foreach ($entryTypes as $entryType) {
+                    if (array_search($section->handle. ':' . $entryType->handle, $addedEntryTypes) === false) {
+                        Craft::$app->sections->deleteEntryType($entryType);
+                    }
+                }
             }
         }
 
@@ -126,8 +227,7 @@ class DefaultController extends Controller
         $this->renderTemplate('architect/import_results', [
             'noErrors' => $noErrors,
             'backupLocation' => $backup,
-            'fieldGroupResults' => $fieldGroupResults,
-            'fieldResults' => $fieldResults,
+            'results' => $results,
             'jsonData' => $jsonData,
         ]);
 
