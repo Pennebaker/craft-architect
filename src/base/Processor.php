@@ -36,13 +36,17 @@ abstract class Processor implements ProcessorInterface
                     }
                 }
             }
-            foreach ($item['requiredFields'] as $k => $fieldHandle) {
-                $field = Craft::$app->fields->getFieldByHandle($fieldHandle);
-                if ($field) {
-                    $item['requiredFields'][$k] = $field->id;
-                } else {
-                    unset($item['requiredFields'][$k]);
+            if (isset($item['requiredFields']) && is_array($item['requiredFields'])) {
+                foreach ($item['requiredFields'] as $k => $fieldHandle) {
+                    $field = Craft::$app->fields->getFieldByHandle($fieldHandle);
+                    if ($field) {
+                        $item['requiredFields'][$k] = $field->id;
+                    } else {
+                        unset($item['requiredFields'][$k]);
+                    }
                 }
+            } else {
+                $item['requiredFields'] = [];
             }
             $fieldLayout = Craft::$app->fields->assembleLayout($item['fieldLayout'], $item['requiredFields']);
         }
