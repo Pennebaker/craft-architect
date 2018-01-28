@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.0.0-beta.3] - 2018-01-27
 ### Added
 - Site Group Importing
 - Site Importing
@@ -12,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Asset Transform Importing
 - Tag Group Importing
 - Category Group Importing
+- Gobal Set Importing
 - Exception & Error catching during parse and save.
 
 ### Fixed
@@ -27,5 +30,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.0.0-beta.2...develop
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.0.0-beta.3...develop
+[2.0.0-beta.3]: https://github.com/pennebaker/craft-architect/compare/2.0.0-beta.2...2.0.0-beta.3
 [2.0.0-beta.2]: https://github.com/pennebaker/craft-architect/compare/2.0.0-beta.1...2.0.0-beta.2
