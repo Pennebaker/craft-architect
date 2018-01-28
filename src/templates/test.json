@@ -16,6 +16,27 @@
   "fieldGroups": [
     "Test"
   ],
+  "volumes": [
+    {
+      "name": "Media",
+      "handle": "media",
+      "type": "craft\\volumes\\Local",
+      "hasUrls": true,
+      "url": "/media",
+      "settings": {
+        "path": "media"
+      },
+      "fieldLayout": {
+        "Properties": [
+          "newPlainText",
+          "oldPlainText"
+        ]
+      },
+      "requiredFields": [
+        "oldPlainText"
+      ]
+    }
+  ],
   "sections": [
     {
       "name": "Home Page",

@@ -79,6 +79,7 @@ class DefaultController extends Controller
             'siteGroups',
             'sites',
             'sections',
+            'volumes',
             'fieldGroups',
             'fields',
             'entryTypes',
@@ -89,25 +90,29 @@ class DefaultController extends Controller
             'sites' => 'site',
             'sections' => 'section',
             'entryTypes' => 'entryType',
+            'volumes' => 'volume',
             'fields' => 'field',
             'fieldGroups' => 'fieldGroup',
         ];
 
         $results = [];
-        $successfulSections = [];
+        $successful = [
+            'sections' => [],
+            'volumes' => [],
+        ];
         $addedEntryTypes = [];
         foreach ($parseOrder as $parseKey) {
             $processor = $processors[$parseKey];
             if (isset($jsonObj[$parseKey]) && is_array($jsonObj[$parseKey])) {
                 $results[$parseKey] = [];
-                foreach ($jsonObj[$parseKey] as $itemObj) {
+                foreach ($jsonObj[$parseKey] as $itemKey => $itemObj) {
                     if ($parseKey === 'fieldGroups' || $parseKey === 'siteGroups') {
                         list($item, $itemErrors) = Architect::$processors->$processor->parse(['name' => $itemObj]);
                     } else {
                         list($item, $itemErrors) = Architect::$processors->$processor->parse($itemObj);
                     }
 
-                    if ($parseKey === 'entryTypes' && array_search($itemObj['sectionHandle'], $successfulSections) === false) {
+                    if ($parseKey === 'entryTypes' && array_search($itemObj['sectionHandle'], $successful['sections']) === false) {
                         if (!isset($itemObj['name'])) $itemObj['name'] = '';
                         if (!isset($itemObj['handle'])) $itemObj['handle'] = $itemObj['sectionHandle'];
                         $item = false;
@@ -153,7 +158,10 @@ class DefaultController extends Controller
                         }
                         switch ($parseKey) {
                             case 'sections':
-                                $successfulSections[] = $item->handle;
+                                $successful['sections'][] = $item->handle;
+                                break;
+                            case 'volumes':
+                                $successful['volumes'][] = $itemKey;
                                 break;
                         }
                     }
@@ -165,6 +173,15 @@ class DefaultController extends Controller
                 }
             }
         }
+        /**
+         * Post Processing on Volumes to set Field Layouts
+         */
+        if (isset($jsonObj['volumes']) && is_array($jsonObj['volumes'])) {
+            foreach($successful['volumes'] as $volumeHandle => $itemKey) {
+                $item = $jsonObj['volumes'][$itemKey];
+                Architect::$processors->volume->setFieldLayout($item);
+            }
+        }
 
         /**
          * Post Processing on Section Entry Types
@@ -172,7 +189,7 @@ class DefaultController extends Controller
          * ex. A section was created for Employees but there is only entry types defined for Board Members & Management
          */
         if (isset($jsonObj['sections']) && is_array($jsonObj['sections']) && isset($jsonObj['entryTypes']) && is_array($jsonObj['entryTypes'])) {
-            forEach ($successfulSections as $sectionHandle) {
+            forEach ($successful['sections'] as $sectionHandle) {
                 $section = Craft::$app->sections->getSectionByHandle($sectionHandle);
                 $entryTypes = $section->getEntryTypes();
                 foreach ($entryTypes as $entryType) {

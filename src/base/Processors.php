@@ -32,6 +32,7 @@ class Processors
     public $site;
     public $section;
     public $entryType;
+    public $volume;
     public $field;
     public $fieldGroup;
 
@@ -41,6 +42,7 @@ class Processors
         $this->site = new SiteProcessor();
         $this->section = new SectionProcessor();
         $this->entryType = new EntryTypeProcessor();
+        $this->volume = new VolumeProcessor();
         $this->field = new FieldProcessor();
         $this->fieldGroup = new FieldGroupProcessor();
     }
