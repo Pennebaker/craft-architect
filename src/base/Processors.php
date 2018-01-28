@@ -35,6 +35,7 @@ class Processors
     public $volumes;
     public $transforms;
     public $tagGroups;
+    public $categoryGroups;
     public $fields;
     public $fieldGroups;
 
@@ -47,6 +48,7 @@ class Processors
         $this->volumes = new VolumeProcessor();
         $this->transforms = new TransformProcessor();
         $this->tagGroups = new TagGroupProcessor();
+        $this->categoryGroups = new CategoryGroupProcessor();
         $this->fields = new FieldProcessor();
         $this->fieldGroups = new FieldGroupProcessor();
     }

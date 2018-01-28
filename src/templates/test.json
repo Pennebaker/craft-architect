@@ -99,6 +99,81 @@
       "requiredFields": []
     }
   ],
+  "categoryGroups": [
+    {
+      "name": "Category Group A",
+      "handle": "categoryGroupA",
+      "maxLevels": null,
+      "siteSettings": [
+        {
+          "uriFormat": "",
+          "template": ""
+        },
+        {
+          "siteId": "french",
+          "uriFormat": "",
+          "template": ""
+        }
+      ],
+      "fieldLayout": {
+        "Properties": [
+          "newPlainText",
+          "oldPlainText"
+        ]
+      },
+      "requiredFields": [
+        "newPlainText"
+      ]
+    },
+    {
+      "name": "Category Group B",
+      "handle": "categoryGroupB",
+      "maxLevels": 2,
+      "siteSettings": [
+        {
+          "uriFormat": "category-b/{slug}",
+          "template": "category-b/_category"
+        },
+        {
+          "siteId": "french",
+          "uriFormat": "category-b/{slug}",
+          "template": "category-b/_category"
+        }
+      ],
+      "fieldLayout": {
+        "Properties": [
+          "newPlainText",
+          "oldPlainText"
+        ]
+      },
+      "requiredFields": [
+        "oldPlainText"
+      ]
+    },
+    {
+      "name": "Category Group C",
+      "handle": "categoryGroupC",
+      "maxLevels": null,
+      "siteSettings": [
+        {
+          "uriFormat": "",
+          "template": ""
+        },
+        {
+          "siteId": "french",
+          "uriFormat": "",
+          "template": ""
+        }
+      ],
+      "fieldLayout": {
+        "Properties": [
+          "newPlainText",
+          "oldPlainText"
+        ]
+      },
+      "requiredFields": []
+    }
+  ],
   "sections": [
     {
       "name": "Home Page",
