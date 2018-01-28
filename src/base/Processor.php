@@ -11,6 +11,7 @@
 namespace pennebaker\architect\base;
 
 use Craft;
+use craft\models\FieldLayout;
 
 /**
  * Processor defines the common interface to be implemented by plugin classes.
@@ -21,6 +22,34 @@ use Craft;
  */
 abstract class Processor implements ProcessorInterface
 {
+    public function createFieldLayout($item, $type) {
+        $fieldLayout = new FieldLayout();
+
+        if (isset($item['fieldLayout'])) {
+            foreach ($item['fieldLayout'] as $tab => $fields) {
+                foreach ($item['fieldLayout'][$tab] as $k => $fieldHandle) {
+                    $field = Craft::$app->fields->getFieldByHandle($fieldHandle);
+                    if ($field) {
+                        $item['fieldLayout'][$tab][$k] = $field->id;
+                    } else {
+                        unset($item['fieldLayout'][$tab][$k]);
+                    }
+                }
+            }
+            foreach ($item['requiredFields'] as $k => $fieldHandle) {
+                $field = Craft::$app->fields->getFieldByHandle($fieldHandle);
+                if ($field) {
+                    $item['requiredFields'][$k] = $field->id;
+                } else {
+                    unset($item['requiredFields'][$k]);
+                }
+            }
+            $fieldLayout = Craft::$app->fields->assembleLayout($item['fieldLayout'], $item['requiredFields']);
+        }
+        $fieldLayout->type = $type;
+
+        return $fieldLayout;
+    }
     /**
      * @param array|string $sources
      */

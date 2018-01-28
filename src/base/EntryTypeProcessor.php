@@ -11,8 +11,8 @@
 namespace pennebaker\architect\base;
 
 use Craft;
+use craft\elements\Entry;
 use craft\models\EntryType;
-use craft\models\FieldLayout;
 
 /**
  * EntryTypeProcessor defines the common interface to be implemented by plugin classes.
@@ -54,20 +54,7 @@ class EntryTypeProcessor extends Processor
         $entryType->titleLabel = $item['titleLabel'];
         $entryType->titleFormat = $item['titleFormat'];
 
-        if (isset($item['fieldLayout'])) {
-            foreach ($item['fieldLayout'] as $tab => $fields) {
-                foreach ($item['fieldLayout'][$tab] as $k => $fieldHandle) {
-                    $item['fieldLayout'][$tab][$k] = Craft::$app->fields->getFieldByHandle($fieldHandle)->id;
-                }
-            }
-            foreach ($item['requiredFields'] as $k => $fieldHandle) {
-                $item['requiredFields'][$k] = Craft::$app->fields->getFieldByHandle($fieldHandle)->id;
-            }
-            $fieldLayout = Craft::$app->fields->assembleLayout($item['fieldLayout'], $item['requiredFields']);
-        } else {
-            $fieldLayout = new FieldLayout();
-        }
-        $fieldLayout->type = Entry::class;
+        $fieldLayout = $this->createFieldLayout($item, Entry::class);
 
         $item['fieldLayout'] = $fieldLayout;
 
