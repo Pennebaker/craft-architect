@@ -33,6 +33,7 @@ class Processors
     public $section;
     public $entryType;
     public $volume;
+    public $transform;
     public $field;
     public $fieldGroup;
 
@@ -43,6 +44,7 @@ class Processors
         $this->section = new SectionProcessor();
         $this->entryType = new EntryTypeProcessor();
         $this->volume = new VolumeProcessor();
+        $this->transform = new TransformProcessor();
         $this->field = new FieldProcessor();
         $this->fieldGroup = new FieldGroupProcessor();
     }

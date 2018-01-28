@@ -58,6 +58,7 @@ class DefaultController extends Controller
             'sites',
             'sections',
             'volumes',
+            'transforms',
             'fieldGroups',
             'fields',
             'entryTypes',
@@ -69,6 +70,7 @@ class DefaultController extends Controller
             'sections' => 'section',
             'entryTypes' => 'entryType',
             'volumes' => 'volume',
+            'transforms' => 'transform',
             'fields' => 'field',
             'fieldGroups' => 'fieldGroup',
         ];

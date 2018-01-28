@@ -37,6 +37,19 @@
       ]
     }
   ],
+  "transforms": [
+    {
+      "name": "Thumbnail",
+      "handle": "thumbnail",
+      "mode": "crop",
+      "position": "center-center",
+      "width": 128,
+      "height": 128,
+      "quality": 82,
+      "interlace": "none",
+      "format": null
+    }
+  ],
   "sections": [
     {
       "name": "Home Page",
