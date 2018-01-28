@@ -47,6 +47,17 @@
       "height": 128,
       "quality": 82,
       "interlace": "none",
+      "format": "jpg"
+    },
+    {
+      "name": "Profile Pic",
+      "handle": "profilePic",
+      "mode": "crop",
+      "position": "center-center",
+      "width": 128,
+      "height": 192,
+      "quality": 0,
+      "interlace": "none",
       "format": null
     }
   ],
