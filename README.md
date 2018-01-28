@@ -71,6 +71,10 @@ Some things to do, and ideas for potential features:
 - Exporting finished
 
 [2.2.0]
+- Importing Users
+- Exporting Users
+
+[2.3.0]
 - Migrations finished
 
 Brought to you by [Pennebaker](https://pennebaker.com)
