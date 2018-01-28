@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Site Group Importing
 - Site Importing
 - Asset Volume Importing
+- Asset Transform Importing
+- Tag Group Importing
+- Category Group Importing
+- Exception & Error catching during parse and save.
 
 ### Fixed
 - Fixed error in imported Asset Fields causing issue with saving sections.
