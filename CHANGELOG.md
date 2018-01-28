@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Asset Transform Importing
 - Tag Group Importing
 - Category Group Importing
-- Gobal Set Importing
+- Global Set Importing
 - Exception & Error catching during parse and save.
 
 ### Fixed
