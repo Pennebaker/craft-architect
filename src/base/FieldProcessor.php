@@ -193,28 +193,30 @@ class FieldProcessor extends Processor
      */
     private function mapSources(array &$item)
     {
-        if ($item['type'] == 'craft\\fields\\Assets') {
-            $this->mapVolumeSources($item['sources']);
-            $this->mapVolumeSources($item['defaultUploadLocationSource']);
-            $this->mapVolumeSources($item['singleUploadLocationSource']);
-        }
-        if ($item['type'] == 'craft\\fields\\Entries') {
-            $this->mapSectionSources($item['sources']);
-        }
-        if ($item['type'] == 'craft\\fields\\Categories') {
-            if (is_array($item['source'])) {
-                $item['source'] = $item['source'][0];
-            }
-            $this->mapCategorySource($item['source']);
-        }
-        if ($item['type'] == 'craft\\fields\\Tags') {
-            if (is_array($item['source'])) {
-                $item['source'] = $item['source'][0];
-            }
-            $this->mapTagSource($item['source']);
-        }
-        if ($item['type'] == 'craft\\fields\\Users') {
-            $this->mapUserGroupSources($item['sources']);
+        switch ($item['type']) {
+            case 'craft\\fields\\Assets':
+                $this->mapVolumeSources($item['sources']);
+                $this->mapVolumeSources($item['defaultUploadLocationSource']);
+                $this->mapVolumeSources($item['singleUploadLocationSource']);
+                break;
+            case 'craft\\fields\\Entries':
+                $this->mapSectionSources($item['sources']);
+                break;
+            case 'craft\\fields\\Categories':
+                if (is_array($item['source'])) {
+                    $item['source'] = $item['source'][0];
+                }
+                $this->mapCategorySource($item['source']);
+                break;
+            case 'craft\\fields\\Tags':
+                if (is_array($item['source'])) {
+                    $item['source'] = $item['source'][0];
+                }
+                $this->mapTagSource($item['source']);
+                break;
+            case 'craft\\fields\\Users':
+                $this->mapUserGroupSources($item['sources']);
+                break;
         }
     }
 }
