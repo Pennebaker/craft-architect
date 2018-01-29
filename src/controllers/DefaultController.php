@@ -106,7 +106,7 @@ class DefaultController extends Controller
                             $item = false;
                             $itemErrors = [
                                 'parent' => [
-                                    'Section parent "' . $itemObj['sectionHandle'] . '" was not imported successfully.'
+                                    Architect::t('Section parent "{sectionHandle}" was not imported successfully.', [ 'sectionHandle' => $itemObj['sectionHandle'] ])
                                 ]
                             ];
                         }
@@ -220,7 +220,7 @@ class DefaultController extends Controller
         if ($noErrors) {
             unlink($backup);
         } else {
-            Architect::warning('Architect encountered errors performing an import, there is a database backup located at: ' . $backup);
+            Architect::warning(Architect::t('Architect encountered errors performing an import, there is a database backup located at: {backup}', [ 'backup' => $backup ]));
         }
 
         $this->renderTemplate('architect/import_results', [

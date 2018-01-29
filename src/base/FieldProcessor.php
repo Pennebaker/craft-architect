@@ -45,14 +45,14 @@ class FieldProcessor extends Processor
         } else if (count($matchingFieldTypes) <= 0) {
             $errors = [
                 'type' => [
-                    'No field type matching "' . $item['type'] . '".'
+                    Architect::t('No field type matching "{fieldType}".', ['fieldType' => $item['type']])
                 ]
             ];
             return [null, $errors];
         } else {
             $errors = [
                 'type' => [
-                    'Too many field types matching "' . $item['type'] . '".<br>Possible values:<br>' . implode('<br>', $matchingFieldTypes)
+                    Architect::t('Too many field types matching "{fieldType}"', ['fieldType' => $item['type']]) . '<br>' . Architect::t('Possible values:') . '<br>' . implode('<br>', $matchingFieldTypes)
                 ]
             ];
             return [null, $errors];
@@ -83,14 +83,14 @@ class FieldProcessor extends Processor
                     } else if (count($matchingFieldTypes) <= 0) {
                         $errors = [
                             'type' => [
-                                'No field type matching "' . $field['type'] . '".'
+                                Architect::t('No field type matching "{fieldType}".', ['fieldType' => $field['type']])
                             ]
                         ];
                         return [null, $errors];
                     } else {
                         $errors = [
                             'type' => [
-                                'Too many field types matching "' . $field['type'] . '".<br>Possible values:<br>' . implode('<br>', $matchingFieldTypes)
+                                Architect::t('Too many field types matching "{fieldType}"', ['fieldType' => $field['type']]) . '<br>' . Architect::t('Possible values:') . '<br>' . implode('<br>', $matchingFieldTypes)
                             ]
                         ];
                         return [null, $errors];
@@ -111,7 +111,7 @@ class FieldProcessor extends Processor
         } else {
             $errors = [
                 'group' => [
-                    'Group id is invalid.'
+                    Architect::t('Group id is invalid.')
                 ]
             ];
             return [null, $errors];
