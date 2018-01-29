@@ -29,18 +29,6 @@ class DefaultController extends Controller
 {
     // Public Methods
     // =========================================================================
-    
-    /**
-     * @param string $path
-     *
-     * @throws \craft\errors\ShellCommandException
-     * @throws \yii\base\Exception
-     */
-    public function actionRollback(string $path)
-    {
-        Craft::$app->getDb()->restore($path);
-    }
-
     /**
      * Handle importing json object,
      * e.g.: actions/architect/default/import
