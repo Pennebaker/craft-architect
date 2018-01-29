@@ -54,6 +54,7 @@ abstract class Processor implements ProcessorInterface
 
         return $fieldLayout;
     }
+
     /**
      * @param array|string $sources
      */

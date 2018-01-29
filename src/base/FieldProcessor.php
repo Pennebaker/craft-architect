@@ -52,7 +52,7 @@ class FieldProcessor extends Processor
         } else {
             $errors = [
                 'type' => [
-                    'To many field types matching "' . $item['type'] . '".<br>Possible values:<br>' . implode('<br>', $matchingFieldTypes)
+                    'Too many field types matching "' . $item['type'] . '".<br>Possible values:<br>' . implode('<br>', $matchingFieldTypes)
                 ]
             ];
             return [null, $errors];
@@ -90,7 +90,7 @@ class FieldProcessor extends Processor
                     } else {
                         $errors = [
                             'type' => [
-                                'To many field types matching "' . $field['type'] . '".<br>Possible values:<br>' . implode('<br>', $matchingFieldTypes)
+                                'Too many field types matching "' . $field['type'] . '".<br>Possible values:<br>' . implode('<br>', $matchingFieldTypes)
                             ]
                         ];
                         return [null, $errors];
