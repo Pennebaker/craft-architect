@@ -34,7 +34,8 @@ class TagGroupProcessor extends Processor
         if (sizeof($item['fieldLayout']) > 1 || (sizeof($item['fieldLayout']) === 1 && !isset($item['fieldLayout']['Content']))) {
             $errors = [
                 'fieldLayout' => [
-                    'Field layout can only have 1 tab named "Content".'
+                    Architect::t('Field layout can only have 1 tab named "Content".')
+
                 ]
             ];
             return [null, $errors];

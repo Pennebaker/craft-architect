@@ -29,7 +29,6 @@ class SiteProcessor extends Processor
      */
     public function parse(array $item)
     {
-        // TODO: Implement parse() method.
         $item['groupId']= $this->getGroupByName($item['group'])->id;
         unset($item['group']);
         $site = new Site($item);

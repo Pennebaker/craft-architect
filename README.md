@@ -50,10 +50,18 @@ If you're using the [Atom text editor](https://atom.io/), you can download a [sn
 Visit architect in the admin CP for importing / exporting just about anything using JSON.
 
 Current Working Imports:
+- Site Groups
+- Sites
 - Sections
 - Entry Types
+- Asset Volumes
+- Asset Transforms
+- Tag Groups
+- Category Groups
 - Field Groups
 - Fields
+- Global Sets
+
 
 Current Working Exports:
 - None
