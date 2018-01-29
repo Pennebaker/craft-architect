@@ -217,6 +217,10 @@ class FieldProcessor extends Processor
             case 'craft\\fields\\Users':
                 $this->mapUserGroupSources($item['sources']);
                 break;
+            case 'craft\\redactor\\Field':
+                $this->mapVolumeSources($item['availableVolumes'], '');
+                $this->mapAssetTransforms($item['availableTransforms'], '');
+                break;
         }
     }
 }

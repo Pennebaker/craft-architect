@@ -57,14 +57,15 @@ abstract class Processor implements ProcessorInterface
 
     /**
      * @param array|string $sources
+     * @param string $prefix
      */
-    public function mapVolumeSources(&$sources)
+    public function mapVolumeSources(&$sources, $prefix = 'folder:')
     {
         if (is_array($sources)) {
             foreach ($sources as $k => $sourceHandle) {
                 $source = Craft::$app->volumes->getVolumeByHandle($sourceHandle);
                 if ($source) {
-                    $sources[$k] = 'folder:' . $source->id;
+                    $sources[$k] = $prefix . $source->id;
                 } else {
                     unset($sources[$k]);
                 }
@@ -72,12 +73,39 @@ abstract class Processor implements ProcessorInterface
         } else if (is_string($sources)) {
             $source = Craft::$app->volumes->getVolumeByHandle($sources);
             if ($source) {
-                $sources = 'folder:' . $source->id;
+                $sources = $prefix . $source->id;
             } else {
                 $sources = '*';
             }
         } else {
             $sources = '*';
+        }
+    }
+
+    /**
+     * @param array|string $transforms
+     * @param string $prefix
+     */
+    public function mapAssetTransforms(&$transforms, $prefix = 'transform:')
+    {
+        if (is_array($transforms)) {
+            foreach ($transforms as $k => $transformHandle) {
+                $transform = Craft::$app->assetTransforms->getTransformByHandle($transformHandle);
+                if ($transform) {
+                    $transforms[$k] = $prefix . $transform->id;
+                } else {
+                    unset($transforms[$k]);
+                }
+            }
+        } else if (is_string($transforms)) {
+            $transform = Craft::$app->assetTransforms->getTransformByHandle($transforms);
+            if ($transform) {
+                $transforms = $prefix . $transform->id;
+            } else {
+                $transforms = '*';
+            }
+        } else {
+            $transforms = '*';
         }
     }
 

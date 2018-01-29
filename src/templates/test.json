@@ -795,6 +795,26 @@
         ],
         "selectionLabel": "Select a User"
       }
+    },
+    {
+      "group": "Common",
+      "name": "Copy",
+      "handle": "copy",
+      "instructions": "Put the copy here.",
+      "type": "craft\\redactor\\Field",
+      "translationMethod": "language",
+      "translationKeyFormat": null,
+      "redactorConfig": "Standard.json",
+      "availableVolumes": [
+        "media"
+      ],
+      "availableTransforms": [
+        "thumbnail"
+      ],
+      "cleanupHtml": true,
+      "purifyHtml": true,
+      "purifierConfig": null,
+      "columnType": "text"
     }
   ],
   "entryTypes": [
