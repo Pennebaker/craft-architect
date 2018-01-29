@@ -230,6 +230,5 @@ class DefaultController extends Controller
             'results' => $results,
             'jsonData' => $jsonData,
         ]);
-
     }
 }
