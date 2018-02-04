@@ -199,29 +199,29 @@ class FieldProcessor extends Processor
                 $this->mapVolumeSources($item['sources']);
                 $this->mapVolumeSources($item['defaultUploadLocationSource']);
                 $this->mapVolumeSources($item['singleUploadLocationSource']);
-                $this->mapSites($item['targetSiteId']);
+                if (isset($item['targetSiteId'])) $this->mapSites($item['targetSiteId']);
                 break;
             case 'craft\\fields\\Entries':
                 $this->mapSectionSources($item['sources']);
-                $this->mapSites($item['targetSiteId']);
+                if (isset($item['targetSiteId'])) $this->mapSites($item['targetSiteId']);
                 break;
             case 'craft\\fields\\Categories':
                 if (is_array($item['source'])) {
                     $item['source'] = $item['source'][0];
                 }
                 $this->mapCategorySource($item['source']);
-                $this->mapSites($item['targetSiteId']);
+                if (isset($item['targetSiteId'])) $this->mapSites($item['targetSiteId']);
                 break;
             case 'craft\\fields\\Tags':
                 if (is_array($item['source'])) {
                     $item['source'] = $item['source'][0];
                 }
                 $this->mapTagSource($item['source']);
-                $this->mapSites($item['targetSiteId']);
+                if (isset($item['targetSiteId'])) $this->mapSites($item['targetSiteId']);
                 break;
             case 'craft\\fields\\Users':
                 $this->mapUserGroupSources($item['sources']);
-                $this->mapSites($item['targetSiteId']);
+                if (isset($item['targetSiteId'])) $this->mapSites($item['targetSiteId']);
                 break;
             case 'craft\\redactor\\Field':
                 $this->mapVolumeSources($item['availableVolumes'], '');
