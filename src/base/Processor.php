@@ -55,6 +55,31 @@ abstract class Processor implements ProcessorInterface
         return $fieldLayout;
     }
 
+
+    /**
+     * @param array|string $sites
+     * @param string $prefix
+     */
+    public function mapSites(&$sites, $prefix = '')
+    {
+        if (is_array($sites)) {
+            foreach ($sites as $k => $siteHandle) {
+                $site = Craft::$app->sites->getSiteByHandle($siteHandle);
+                if ($site) {
+                    $sites[$k] = $prefix . $site->id;
+                } else {
+                    unset($sites[$k]);
+                }
+            }
+        } else {
+            $site = Craft::$app->sites->getSiteByHandle($sites);
+            if ($site) {
+                $sites = $prefix . $site->id;
+            } else {
+                $sites = null;
+            }
+        }
+    }
     /**
      * @param array|string $sources
      * @param string $prefix
