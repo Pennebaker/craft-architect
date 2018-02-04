@@ -10,11 +10,10 @@
 
 namespace pennebaker\architect\controllers;
 
-use craft\models\Section_SiteSettings;
-use pennebaker\architect\Architect;
-
 use Craft;
 use craft\web\Controller;
+use craft\models\Section_SiteSettings;
+use pennebaker\architect\Architect;
 
 /**
  * Default Controller
@@ -220,7 +219,7 @@ class DefaultController extends Controller
         if ($noErrors) {
             unlink($backup);
         } else {
-            Architect::warning(Architect::t('Architect encountered errors performing an import, there is a database backup located at: {backup}', [ 'backup' => $backup ]));
+            Architect::warning('Architect encountered errors performing an import, there is a database backup located at: {backup}', [ 'backup' => $backup ]);
         }
 
         $this->renderTemplate('architect/import_results', [

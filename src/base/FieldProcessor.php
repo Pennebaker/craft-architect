@@ -11,6 +11,7 @@
 namespace pennebaker\architect\base;
 
 use Craft;
+use pennebaker\architect\Architect;
 
 /**
  * FieldProcessor defines the common interface to be implemented by plugin classes.

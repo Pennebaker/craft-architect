@@ -25,7 +25,7 @@
     <h2>{{ "Import Results"|t('architect') }}</h2>
 
     {% if not noErrors %}
-        <p class="error">Since Architect encountered errors it did not delete the database backup located at:</p>
+        <p class="error">{{ 'Architect encountered errors performing an import, there is a database backup located at: {backup}'|t('architect', {backup: ''}) }}</p>
         <code>{{ backupLocation }}</code>
     {% endif %}
 

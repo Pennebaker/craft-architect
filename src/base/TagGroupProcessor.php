@@ -14,6 +14,7 @@ use Craft;
 use craft\elements\Tag;
 use craft\models\FieldLayout;
 use craft\models\TagGroup;
+use pennebaker\architect\Architect;
 
 /**
  * TagGroupProcessor defines the common interface to be implemented by plugin classes.
