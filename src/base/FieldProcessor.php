@@ -229,4 +229,127 @@ class FieldProcessor extends Processor
                 break;
         }
     }
+
+    /**
+     * @param array $item
+     */
+    private function unmapSources(array &$item) {
+        switch ($item['type']) {
+            case 'craft\\fields\\Assets':
+                $this->unmapVolumeSources($item['sources']);
+                $this->unmapVolumeSources($item['defaultUploadLocationSource']);
+                $this->unmapVolumeSources($item['singleUploadLocationSource']);
+                $this->unmapSites($item['targetSiteId']);
+                break;
+            case 'craft\\fields\\Entries':
+                $this->unmapSectionSources($item['sources']);
+                $this->unmapSites($item['targetSiteId']);
+                break;
+            case 'craft\\fields\\Categories':
+                if (is_array($item['source'])) {
+                    $item['source'] = $item['source'][0];
+                }
+                $this->unmapCategorySource($item['source']);
+                $this->unmapSites($item['targetSiteId']);
+                break;
+            case 'craft\\fields\\Tags':
+                if (is_array($item['source'])) {
+                    $item['source'] = $item['source'][0];
+                }
+                $this->unmapTagSource($item['source']);
+                $this->unmapSites($item['targetSiteId']);
+                break;
+            case 'craft\\fields\\Users':
+                $this->unmapUserGroupSources($item['sources']);
+                $this->unmapSites($item['targetSiteId']);
+                break;
+            case 'craft\\redactor\\Field':
+                $this->unmapVolumeSources($item['availableVolumes'], '');
+                $this->unmapAssetTransforms($item['availableTransforms'], '');
+                break;
+        }
+    }
+
+    /**
+     * @param string $handle
+     *
+     * @return array
+     */
+    public function exportByHandle(string $handle) {
+        $field = Craft::$app->fields->getFieldByHandle($handle);
+        return $this->export($field);
+    }
+
+    /**
+     * @param string $class
+     *
+     * @return array|mixed
+     */
+    public function additionalAttributes(string $class) {
+        $additionalAttributes = [
+//            'craft\\fields\\PlainText' => [
+//                'placeholder',
+//            ],
+        ];
+        return (isset($additionalAttributes[$class])) ? $additionalAttributes[$class] : [];
+    }
+
+    /**
+     * @param $item
+     * @param array $extraAttributes
+     *
+     * @return array
+     */
+    public function export($item, array $extraAttributes = ['group']) {
+        $attributeObj = [];
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        if (count($item->supportedTranslationMethods()) > 1) {
+            $extraAttributes = array_merge($extraAttributes, ['translationMethod', 'translationKeyFormat']);
+        }
+        foreach($extraAttributes as $attribute) {
+            if ($attribute === 'group') {
+                $attributeObj[$attribute] = $item->$attribute->name;
+            } else if ($attribute === 'required') {
+                $attributeObj[$attribute] = boolval($item->$attribute);
+            } else {
+                $attributeObj[$attribute] = $item->$attribute;
+            }
+        }
+        $fieldObj = array_merge($attributeObj, [
+            'name' => $item->name,
+            'handle' => $item->handle,
+            'instructions' => $item->instructions,
+            'type' => get_class($item),
+        ], $item->getSettings());
+
+        if (isset($fieldObj['translationMethod']) && $fieldObj['translationMethod'] === 'none') unset($fieldObj['translationMethod']);
+
+        if (get_class($item) === 'craft\\fields\\Matrix') {
+            $blockTypesObj = [];
+            foreach ($item->getBlockTypes() as $blockType) {
+                $blockTypeObj = [
+                    'name' => $blockType->name,
+                    'handle' => $blockType->handle,
+                    'fields' => [],
+                ];
+                foreach ($blockType->getFields() as $blockField) {
+                    array_push($blockTypeObj['fields'], $this->export($blockField, [ 'required' ]));
+                }
+                array_push($blockTypesObj, $blockTypeObj);
+            }
+            $fieldObj['blockTypes'] = $blockTypesObj;
+        } else if (get_class($item) === 'craft\\fields\\Date') {
+            $fieldObj['dateTime'] = 'show' . (
+                    (boolval($fieldObj['showDate']) === false) ? 'Time' : (
+                        (boolval($fieldObj['showTime']) === false) ? 'Date' : 'Both'
+                    )
+                );
+            unset($fieldObj['showDate']);
+            unset($fieldObj['showTime']);
+        }
+
+        $this->unmapSources($fieldObj);
+
+        return $this->stripNulls($fieldObj);
+    }
 }
