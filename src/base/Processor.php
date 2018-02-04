@@ -55,6 +55,20 @@ abstract class Processor implements ProcessorInterface
         return $fieldLayout;
     }
 
+    /**
+     * @param array $obj
+     * @return array
+     */
+    public function stripNulls(array $obj) {
+        foreach ($obj as $key => $value) {
+            if (is_array($value)) {
+                $obj[$key] = $this->stripNulls($value);
+            } else if ($value === null) {
+                unset($obj[$key]);
+            }
+        }
+        return $obj;
+    }
 
     /**
      * @param array|string $sites
@@ -80,6 +94,36 @@ abstract class Processor implements ProcessorInterface
             }
         }
     }
+
+    /**
+     * @param array|string $sites
+     * @param string $prefix
+     */
+    public function unmapSites(&$sites, $prefix = '')
+    {
+        if (is_array($sites)) {
+            foreach ($sites as $k => $siteRef) {
+                $siteId = substr($siteRef, strlen($prefix));
+                $site = Craft::$app->sites->getSiteById($siteId);
+                if ($site) {
+                    $sites[$k] = $site->handle;
+                } else {
+                    unset($sites[$k]);
+                }
+            }
+        } else if (is_string($sites)) {
+            $siteId = substr($sites, strlen($prefix));
+            $site = Craft::$app->sites->getSiteById($siteId);
+            if ($site) {
+                $sites = $site->handle;
+            } else {
+                $sites = null;
+            }
+        } else {
+            $sites = null;
+        }
+    }
+
     /**
      * @param array|string $sources
      * @param string $prefix
@@ -104,6 +148,33 @@ abstract class Processor implements ProcessorInterface
             }
         } else {
             $sources = '*';
+        }
+    }
+
+    /**
+     * @param array|string $sources
+     * @param string $prefix
+     */
+    public function unmapVolumeSources(&$sources, $prefix = 'folder:')
+    {
+        if (is_array($sources)) {
+            foreach ($sources as $k => $sourceRef) {
+                $sourceId = substr($sourceRef, strlen($prefix));
+                $source = Craft::$app->volumes->getVolumeById($sourceId);
+                if ($source) {
+                    $sources[$k] = $source->handle;
+                } else {
+                    unset($sources[$k]);
+                }
+            }
+        } else if ($sources !== '*') {
+            $sourceId = substr($sources, strlen($prefix));
+            $source = Craft::$app->volumes->getVolumeById($sourceId);
+            if ($source) {
+                $sources = $source->handle;
+            } else {
+                $sources = '*';
+            }
         }
     }
 
@@ -135,6 +206,33 @@ abstract class Processor implements ProcessorInterface
     }
 
     /**
+     * @param array|string $transforms
+     * @param string $prefix
+     */
+    public function unmapAssetTransforms(&$transforms, $prefix = 'transform:')
+    {
+        if (is_array($transforms)) {
+            foreach ($transforms as $k => $transformRef) {
+                $transformId = substr($transformRef, strlen($prefix));
+                $transform = Craft::$app->assetTransforms->getTransformById($transformId);
+                if ($transform) {
+                    $transforms[$k] = $transform->handle;
+                } else {
+                    unset($transforms[$k]);
+                }
+            }
+        } else if (is_string($transforms)) {
+            $transformId = substr($transforms, strlen($prefix));
+            $transform = Craft::$app->assetTransforms->getTransformById($transformId);
+            if ($transform) {
+                $transforms = $transform->handle;
+            } else {
+                $transforms = '*';
+            }
+        }
+    }
+
+    /**
      * @param array|string $sources
      * @param string $prefix
      */
@@ -151,6 +249,19 @@ abstract class Processor implements ProcessorInterface
             $sources = '*';
         }
     }
+
+    /**
+     * @param array|string $sources
+     * @param string $prefix
+     */
+    public function unmapSectionSources(&$sources, $prefix = 'section:')
+    {
+        if (is_array($sources)) {
+            foreach ($sources as $k => $sourceRef) {
+                if ($sourceRef !== 'singles') {
+                    $sourceId = substr($sourceRef, strlen($prefix));
+                    $source = Craft::$app->sections->getSectionById($sourceId);
+                    $sources[$k] = $source->handle;
                 }
             }
         } else {
@@ -169,6 +280,17 @@ abstract class Processor implements ProcessorInterface
             $sourceHandle = $prefix . $source->id;
         }
     }
+
+    /**
+     * @param array|string $source
+     * @param string $prefix
+     */
+    public function unmapCategorySource(&$source, $prefix = 'group:')
+    {
+        $sourceId = substr($source, strlen($prefix));
+        $categoryGroup = Craft::$app->categories->getGroupById($sourceId);
+        if ($categoryGroup) {
+            $source = $categoryGroup->handle;
         }
     }
 
@@ -183,6 +305,17 @@ abstract class Processor implements ProcessorInterface
             $sourceHandle = $prefix . $source->id;
         }
     }
+
+    /**
+     * @param array|string $source
+     * @param string $prefix
+     */
+    public function unmapTagSource(&$source, $prefix = 'taggroup:')
+    {
+        $sourceId = substr($source, strlen($prefix));
+        $tagGroup = Craft::$app->tags->getTagGroupById($sourceId);
+        if ($tagGroup) {
+            $source = $tagGroup->handle;
         }
     }
 
@@ -203,6 +336,19 @@ abstract class Processor implements ProcessorInterface
             $sources = '*';
         }
     }
+
+    /**
+     * @param array|string $sources
+     * @param string $prefix
+     */
+    public function unmapUserGroupSources(&$sources, $prefix = 'group:')
+    {
+        if (is_array($sources)) {
+            foreach ($sources as $k => $sourceRef) {
+                if ($sourceRef !== 'admins') {
+                    $sourceId = substr($sourceRef, strlen($prefix));
+                    $userGroup = Craft::$app->userGroups->getGroupById($sourceId);
+                    $sources[$k] = $userGroup->handle;
                 }
             }
         } else {
