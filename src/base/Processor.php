@@ -136,14 +136,21 @@ abstract class Processor implements ProcessorInterface
 
     /**
      * @param array|string $sources
+     * @param string $prefix
      */
-    public function mapSectionSources(&$sources)
+    public function mapSectionSources(&$sources, $prefix = 'section:')
     {
         if (is_array($sources)) {
             foreach ($sources as $k => $sourceHandle) {
                 if ($sourceHandle !== 'singles') {
                     $source = Craft::$app->sections->getSectionByHandle($sourceHandle);
-                    $sources[$k] = 'section:' . $source->id;
+                    $sources[$k] = $prefix . $source->id;
+                }
+            }
+        } else {
+            $sources = '*';
+        }
+    }
                 }
             }
         } else {
@@ -153,36 +160,49 @@ abstract class Processor implements ProcessorInterface
 
     /**
      * @param array|string $sourceHandle
+     * @param string $prefix
      */
-    public function mapCategorySource(&$sourceHandle)
+    public function mapCategorySource(&$sourceHandle, $prefix = 'group:')
     {
         $source = Craft::$app->categories->getGroupByHandle($sourceHandle);
         if ($source) {
-            $sourceHandle = 'group:' . $source->id;
+            $sourceHandle = $prefix . $source->id;
+        }
+    }
         }
     }
 
     /**
      * @param array|string $sourceHandle
+     * @param string $prefix
      */
-    public function mapTagSource(&$sourceHandle)
+    public function mapTagSource(&$sourceHandle, $prefix = 'taggroup:')
     {
         $source = Craft::$app->tags->getTagGroupByHandle($sourceHandle);
         if ($source) {
-            $sourceHandle = 'taggroup:' . $source->id;
+            $sourceHandle = $prefix . $source->id;
+        }
+    }
         }
     }
 
     /**
      * @param array|string $sources
+     * @param string $prefix
      */
-    public function mapUserGroupSources(&$sources)
+    public function mapUserGroupSources(&$sources, $prefix = 'group:')
     {
         if (is_array($sources)) {
             foreach ($sources as $k => $sourceHandle) {
                 if ($sourceHandle !== 'admins') {
                     $source = Craft::$app->userGroups->getGroupByHandle($sourceHandle);
-                    $sources[$k] = 'group:' . $source->id;
+                    $sources[$k] = $prefix . $source->id;
+                }
+            }
+        } else {
+            $sources = '*';
+        }
+    }
                 }
             }
         } else {
