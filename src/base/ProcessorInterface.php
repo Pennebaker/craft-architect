@@ -46,7 +46,7 @@ interface ProcessorInterface
      * @param mixed $item The item to save
      * @param array $extraAttributes
      *
-     * @return array
+     * @return mixed
      */
 //    public function export($item, array $extraAttributes);
 }

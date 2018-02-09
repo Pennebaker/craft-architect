@@ -309,6 +309,7 @@ class FieldProcessor extends Processor
         foreach($extraAttributes as $attribute) {
             if ($attribute === 'group') {
                 $attributeObj[$attribute] = $item->$attribute->name;
+                $attributeObj[$attribute . 'Id'] = $item->$attribute->id;
             } else if ($attribute === 'required') {
                 $attributeObj[$attribute] = boolval($item->$attribute);
             } else {
@@ -351,5 +352,17 @@ class FieldProcessor extends Processor
         $this->unmapSources($fieldObj);
 
         return $this->stripNulls($fieldObj);
+    }
+
+    /**
+     * @param $id
+     *
+     * @return array
+     */
+    public function exportById($id)
+    {
+        $field = Craft::$app->fields->getFieldById($id);
+
+        return $this->export($field);
     }
 }
