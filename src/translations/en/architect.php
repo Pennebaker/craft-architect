@@ -24,7 +24,6 @@ return [
     'Architect plugin loaded' => 'Architect plugin loaded',
     'Import' => 'Import',
     'Export' => 'Export',
-    'Migrations' => 'Migrations',
     "Import CP Section body goes here" => "Import CP Section body goes here",
     'JSON Data' => 'JSON Data',
     'Put your json import data here.' => 'Put your json import data here.',
