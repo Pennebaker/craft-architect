@@ -17,8 +17,78 @@
 
 {% set selectedSubnavItem = 'export' %}
 
+{% set tabs = [
+    {
+        url: '#tab-sites',
+        label: 'Sites'|t('app')
+    },
+    {
+        url: '#tab-sections',
+        label: 'Sections'|t('app')
+    },
+    {
+        url: '#tab-fields',
+        label: 'Fields'|t('app')
+    },
+    {
+        url: '#tab-assets',
+        label: 'Assets'|t('app')
+    },
+    {
+        url: '#tab-globals',
+        label: 'Globals'|t('app')
+    },
+    {
+        url: '#tab-categories',
+        label: 'Categories'|t('app')
+    },
+    {
+        url: '#tab-tags',
+        label: 'Tags'|t('app')
+    },
+    {
+        url: '#tab-users',
+        label: 'Users'|t('app')
+    }
+] %}
+
 {# The content of the CP SectionProcessor #}
 {% set content %}
-    <h2>{{ "Export"|t('architect') }}</h2>
-    <p>Coming Soon.</p>
+    <h1 class="error">Exporting is not currently available.</h1>
+    <form class="field toolbar" action="" method="post" accept-charset="UTF-8">
+        <input type="hidden" name="action" value="theArchitect/constructblueprint">
+        {{ csrfInput() }}
+        <div id="fields">
+            <div>
+                <div id="tab-sites">
+                    {% include'architect/_blueprints/sites' %}
+                </div>
+                <div id="tab-sections" class="hidden">
+                    {% include'architect/_blueprints/sections' %}
+                </div>
+                <div id="tab-fields" class="hidden">
+                    {% include'architect/_blueprints/fields' %}
+                </div>
+                <div id="tab-assets" class="hidden">
+                    {% include'architect/_blueprints/volumes' %}
+                    <hr>
+                    {% include'architect/_blueprints/asset_transforms' %}
+                </div>
+                <div id="tab-globals" class="hidden">
+                    {% include'architect/_blueprints/globals' %}
+                </div>
+                <div id="tab-categories" class="hidden">
+                    {% include'architect/_blueprints/category_groups' %}
+                </div>
+                <div id="tab-tags" class="hidden">
+                    {% include'architect/_blueprints/tag_groups' %}
+                </div>
+                <div id="tab-users" class="hidden">
+                    {% include'architect/_blueprints/user_groups' %}
+                    <hr>
+                    {% include'architect/_blueprints/users' %}
+                </div>
+            </div>
+        </div>
+    </form>
 {% endset %}

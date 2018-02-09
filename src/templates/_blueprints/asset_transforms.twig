@@ -1,0 +1,38 @@
+<h1>{{ "Image Transforms"|t('app') }}</h1>
+<table class="data fullwidth collapsible">
+    <thead>
+    <tr>
+        <th class="checkbox-cell">
+            <div class="field checkboxassettransform">
+                <input type="checkbox" id="allAssetTransforms" class="checkbox" name="allAssetTransforms" value="all"><label for="allAssetTransforms"> </label>
+                {{ "Name"|t('app') }}
+            </div>
+        </th>
+        <th>{{ "Handle"|t('app') }}</th>
+        <th>{{ "Mode"|t('app') }}</th>
+        <th>{{ "Dimensions"|t('app') }}</th>
+        <th>{{ "Format"|t('app') }}</th>
+    </tr>
+    </thead>
+    <tbody class="assetTransforms">
+    {% for assetTransform in craft.app.assetTransforms.getAllTransforms() %}
+        <tr>
+            <th scope="row" class="checkbox-cell">
+                <input type="checkbox" id="assetTransform{{ assetTransform.id }}" class="checkbox" name="assetTransformSelection[]" value="{{ assetTransform.id }}"> <label for="assetTransform{{ assetTransform.id }}">{{ assetTransform }}</label>
+            </th>
+            <td>
+                <code>{{ assetTransform.handle }}</code>
+            </td>
+            <td>
+                {{ assetTransform.mode }}
+            </td>
+            <td>
+                <code>{{ assetTransform.width }} &times; {{ assetTransform.height }}</code>
+            </td>
+            <td>
+                {{ (assetTransform.format) ? assetTransform.format : 'auto' }}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

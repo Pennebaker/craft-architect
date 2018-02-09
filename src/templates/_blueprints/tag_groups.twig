@@ -1,0 +1,32 @@
+<h1>{{ "Tag Groups"|t('app') }}</h1>
+<table class="data fullwidth collapsible">
+    <thead>
+    <tr>
+        <th class="checkbox-cell">
+            <div class="field checkboxtag">
+                <input type="checkbox" id="allTags" class="checkbox" name="allTags" value="all"><label for="allTags"> </label>
+                {{ "Name"|t('app') }}
+            </div>
+        </th>
+        <th>{{ "Handle"|t('app') }}</th>
+    </tr>
+    </thead>
+    <tbody class="tags">
+    {% for tag in craft.app.tags.getAllTagGroups() %}
+        {% set utilizedFields = {} %}
+        {% for tagTab in tag.getFieldLayout().getTabs() %}
+            {% for tabField in tagTab.getFields() %}
+                {% set utilizedFields = utilizedFields | merge([tabField.id]) %}
+            {% endfor %}
+        {% endfor %}
+        <tr class="tag" data-id="{{ tag.id }}" data-name="{{ tag }}" data-fields="{% for id in utilizedFields %}{{ id }} {% endfor %}">
+            <th scope="row" class="checkbox-cell">
+                <input type="checkbox" id="tag{{ tag.id }}" class="checkbox" name="tagSelection[]" value="{{ tag.id }}"> <label for="tag{{ tag.id }}">{{ tag.name | raw }}</label>
+            </th>
+            <td>
+                <code>{{ tag.handle }}</code>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
