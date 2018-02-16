@@ -52,12 +52,16 @@
     }
 ] %}
 
+{% set fullPageForm = true %}
+
+{% block actionButton %}
+    <input type="submit" class="btn submit" value="{{ 'Export'|t('app') }}">
+{% endblock %}
+
 {# The content of the CP SectionProcessor #}
 {% set content %}
     <h1 class="error">Exporting is not currently available.</h1>
-    <form class="field toolbar" action="" method="post" accept-charset="UTF-8">
-        <input type="hidden" name="action" value="theArchitect/constructblueprint">
-        {{ csrfInput() }}
+    <div class="field toolbar">
         <div id="fields">
             <div>
                 <div id="tab-sites">

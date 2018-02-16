@@ -10,6 +10,20 @@
  * @since     2.0.0
  */
 (function($) {
+    function addClass(className, el) {
+        if (el.classList)
+            el.classList.add(className);
+        else
+            el.className += ' ' + className;
+    }
+
+    function removeClass(className, el) {
+        if (el.classList)
+            el.classList.remove(className);
+        else
+            el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+    }
+
     // The Architect Loaded
     $('#allSites').on('change', function(e) {
         if ($(this).is(':checked')) {
@@ -268,6 +282,24 @@
             $('[data-fields*="' + id + '"] [type="checkbox"]').prop('checked', false);
             $('[data-fields*="' + id + '"] [type="checkbox"]').change();
         }
+    });
+
+    var checkboxes = document.querySelectorAll('#fields [type="checkbox"]');
+    function canSubmit() {
+        var somethingChecked = (document.querySelectorAll('#fields [type="checkbox"]:checked').length > 0);
+        var submit = document.querySelector('#header [type="submit"]');
+        if (somethingChecked) {
+            removeClass('disabled', submit);
+            submit.removeAttribute('disabled');
+        } else {
+            addClass('disabled', submit);
+            submit.setAttribute('disabled', true);
+        }
+    }
+    canSubmit();
+    Object.keys(checkboxes).forEach(function (k) {
+        var checkbox = checkboxes[k];
+        checkbox.addEventListener('change', canSubmit);
     });
 
 /*

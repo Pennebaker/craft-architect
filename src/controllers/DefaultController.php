@@ -229,4 +229,44 @@ class DefaultController extends Controller
             'jsonData' => $jsonData,
         ]);
     }
+
+    /**
+     * Handle exporting structures,
+     * e.g.: actions/architect/default/export
+     */
+    public function actionExport() {
+        $data = [
+            'siteGroups' => [],
+            'sites' => [],
+            'fieldGroups' => [],
+            'volumes' => [],
+            'transforms' => [],
+            'tagGroups' => [],
+            'categoryGroups' => [],
+            'sections' => [],
+            'fields' => [],
+            'entryTypes' => [],
+            'globalSets' => [],
+        ];
+        $exportFields = Craft::$app->request->getBodyParam('fieldSelection');
+        if ($exportFields) {
+            foreach ($exportFields as $fieldId) {
+                $field = Architect::$processors->fields->exportById($fieldId);
+
+                $fieldGroupName = Architect::$processors->fieldGroups->exportById($field['groupId']);
+                if (array_search($fieldGroupName, $data['fieldGroups']) === false) {
+                    array_push($data['fieldGroups'], $fieldGroupName);
+                }
+                unset($field['groupId']);
+                array_push($data['fields'], $field);
+            }
+        }
+        foreach ($data as $key => $value) {
+            if (count($value) <= 0) {
+                unset($data[$key]);
+            }
+        }
+//        $data = array_merge($bodyParams, $data);
+        $this->renderTemplate('architect/export_results', [ 'dump' => json_encode($data, JSON_PRETTY_PRINT) ]);
+    }
 }
