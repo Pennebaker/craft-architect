@@ -389,4 +389,35 @@ abstract class Processor implements ProcessorInterface
             }
         }
     }
+
+    /**
+     * @param string $class
+     *
+     * @return array|mixed
+     */
+    public function additionalAttributes(string $class) {
+        $additionalAttributes = [];
+        return (isset($additionalAttributes[$class])) ? $additionalAttributes[$class] : [];
+    }
+
+    /**
+     * @param FieldLayout $fieldLayout
+     *
+     * @return array
+     */
+    public function exportLayout($fieldLayout) {
+//        Craft::dump($fieldLayout);
+        $fieldLayoutObj = [];
+        $tabs = $fieldLayout->getTabs();
+        usort($tabs, function($a, $b) {
+            return $a->sortOrder > $b->sortOrder;
+        });
+        foreach ($tabs as $tab) {
+            $fieldLayoutObj[$tab->name] = [];
+            foreach ($tab->getFields() as $field) {
+                array_push($fieldLayoutObj[$tab->name], $field->handle);
+            }
+        }
+        return $fieldLayoutObj;
+    }
 }

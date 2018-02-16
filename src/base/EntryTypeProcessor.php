@@ -76,4 +76,43 @@ class EntryTypeProcessor extends Processor
     {
         return Craft::$app->sections->saveEntryType($item);
     }
+
+    /**
+     * @param $item
+     * @param array $extraAttributes
+     *
+     * @return array
+     */
+    public function export($item, array $extraAttributes = [])
+    {
+        /** @var EntryType $item */
+        $attributeObj = [];
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        foreach($extraAttributes as $attribute) {
+            $attributeObj[$attribute] = $item->$attribute;
+        }
+        $hasTitleField = boolval($item->hasTitleField);
+        $entryTypeObj = array_merge([
+            'name' => $item->name,
+            'handle' => $item->handle,
+            'hasTitleField' => $hasTitleField,
+            'titleLabel' => ($hasTitleField) ? $item->titleLabel : null,
+            'titleFormat' => (!$hasTitleField) ? $item->titleFormat: null,
+            'fieldLayout' => $this->exportLayout($item->getFieldLayout()),
+        ], $attributeObj);
+
+        return $this->stripNulls($entryTypeObj);
+    }
+
+    /**
+     * @param $id
+     *
+     * @return array
+     */
+    public function exportById($id)
+    {
+        $entryType = Craft::$app->sections->getEntryTypeById($id);
+
+        return $this->export($entryType);
+    }
 }

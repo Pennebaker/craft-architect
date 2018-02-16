@@ -248,6 +248,18 @@ class DefaultController extends Controller
             'entryTypes' => [],
             'globalSets' => [],
         ];
+        $exportSections = Craft::$app->request->getBodyParam('sectionSelection');
+        if ($exportSections) {
+            foreach ($exportSections as $sectionId) {
+                $section = Architect::$processors->sections->exportById($sectionId);
+
+                if (isset($section['entryTypes']) && is_array($section['entryTypes'])) {
+                    $data['entryTypes'] = array_merge($data['entryTypes'], $section['entryTypes']);
+                    unset($section['entryTypes']);
+                }
+                array_push($data['sections'], $section);
+            }
+        }
         $exportFields = Craft::$app->request->getBodyParam('fieldSelection');
         if ($exportFields) {
             foreach ($exportFields as $fieldId) {
