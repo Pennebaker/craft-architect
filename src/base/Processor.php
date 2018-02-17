@@ -23,6 +23,12 @@ use craft\base\Field;
  */
 abstract class Processor implements ProcessorInterface
 {
+    /**
+     * @param $item
+     * @param $type
+     *
+     * @return FieldLayout
+     */
     public function createFieldLayout($item, $type) {
         $fieldLayout = new FieldLayout();
 

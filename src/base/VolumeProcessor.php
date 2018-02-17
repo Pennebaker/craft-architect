@@ -104,7 +104,7 @@ class VolumeProcessor extends Processor
         }
 
         $hasUrls = boolval($item->hasUrls);
-        $siteObj = array_merge([
+        $volumeObj = array_merge([
             'name' => $item->name,
             'handle' => $item->handle,
             'type' => get_class($item),
@@ -115,11 +115,11 @@ class VolumeProcessor extends Processor
             'requiredFields' => $this->exportRequiredFields($item->getFieldLayout()),
         ], $attributeObj);
 
-        if (count($siteObj['requiredFields']) <= 0) {
-            unset($siteObj['requiredFields']);
+        if (count($volumeObj['requiredFields']) <= 0) {
+            unset($volumeObj['requiredFields']);
         }
 
-        return $siteObj;
+        return $this->stripNulls($volumeObj);
     }
 
     /**

@@ -95,7 +95,7 @@ class SiteProcessor extends Processor
             'baseUrl' => $item->baseUrl,
         ], $attributeObj);
 
-        return $siteObj;
+        return $this->stripNulls($siteObj);
     }
 
     /**

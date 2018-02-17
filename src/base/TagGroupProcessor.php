@@ -109,7 +109,7 @@ class TagGroupProcessor extends Processor
             unset($tagGroupObj['requiredFields']);
         }
 
-        return $tagGroupObj;
+        return $this->stripNulls($tagGroupObj);
     }
 
     /**

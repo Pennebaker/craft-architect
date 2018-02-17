@@ -78,7 +78,7 @@ class TransformProcessor extends Processor
             'format' => $item->format,
         ], $attributeObj);
 
-        return $transformObj;
+        return $this->stripNulls($transformObj);
     }
 
     /**
