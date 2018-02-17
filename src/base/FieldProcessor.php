@@ -10,8 +10,10 @@
 
 namespace pennebaker\architect\base;
 
-use Craft;
 use pennebaker\architect\Architect;
+
+use Craft;
+use craft\base\Field;
 
 /**
  * FieldProcessor defines the common interface to be implemented by plugin classes.
@@ -271,16 +273,6 @@ class FieldProcessor extends Processor
     }
 
     /**
-     * @param string $handle
-     *
-     * @return array
-     */
-    public function exportByHandle(string $handle) {
-        $field = Craft::$app->fields->getFieldByHandle($handle);
-        return $this->export($field);
-    }
-
-    /**
      * @param string $class
      *
      * @return array|mixed
@@ -301,6 +293,7 @@ class FieldProcessor extends Processor
      * @return array
      */
     public function export($item, array $extraAttributes = ['group']) {
+        /** @var Field $item*/
         $attributeObj = [];
         $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
         if (count($item->supportedTranslationMethods()) > 1) {
@@ -363,6 +356,16 @@ class FieldProcessor extends Processor
     {
         $field = Craft::$app->fields->getFieldById($id);
 
+        return $this->export($field);
+    }
+
+    /**
+     * @param string $handle
+     *
+     * @return array
+     */
+    public function exportByHandle(string $handle) {
+        $field = Craft::$app->fields->getFieldByHandle($handle);
         return $this->export($field);
     }
 }

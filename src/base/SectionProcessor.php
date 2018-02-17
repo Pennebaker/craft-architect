@@ -45,6 +45,20 @@ class SectionProcessor extends Processor
     }
 
     /**
+     * @param $item
+     * @param bool $update
+     *
+     * @return bool|object
+     *
+     * @throws \Throwable
+     * @throws \craft\errors\SectionNotFoundException
+     */
+    public function save($item, bool $update = false)
+    {
+        return Craft::$app->sections->saveSection($item);
+    }
+
+    /**
      * @param string $class
      *
      * @return array|mixed
@@ -59,20 +73,6 @@ class SectionProcessor extends Processor
             ],
         ];
         return (isset($additionalAttributes[$class])) ? $additionalAttributes[$class] : [];
-    }
-
-    /**
-     * @param $item
-     * @param bool $update
-     *
-     * @return bool|object
-     *
-     * @throws \Throwable
-     * @throws \craft\errors\SectionNotFoundException
-     */
-    public function save($item, bool $update = false)
-    {
-        return Craft::$app->sections->saveSection($item);
     }
 
     /**

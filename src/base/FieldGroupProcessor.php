@@ -53,6 +53,7 @@ class FieldGroupProcessor extends Processor
      */
     public function export($item, array $extraAttributes = [])
     {
+        /** @var FieldGroup $item */
         return $item->name;
     }
 
