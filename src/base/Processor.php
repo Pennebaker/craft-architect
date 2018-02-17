@@ -12,6 +12,7 @@ namespace pennebaker\architect\base;
 
 use Craft;
 use craft\models\FieldLayout;
+use craft\base\Field;
 
 /**
  * Processor defines the common interface to be implemented by plugin classes.
@@ -405,7 +406,7 @@ abstract class Processor implements ProcessorInterface
      *
      * @return array
      */
-    public function exportLayout($fieldLayout) {
+    public function exportFieldLayout($fieldLayout) {
 //        Craft::dump($fieldLayout);
         $fieldLayoutObj = [];
         $tabs = $fieldLayout->getTabs();
@@ -419,5 +420,28 @@ abstract class Processor implements ProcessorInterface
             }
         }
         return $fieldLayoutObj;
+    }
+
+    /**
+     * @param FieldLayout $fieldLayout
+     *
+     * @return array
+     */
+    public function exportRequiredFields($fieldLayout) {
+//        Craft::dump($fieldLayout);
+        $requiredFieldsObj = [];
+        $tabs = $fieldLayout->getTabs();
+        usort($tabs, function($a, $b) {
+            return $a->sortOrder > $b->sortOrder;
+        });
+        foreach ($tabs as $tab) {
+            foreach ($tab->getFields() as $field) {
+                /** @var Field $field */
+                if (boolval($field->required)) {
+                    array_push($requiredFieldsObj, $field->handle);
+                }
+            }
+        }
+        return $requiredFieldsObj;
     }
 }
