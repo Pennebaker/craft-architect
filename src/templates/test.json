@@ -27,7 +27,7 @@
         "path": "media"
       },
       "fieldLayout": {
-        "Properties": [
+        "Content": [
           "newPlainText",
           "oldPlainText"
         ]
