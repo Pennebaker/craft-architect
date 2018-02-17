@@ -63,7 +63,17 @@ Current Working Imports:
 - Global Sets
 
 Current Working Exports:
-- None
+- Site Groups
+- Sites
+- Sections
+- Entry Types
+- Asset Volumes
+- Asset Transforms
+- Tag Groups
+- Category Groups
+- Field Groups
+- Fields
+- Global Sets
 
 ## Architect Roadmap
 
