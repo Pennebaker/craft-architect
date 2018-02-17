@@ -269,6 +269,9 @@ class DefaultController extends Controller
             'transforms' => [
                 'bodyParam' => 'assetTransformSelection',
             ],
+            'tagGroups' => [
+                'bodyParam' => 'tagSelection',
+            ],
             'fields' => [
                 'bodyParam' => 'fieldSelection',
                 'postProcess' => [
