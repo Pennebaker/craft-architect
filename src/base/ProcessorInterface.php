@@ -48,5 +48,14 @@ interface ProcessorInterface
      *
      * @return mixed
      */
-//    public function export($item, array $extraAttributes);
+    public function export($item, array $extraAttributes);
+
+    /**
+     * Gets an object from the passed in ID for export.
+     *
+     * @param $id
+     *
+     * @return mixed
+     */
+    public function exportById($id);
 }
