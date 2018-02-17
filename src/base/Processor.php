@@ -67,10 +67,13 @@ abstract class Processor implements ProcessorInterface
      * @return array
      */
     public function stripNulls(array $obj) {
+        $allowedNulls = [
+            'maxLevels'
+        ];
         foreach ($obj as $key => $value) {
             if (is_array($value)) {
                 $obj[$key] = $this->stripNulls($value);
-            } else if ($value === null) {
+            } else if ($value === null && !in_array($key, $allowedNulls)) {
                 unset($obj[$key]);
             }
         }
