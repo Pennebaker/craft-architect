@@ -1,0 +1,32 @@
+<h1>{{ "Sites"|t('app') }}</h1>
+<table class="data fullwidth collapsible">
+    <thead>
+    <tr>
+        <th class="checkbox-cell">
+            <div class="field checkboxsite">
+                <input type="checkbox" id="allSites" class="checkbox" name="allSites" value="all"><label for="allSites"> </label>
+                {{ "Name"|t('app') }}
+            </div>
+        </th>
+        <th>{{ "Handle"|t('app') }}</th>
+        <th>{{ "Language"|t('app') }}</th>
+        <th>{{ "Base URL"|t('app') }}</th>
+        <th>{{ "Group"|t('app') }}</th>
+    </tr>
+    </thead>
+    <tbody class="sites">
+    {% for site in craft.app.sites.getAllSites() %}
+        <tr class="site" data-id="{{ site.id }}" data-name="{{ site }}">
+            <th scope="row" class="checkbox-cell">
+                <input type="checkbox" id="site{{ site.id }}" class="checkbox" name="siteSelection[]" value="{{ site.id }}"> <label for="site{{ site.id }}">{{ site }}</label>
+            </th>
+            <td>
+                <code>{{ site.handle }}</code>
+            </td>
+            <td>{{ site.language }}</td>
+            <td>{{ site.baseUrl }}</td>
+            <td>{{ site.getGroup().name }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

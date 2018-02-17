@@ -62,4 +62,53 @@ class SiteProcessor extends Processor
         }
         return null;
     }
+
+    /**
+     * @param $item
+     * @param array $extraAttributes
+     *
+     * @return array
+     *
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function export($item, array $extraAttributes = [])
+    {
+        /** @var Site $item */
+        $attributeObj = [];
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        foreach($extraAttributes as $attribute) {
+            if ($attribute === 'propagateEntries') {
+                $attributeObj[$attribute] = boolval($item->$attribute);
+            } else {
+                $attributeObj[$attribute] = $item->$attribute;
+            }
+        }
+
+        $siteObj = array_merge([
+            'groupId' => $item->getGroup()->id,
+            'group' => $item->getGroup()->name,
+            'name' => $item->name,
+            'handle' => $item->handle,
+            'language' => $item->language,
+            'primary' => $item->primary,
+            'hasUrls' => $item->hasUrls,
+            'baseUrl' => $item->baseUrl,
+        ], $attributeObj);
+
+        return $this->stripNulls($siteObj);
+    }
+
+    /**
+     * @param $id
+     *
+     * @return array
+     *
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function exportById($id)
+    {
+        $site = Craft::$app->sites->getSiteById($id);
+
+        return $this->export($site);
+    }
 }

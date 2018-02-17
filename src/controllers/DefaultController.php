@@ -10,11 +10,10 @@
 
 namespace pennebaker\architect\controllers;
 
-use craft\models\Section_SiteSettings;
-use pennebaker\architect\Architect;
-
 use Craft;
 use craft\web\Controller;
+use craft\models\Section_SiteSettings;
+use pennebaker\architect\Architect;
 
 /**
  * Default Controller
@@ -220,7 +219,7 @@ class DefaultController extends Controller
         if ($noErrors) {
             unlink($backup);
         } else {
-            Architect::warning(Architect::t('Architect encountered errors performing an import, there is a database backup located at: {backup}', [ 'backup' => $backup ]));
+            Architect::warning('Architect encountered errors performing an import, there is a database backup located at: {backup}', [ 'backup' => $backup ]);
         }
 
         $this->renderTemplate('architect/import_results', [
@@ -229,5 +228,98 @@ class DefaultController extends Controller
             'results' => $results,
             'jsonData' => $jsonData,
         ]);
+    }
+
+    /**
+     * Handle exporting structures,
+     * e.g.: actions/architect/default/export
+     */
+    public function actionExport() {
+        // Initialize export array.
+        $data = [
+            'siteGroups' => [],
+            'sites' => [],
+            'fieldGroups' => [],
+            'volumes' => [],
+            'transforms' => [],
+            'tagGroups' => [],
+            'categoryGroups' => [],
+            'sections' => [],
+            'fields' => [],
+            'entryTypes' => [],
+            'globalSets' => [],
+        ];
+        // The list of exportable items.
+        $exportList = [
+            'sites' => [
+                'bodyParam' => 'siteSelection',
+                'postProcess' => [
+                    'groupId' => 'siteGroups'
+                ],
+            ],
+            'sections' => [
+                'bodyParam' => 'sectionSelection',
+                'postProcess' => [
+                    'entryTypes' => 'entryTypes'
+                ],
+            ],
+            'volumes' => [
+                'bodyParam' => 'volumeSelection',
+            ],
+            'transforms' => [
+                'bodyParam' => 'assetTransformSelection',
+            ],
+            'tagGroups' => [
+                'bodyParam' => 'tagSelection',
+            ],
+            'categoryGroups' => [
+                'bodyParam' => 'categorySelection',
+            ],
+            'fields' => [
+                'bodyParam' => 'fieldSelection',
+                'postProcess' => [
+                    'groupId' => 'fieldGroups'
+                ],
+            ],
+            'globalSets' => [
+                'bodyParam' => 'globalSelection',
+            ],
+        ];
+        foreach ($exportList as $processorName => $processorInfo) {
+            $exportIds = Craft::$app->request->getBodyParam($processorInfo['bodyParam']);
+            if ($exportIds) {
+                foreach ($exportIds as $exportId) {
+                    $exportObj = Architect::$processors->$processorName->exportById($exportId);
+
+                    if (isset($processorInfo['postProcess'])) {
+                        foreach ($processorInfo['postProcess'] as $postProcessKey => $postProcessorName) {
+                            switch ($postProcessKey) {
+                                case 'groupId':
+                                    $groupName = Architect::$processors->$postProcessorName->exportById($exportObj[$postProcessKey]);
+                                    if (array_search($groupName, $data[$postProcessorName]) === false) {
+                                        array_push($data[$postProcessorName], $groupName);
+                                    }
+                                    unset($exportObj[$postProcessKey]);
+                                    break;
+                                case 'entryTypes':
+                                    if (isset($exportObj[$postProcessKey]) && is_array($exportObj[$postProcessKey])) {
+                                        $data[$postProcessorName] = array_merge($data[$postProcessorName], $exportObj[$postProcessKey]);
+                                        unset($exportObj[$postProcessKey]);
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+
+                    array_push($data[$processorName], $exportObj);
+                }
+            }
+        }
+        foreach ($data as $key => $value) {
+            if (count($value) <= 0) {
+                unset($data[$key]);
+            }
+        }
+        $this->renderTemplate('architect/export_results', [ 'dump' => json_encode($data, JSON_PRETTY_PRINT) ]);
     }
 }

@@ -1,0 +1,35 @@
+<h1>{{ "Fields"|t('app') }}</h1>
+<table class="data fullwidth collapsible">
+    <thead>
+    <tr>
+        <th class="checkbox-cell">
+            <div class="field checkboxfield">
+                <input type="checkbox" id="allFields" class="checkbox" name="allFields" value="all"><label for="allFields"> </label>
+                {{ "Name"|t('app') }}
+            </div>
+        </th>
+        <th>{{ "Handle"|t('app') }}</th>
+        <th>{{ "Type"|t('app') }}</th>
+        <th>{{ "Group"|t('app') }}</th>
+    </tr>
+    </thead>
+    <tbody class="fields">
+    {% for field in craft.app.fields.getAllFields() %}
+        {% set utilizedFields = {} %}
+        <tr class="field" data-id="{{ field.id }}" data-groupid="{{ field.group.id }}" data-name="{{ field }}" data-fields="{% for id in utilizedFields %}{{ id }} {% endfor %}">
+            <th scope="row" class="checkbox-cell">
+                <input type="checkbox" id="field{{ field.id }}" class="checkbox" name="fieldSelection[]" value="{{ field.id }}"> <label for="field{{ field.id }}">{{ field }}</label>
+            </th>
+            <td>
+                <code>{{ field.handle }}</code>
+            </td>
+            <td>
+                {{ className(field) }}
+            </td>
+            <td>
+                {{ field.group }}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

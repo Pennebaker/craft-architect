@@ -15,10 +15,10 @@
 
 {% extends "architect/_layouts/base" %}
 
-{% set selectedSubnavItem = 'migrations' %}
+{% set selectedSubnavItem = 'export' %}
 
-{# The content of the CP Section #}
+{# The content of the CP SectionProcessor #}
 {% set content %}
-    <h2>{{ "Migrations"|t('app') }}</h2>
-    <p>Coming Soon.</p>
+    <h2>{{ "Export"|t('architect') }}</h2>
+    <code><pre>{{ dump }}</pre></code>
 {% endset %}

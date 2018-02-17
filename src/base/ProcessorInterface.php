@@ -39,4 +39,14 @@ interface ProcessorInterface
      * @return object
      */
     public function save($item, bool $update);
+
+    /**
+     * Exports an object into an array.
+     *
+     * @param mixed $item The item to save
+     * @param array $extraAttributes
+     *
+     * @return mixed
+     */
+//    public function export($item, array $extraAttributes);
 }

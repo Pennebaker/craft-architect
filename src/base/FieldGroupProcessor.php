@@ -44,4 +44,28 @@ class FieldGroupProcessor extends Processor
     {
         return Craft::$app->fields->saveGroup($item);
     }
+
+    /**
+     * @param $item
+     * @param array $extraAttributes
+     *
+     * @return string
+     */
+    public function export($item, array $extraAttributes = [])
+    {
+        /** @var FieldGroup $item */
+        return $item->name;
+    }
+
+    /**
+     * @param $id
+     *
+     * @return string
+     */
+    public function exportById($id)
+    {
+        $fieldGroup = Craft::$app->fields->getGroupById($id);
+
+        return $this->export($fieldGroup);
+    }
 }

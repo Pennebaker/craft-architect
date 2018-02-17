@@ -10,15 +10,17 @@
 
 namespace pennebaker\architect;
 
-use pennebaker\architect\services\ArchitectService;
 use pennebaker\architect\base\Processors;
+use pennebaker\architect\services\ArchitectService;
+use pennebaker\architect\variables\ArchitectVariable;
 
 use Craft;
 use craft\base\Plugin;
-use craft\services\Plugins;
 use craft\events\PluginEvent;
-use craft\web\UrlManager;
 use craft\events\RegisterUrlRulesEvent;
+use craft\services\Plugins;
+use craft\web\UrlManager;
+use craft\web\twig\variables\CraftVariable;
 
 use yii\base\Event;
 
@@ -73,14 +75,16 @@ class Architect extends Plugin
         self::$plugin = $this;
         self::$processors = new Processors();
 
-        // Register our site routes
-        // Event::on(
-        //     UrlManager::class,
-        //     UrlManager::EVENT_REGISTER_SITE_URL_RULES,
-        //     function (RegisterUrlRulesEvent $event) {
-        //         $event->rules['siteActionTrigger1'] = 'architect/default';
-        //     }
-        // );
+        // Register our variables
+        Event::on(
+            CraftVariable::class,
+            CraftVariable::EVENT_INIT,
+            function (Event $event) {
+                /** @var CraftVariable $variable */
+                $variable = $event->sender;
+                $variable->set('architect', ArchitectVariable::class);
+            }
+        );
 
         // Register our CP routes
          Event::on(

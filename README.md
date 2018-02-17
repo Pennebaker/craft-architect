@@ -62,9 +62,18 @@ Current Working Imports:
 - Fields
 - Global Sets
 
-
 Current Working Exports:
-- None
+- Site Groups
+- Sites
+- Sections
+- Entry Types
+- Asset Volumes
+- Asset Transforms
+- Tag Groups
+- Category Groups
+- Field Groups
+- Fields
+- Global Sets
 
 ## Architect Roadmap
 
@@ -72,13 +81,13 @@ Some things to do, and ideas for potential features:
 
 * Convert plugin for use with Craft 3
 
-[2.0.0]
+[2.0.0] ***complete***
 - Importing finished
 
-[2.1.0]
+[2.1.0] ***complete***
 - Exporting finished
 
-[2.2.0]
+[2.2.0] ***in-progress***
 - Importing Users
 - Exporting Users
 

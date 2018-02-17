@@ -10,6 +10,8 @@
 
 namespace pennebaker\architect\base;
 
+use pennebaker\architect\Architect;
+
 use Craft;
 use craft\elements\Tag;
 use craft\models\FieldLayout;
@@ -79,5 +81,46 @@ class TagGroupProcessor extends Processor
         $tagGroup->setFieldLayout($fieldLayout);
 
         return $this->save($tagGroup);
+    }
+
+    /**
+     * @param $item
+     * @param array $extraAttributes
+     *
+     * @return array
+     */
+    public function export($item, array $extraAttributes = [])
+    {
+        /** @var TagGroup $item */
+        $attributeObj = [];
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        foreach($extraAttributes as $attribute) {
+            $attributeObj[$attribute] = $item->$attribute;
+        }
+
+        $tagGroupObj = array_merge([
+            'name' => $item->name,
+            'handle' => $item->handle,
+            'fieldLayout' => $this->exportFieldLayout($item->getFieldLayout()),
+            'requiredFields' => $this->exportRequiredFields($item->getFieldLayout()),
+        ], $attributeObj);
+
+        if (count($tagGroupObj['requiredFields']) <= 0) {
+            unset($tagGroupObj['requiredFields']);
+        }
+
+        return $this->stripNulls($tagGroupObj);
+    }
+
+    /**
+     * @param $id
+     *
+     * @return array
+     */
+    public function exportById($id)
+    {
+        $tagGroup = Craft::$app->tags->getTagGroupById($id);
+
+        return $this->export($tagGroup);
     }
 }

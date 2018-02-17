@@ -10,6 +10,13 @@
  * @since     2.0.0
  */
 
+.sidebar nav li a .icon,
+.sidebar nav li a .icon svg{
+    width: 48px;
+    height: 24px;
+}
+
+
 .icon.failure svg,
 .icon.success svg
 {

@@ -27,7 +27,7 @@
         "path": "media"
       },
       "fieldLayout": {
-        "Properties": [
+        "Content": [
           "newPlainText",
           "oldPlainText"
         ]
@@ -222,7 +222,6 @@
       "name": "New Asset",
       "handle": "newAsset",
       "instructions": "This is the new asset json structure.",
-      "required": false,
       "type": "craft\\fields\\Assets",
       "useSingleFolder": false,
       "sources": [
@@ -245,7 +244,6 @@
       "name": "Old Asset",
       "handle": "oldAsset",
       "instructions": "This is the old asset structure.",
-      "required": false,
       "type": "Assets",
       "typesettings": {
         "useSingleFolder": "1",
@@ -583,7 +581,6 @@
       "name": "New Number",
       "handle": "newNumber",
       "instructions": "This is the new number structure.",
-      "required": false,
       "type": "craft\\fields\\Number",
       "min": 1,
       "max": 10,
@@ -595,7 +592,6 @@
       "name": "Old Number",
       "handle": "oldNumber",
       "instructions": "This is the old number structure.",
-      "required": false,
       "type": "Number",
       "typesettings": {
         "min": 1,
@@ -608,7 +604,6 @@
       "name": "New Plain Text",
       "handle": "newPlainText",
       "instructions": "This is the new plain text structure.",
-      "required": false,
       "type": "craft\\fields\\PlainText",
       "placeholder": "",
       "charLimit": 140,
@@ -620,7 +615,6 @@
       "name": "Old Plain Text",
       "handle": "oldPlainText",
       "instructions": "This is the old plain text structure.",
-      "required": false,
       "type": "PlainText",
       "typesettings": {
         "placeholder": "",

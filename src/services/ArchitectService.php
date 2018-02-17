@@ -43,10 +43,10 @@ class ArchitectService extends Component
      *
      * @return mixed
      */
-    public function exampleService()
-    {
-        $result = 'something';
-
-        return $result;
-    }
+//    public function exampleService()
+//    {
+//        $result = 'something';
+//
+//        return $result;
+//    }
 }

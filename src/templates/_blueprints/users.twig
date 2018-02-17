@@ -1,0 +1,30 @@
+<h1>{{ "Users"|t('app') }}</h1>
+<table class="data fullwidth collapsible">
+    <thead>
+    <tr>
+        <th class="checkbox-cell">
+            <div class="field checkboxuser">
+                <input type="checkbox" id="allUsers" class="checkbox" name="allUsers" value="all"><label for="allUsers"> </label>
+                {{ "Name"|t('app') }}
+            </div>
+        </th>
+        <th>{{ "Email"|t('app') }}</th>
+    </tr>
+    </thead>
+    <tbody class="users">
+    {% for user in craft.architect.getAllUsers() %}
+        {% set utilizedGroups = {} %}
+        {% for group in user.getGroups() %}
+            {% set utilizedGroups = utilizedGroups | merge([group.id]) %}
+        {% endfor %}
+        <tr class="user" data-id="{{ user.id }}" data-name="{{ user }}" data-groups="{% for id in utilizedGroups %}{{ id }} {% endfor %}">
+            <th scope="row" class="checkbox-cell">
+                <input type="checkbox" id="user{{ user.id }}" class="checkbox" name="userSelection[]" value="{{ user.id }}"> <label for="user{{ user.id }}">{{ user.firstName }} {{ user.lastName }}</label>
+            </th>
+            <td>
+                {{ user.email }}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

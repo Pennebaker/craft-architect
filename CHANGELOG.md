@@ -5,8 +5,20 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.1.0] - 2018-02-16
 ### Added
 - Redactor Field Importing
+- Site Group Exporting
+- Site Exporting
+- Section Exporting
+- Entry Type Exporting
+- Volume Exporting
+- Asset Transform Exporting
+- Tag Group Exporting
+- Category Group Exporting
+- Field Exporting
+- Global Set Exporting
 
 ## [2.0.0] - 2018-01-29
 ### Added
@@ -39,7 +51,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.0.0...develop
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.1.0...develop
+[2.1.0]: https://github.com/pennebaker/craft-architect/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/pennebaker/craft-architect/compare/2.0.0-beta.3...2.0.0
 [2.0.0-beta.3]: https://github.com/pennebaker/craft-architect/compare/2.0.0-beta.2...2.0.0-beta.3
 [2.0.0-beta.2]: https://github.com/pennebaker/craft-architect/compare/2.0.0-beta.1...2.0.0-beta.2

@@ -50,4 +50,46 @@ class TransformProcessor extends Processor
     {
         return Craft::$app->assetTransforms->saveTransform($item);
     }
+
+    /**
+     * @param $item
+     * @param array $extraAttributes
+     *
+     * @return array
+     */
+    public function export($item, array $extraAttributes = [])
+    {
+        /** @var AssetTransform $item */
+        $attributeObj = [];
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        foreach($extraAttributes as $attribute) {
+            $attributeObj[$attribute] = $item->$attribute;
+        }
+
+        $transformObj = array_merge([
+            'name' => $item->name,
+            'handle' => $item->handle,
+            'mode' => $item->mode,
+            'position' => $item->position,
+            'width' => (int) $item->width,
+            'height' => (int) $item->height,
+            'quality' => (int) $item->quality,
+            'interlace' => $item->interlace,
+            'format' => $item->format,
+        ], $attributeObj);
+
+        return $this->stripNulls($transformObj);
+    }
+
+    /**
+     * @param $id
+     *
+     * @return array
+     */
+    public function exportById($id)
+    {
+        $transform = Craft::$app->assetTransforms->getTransformById($id);
+
+        return $this->export($transform);
+    }
 }
