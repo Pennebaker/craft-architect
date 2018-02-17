@@ -10,9 +10,12 @@
 
 namespace pennebaker\architect\base;
 
+use pennebaker\architect\Architect;
+
 use Craft;
 use craft\elements\Asset;
 use craft\models\FieldLayout;
+use craft\base\Volume;
 
 /**
  * VolumeProcessor defines the common interface to be implemented by plugin classes.
@@ -30,6 +33,16 @@ class VolumeProcessor extends Processor
      */
     public function parse(array $item)
     {
+        if (sizeof($item['fieldLayout']) > 1 || (sizeof($item['fieldLayout']) === 1 && !isset($item['fieldLayout']['Content']))) {
+            $errors = [
+                'fieldLayout' => [
+                    Architect::t('Field layout can only have 1 tab named "Content".')
+
+                ]
+            ];
+            return [null, $errors];
+        }
+
         $volume = Craft::$app->volumes->createVolume([
             'type' => $item['type'],
             'name' => $item['name'],
@@ -73,5 +86,51 @@ class VolumeProcessor extends Processor
         $volume->setFieldLayout($fieldLayout);
 
         return $this->save($volume);
+    }
+
+    /**
+     * @param $item
+     * @param array $extraAttributes
+     *
+     * @return array
+     */
+    public function export($item, array $extraAttributes = [])
+    {
+        /** @var Volume $item */
+        $attributeObj = [];
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        foreach($extraAttributes as $attribute) {
+            $attributeObj[$attribute] = $item->$attribute;
+        }
+
+        $hasUrls = boolval($item->hasUrls);
+        $siteObj = array_merge([
+            'name' => $item->name,
+            'handle' => $item->handle,
+            'type' => get_class($item),
+            'hasUrls' => $hasUrls,
+            'url' => ($hasUrls) ? $item->url : null,
+            'settings' => $item->settings,
+            'fieldLayout' => $this->exportFieldLayout($item->getFieldLayout()),
+            'requiredFields' => $this->exportRequiredFields($item->getFieldLayout()),
+        ], $attributeObj);
+
+        if (count($siteObj['requiredFields']) <= 0) {
+            unset($siteObj['requiredFields']);
+        }
+
+        return $siteObj;
+    }
+
+    /**
+     * @param $id
+     *
+     * @return array
+     */
+    public function exportById($id)
+    {
+        $volume = Craft::$app->volumes->getVolumeById($id);
+
+        return $this->export($volume);
     }
 }

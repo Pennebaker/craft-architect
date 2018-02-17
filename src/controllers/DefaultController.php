@@ -263,6 +263,9 @@ class DefaultController extends Controller
                     'entryTypes' => 'entryTypes'
                 ],
             ],
+            'volumes' => [
+                'bodyParam' => 'volumeSelection',
+            ],
             'fields' => [
                 'bodyParam' => 'fieldSelection',
                 'postProcess' => [
@@ -276,7 +279,7 @@ class DefaultController extends Controller
                 foreach ($exportIds as $exportId) {
                     $exportObj = Architect::$processors->$processorName->exportById($exportId);
 
-                    if ($processorInfo['postProcess']) {
+                    if (isset($processorInfo['postProcess'])) {
                         foreach ($processorInfo['postProcess'] as $postProcessKey => $postProcessorName) {
                             switch ($postProcessKey) {
                                 case 'groupId':
@@ -305,7 +308,6 @@ class DefaultController extends Controller
                 unset($data[$key]);
             }
         }
-//        $data = array_merge($bodyParams, $data);
         $this->renderTemplate('architect/export_results', [ 'dump' => json_encode($data, JSON_PRETTY_PRINT) ]);
     }
 }
