@@ -129,7 +129,7 @@ class VolumeProcessor extends Processor
      */
     public function exportById($id)
     {
-        $volume = Craft::$app->volumes->getVolumeById($id);
+        $volume = Craft::$app->volumes->getVolumeById((int) $id);
 
         return $this->export($volume);
     }

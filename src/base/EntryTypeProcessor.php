@@ -46,7 +46,7 @@ class EntryTypeProcessor extends Processor
             }
         }
 
-        $entryType = (isset($item['id'])) ? Craft::$app->sections->getEntryTypeById($item['id']) : new EntryType();
+        $entryType = (isset($item['id'])) ? Craft::$app->sections->getEntryTypeById((int) $item['id']) : new EntryType();
         $entryType->sectionId = $section->id;
         $entryType->name = $item['name'];
         $entryType->handle = $item['handle'];
@@ -121,7 +121,7 @@ class EntryTypeProcessor extends Processor
      */
     public function exportById($id)
     {
-        $entryType = Craft::$app->sections->getEntryTypeById($id);
+        $entryType = Craft::$app->sections->getEntryTypeById((int) $id);
 
         return $this->export($entryType);
     }

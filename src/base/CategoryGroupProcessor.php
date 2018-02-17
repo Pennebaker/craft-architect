@@ -132,7 +132,7 @@ class CategoryGroupProcessor extends Processor
      */
     public function exportById($id)
     {
-        $categoryGroup = Craft::$app->categories->getGroupById($id);
+        $categoryGroup = Craft::$app->categories->getGroupById((int) $id);
 
         return $this->export($categoryGroup);
     }

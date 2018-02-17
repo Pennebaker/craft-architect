@@ -161,7 +161,7 @@ class DefaultController extends Controller
                     }
                     if ($itemSuccess) {
                         if ($parseKey === 'entryTypes') {
-                            $addedEntryTypes[] =  Craft::$app->sections->getSectionById($item->sectionId)->handle . ':' . $item->handle;
+                            $addedEntryTypes[] =  Craft::$app->sections->getSectionById((int) $item->sectionId)->handle . ':' . $item->handle;
                         }
                         switch ($parseKey) {
                             case 'sections':

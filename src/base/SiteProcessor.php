@@ -107,7 +107,7 @@ class SiteProcessor extends Processor
      */
     public function exportById($id)
     {
-        $site = Craft::$app->sites->getSiteById($id);
+        $site = Craft::$app->sites->getSiteById((int) $id);
 
         return $this->export($site);
     }

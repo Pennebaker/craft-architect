@@ -64,7 +64,7 @@ class SiteGroupProcessor extends Processor
      */
     public function exportById($id)
     {
-        $siteGroup = Craft::$app->sites->getGroupById($id);
+        $siteGroup = Craft::$app->sites->getGroupById((int) $id);
 
         return $this->export($siteGroup);
     }

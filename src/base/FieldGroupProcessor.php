@@ -64,7 +64,7 @@ class FieldGroupProcessor extends Processor
      */
     public function exportById($id)
     {
-        $fieldGroup = Craft::$app->fields->getGroupById($id);
+        $fieldGroup = Craft::$app->fields->getGroupById((int) $id);
 
         return $this->export($fieldGroup);
     }

@@ -89,7 +89,7 @@ class GlobalSetProcessor extends Processor
      */
     public function exportById($id)
     {
-        $globalSet = Craft::$app->globals->getSetById($id);
+        $globalSet = Craft::$app->globals->getSetById((int) $id);
 
         return $this->export($globalSet);
     }

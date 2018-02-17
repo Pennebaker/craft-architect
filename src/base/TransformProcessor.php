@@ -88,7 +88,7 @@ class TransformProcessor extends Processor
      */
     public function exportById($id)
     {
-        $transform = Craft::$app->assetTransforms->getTransformById($id);
+        $transform = Craft::$app->assetTransforms->getTransformById((int) $id);
 
         return $this->export($transform);
     }

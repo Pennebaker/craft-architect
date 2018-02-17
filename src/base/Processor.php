@@ -114,7 +114,7 @@ abstract class Processor implements ProcessorInterface
         if (is_array($sites)) {
             foreach ($sites as $k => $siteRef) {
                 $siteId = substr($siteRef, strlen($prefix));
-                $site = Craft::$app->sites->getSiteById($siteId);
+                $site = Craft::$app->sites->getSiteById((int) $siteId);
                 if ($site) {
                     $sites[$k] = $site->handle;
                 } else {
@@ -123,7 +123,7 @@ abstract class Processor implements ProcessorInterface
             }
         } else if (is_string($sites)) {
             $siteId = substr($sites, strlen($prefix));
-            $site = Craft::$app->sites->getSiteById($siteId);
+            $site = Craft::$app->sites->getSiteById((int) $siteId);
             if ($site) {
                 $sites = $site->handle;
             } else {
@@ -170,7 +170,7 @@ abstract class Processor implements ProcessorInterface
         if (is_array($sources)) {
             foreach ($sources as $k => $sourceRef) {
                 $sourceId = substr($sourceRef, strlen($prefix));
-                $source = Craft::$app->volumes->getVolumeById($sourceId);
+                $source = Craft::$app->volumes->getVolumeById((int) $sourceId);
                 if ($source) {
                     $sources[$k] = $source->handle;
                 } else {
@@ -179,7 +179,7 @@ abstract class Processor implements ProcessorInterface
             }
         } else if ($sources !== '*') {
             $sourceId = substr($sources, strlen($prefix));
-            $source = Craft::$app->volumes->getVolumeById($sourceId);
+            $source = Craft::$app->volumes->getVolumeById((int) $sourceId);
             if ($source) {
                 $sources = $source->handle;
             } else {
@@ -224,7 +224,7 @@ abstract class Processor implements ProcessorInterface
         if (is_array($transforms)) {
             foreach ($transforms as $k => $transformRef) {
                 $transformId = substr($transformRef, strlen($prefix));
-                $transform = Craft::$app->assetTransforms->getTransformById($transformId);
+                $transform = Craft::$app->assetTransforms->getTransformById((int) $transformId);
                 if ($transform) {
                     $transforms[$k] = $transform->handle;
                 } else {
@@ -233,7 +233,7 @@ abstract class Processor implements ProcessorInterface
             }
         } else if (is_string($transforms)) {
             $transformId = substr($transforms, strlen($prefix));
-            $transform = Craft::$app->assetTransforms->getTransformById($transformId);
+            $transform = Craft::$app->assetTransforms->getTransformById((int) $transformId);
             if ($transform) {
                 $transforms = $transform->handle;
             } else {
@@ -270,7 +270,7 @@ abstract class Processor implements ProcessorInterface
             foreach ($sources as $k => $sourceRef) {
                 if ($sourceRef !== 'singles') {
                     $sourceId = substr($sourceRef, strlen($prefix));
-                    $source = Craft::$app->sections->getSectionById($sourceId);
+                    $source = Craft::$app->sections->getSectionById((int) $sourceId);
                     $sources[$k] = $source->handle;
                 }
             }
@@ -298,7 +298,7 @@ abstract class Processor implements ProcessorInterface
     public function unmapCategorySource(&$source, $prefix = 'group:')
     {
         $sourceId = substr($source, strlen($prefix));
-        $categoryGroup = Craft::$app->categories->getGroupById($sourceId);
+        $categoryGroup = Craft::$app->categories->getGroupById((int) $sourceId);
         if ($categoryGroup) {
             $source = $categoryGroup->handle;
         }
@@ -323,7 +323,7 @@ abstract class Processor implements ProcessorInterface
     public function unmapTagSource(&$source, $prefix = 'taggroup:')
     {
         $sourceId = substr($source, strlen($prefix));
-        $tagGroup = Craft::$app->tags->getTagGroupById($sourceId);
+        $tagGroup = Craft::$app->tags->getTagGroupById((int) $sourceId);
         if ($tagGroup) {
             $source = $tagGroup->handle;
         }
@@ -357,7 +357,7 @@ abstract class Processor implements ProcessorInterface
             foreach ($sources as $k => $sourceRef) {
                 if ($sourceRef !== 'admins') {
                     $sourceId = substr($sourceRef, strlen($prefix));
-                    $userGroup = Craft::$app->userGroups->getGroupById($sourceId);
+                    $userGroup = Craft::$app->userGroups->getGroupById((int) $sourceId);
                     $sources[$k] = $userGroup->handle;
                 }
             }

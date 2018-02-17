@@ -119,7 +119,7 @@ class TagGroupProcessor extends Processor
      */
     public function exportById($id)
     {
-        $tagGroup = Craft::$app->tags->getTagGroupById($id);
+        $tagGroup = Craft::$app->tags->getTagGroupById((int) $id);
 
         return $this->export($tagGroup);
     }

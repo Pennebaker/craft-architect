@@ -103,7 +103,7 @@ class FieldProcessor extends Processor
             }
         }
 
-        if ($groupId && Craft::$app->fields->getGroupById($groupId)) {
+        if ($groupId && Craft::$app->fields->getGroupById((int) $groupId)) {
             $fieldObject = array_merge($item, [
                 'groupId' => $groupId
             ]);
@@ -354,7 +354,7 @@ class FieldProcessor extends Processor
      */
     public function exportById($id)
     {
-        $field = Craft::$app->fields->getFieldById($id);
+        $field = Craft::$app->fields->getFieldById((int) $id);
 
         return $this->export($field);
     }

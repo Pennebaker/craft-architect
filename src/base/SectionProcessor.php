@@ -132,7 +132,7 @@ class SectionProcessor extends Processor
      */
     public function exportById($id)
     {
-        $section = Craft::$app->sections->getSectionById($id);
+        $section = Craft::$app->sections->getSectionById((int) $id);
 
         return $this->export($section);
     }
