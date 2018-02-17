@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - Redactor Field Importing
+- Site Group Exporting
+- Site Exporting
+- Section Exporting
+- Entry Type Exporting
+- Volume Exporting
+- Asset Transform Exporting
+- Field Exporting
 
 ## [2.0.0] - 2018-01-29
 ### Added
