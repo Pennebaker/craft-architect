@@ -45,12 +45,15 @@
     {
         url: '#tab-tags',
         label: 'Tags'|t('app')
-    },
-    {
-        url: '#tab-users',
-        label: 'Users'|t('app')
     }
 ] %}
+
+{% if CraftEdition == CraftPro %}
+    {% set tabs = tabs|merge([{
+        url: '#tab-users',
+        label: 'Users'|t('app')
+    }]) %}
+{% endif %}
 
 {% set fullPageForm = true %}
 
@@ -86,11 +89,13 @@
                 <div id="tab-tags" class="hidden">
                     {% include'architect/_blueprints/tag_groups' %}
                 </div>
-                <div id="tab-users" class="hidden">
-                    {% include'architect/_blueprints/user_groups' %}
-                    <hr>
-                    {% include'architect/_blueprints/users' %}
-                </div>
+                {% if CraftEdition == CraftPro %}
+                    <div id="tab-users" class="hidden">
+                        {% include'architect/_blueprints/user_groups' %}
+                        <hr>
+                        {% include'architect/_blueprints/users' %}
+                    </div>
+                {% endif %}
             </div>
         </div>
     </form>

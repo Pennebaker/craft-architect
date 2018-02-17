@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [2.1.0] - 2018-02-16
+## [2.1.2] - 2018-02-17
+## Fixed
+- User group errors when not using Craft Pro.
+
+## [2.1.1] - 2018-02-16
 ## Fixed
 - Removed export not available notification.
 
@@ -55,7 +59,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.1.1...develop
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.1.2...develop
+[2.1.2]: https://github.com/pennebaker/craft-architect/compare/2.1.1...2.1.2
 [2.1.1]: https://github.com/pennebaker/craft-architect/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/pennebaker/craft-architect/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/pennebaker/craft-architect/compare/2.0.0-beta.3...2.0.0
