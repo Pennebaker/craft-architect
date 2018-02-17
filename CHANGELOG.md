@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ## [2.1.0] - 2018-02-16
+## Fixed
+- Removed export not available notification.
+
+## [2.1.0] - 2018-02-16
 ### Added
 - Redactor Field Importing
 - Site Group Exporting
@@ -51,7 +55,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.1.0...develop
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.1.1...develop
+[2.1.1]: https://github.com/pennebaker/craft-architect/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/pennebaker/craft-architect/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/pennebaker/craft-architect/compare/2.0.0-beta.3...2.0.0
 [2.0.0-beta.3]: https://github.com/pennebaker/craft-architect/compare/2.0.0-beta.2...2.0.0-beta.3
