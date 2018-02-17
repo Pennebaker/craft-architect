@@ -82,6 +82,8 @@ class EntryTypeProcessor extends Processor
      * @param array $extraAttributes
      *
      * @return array
+     *
+     * @throws \yii\base\InvalidConfigException
      */
     public function export($item, array $extraAttributes = [])
     {
@@ -93,11 +95,12 @@ class EntryTypeProcessor extends Processor
         }
         $hasTitleField = boolval($item->hasTitleField);
         $entryTypeObj = array_merge([
+            'sectionHandle' => $item->getSection()->handle,
             'name' => $item->name,
             'handle' => $item->handle,
             'hasTitleField' => $hasTitleField,
-            'titleLabel' => ($hasTitleField) ? $item->titleLabel : null,
-            'titleFormat' => (!$hasTitleField) ? $item->titleFormat: null,
+            'titleLabel' => ($hasTitleField) ? $item->titleLabel : "",
+            'titleFormat' => (!$hasTitleField) ? $item->titleFormat : "",
             'fieldLayout' => $this->exportFieldLayout($item->getFieldLayout()),
             'requiredFields' => $this->exportRequiredFields($item->getFieldLayout()),
         ], $attributeObj);
@@ -113,6 +116,8 @@ class EntryTypeProcessor extends Processor
      * @param $id
      *
      * @return array
+     *
+     * @throws \yii\base\InvalidConfigException
      */
     public function exportById($id)
     {
