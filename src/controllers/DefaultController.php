@@ -281,6 +281,9 @@ class DefaultController extends Controller
                     'groupId' => 'fieldGroups'
                 ],
             ],
+            'globalSets' => [
+                'bodyParam' => 'globalSelection',
+            ],
         ];
         foreach ($exportList as $processorName => $processorInfo) {
             $exportIds = Craft::$app->request->getBodyParam($processorInfo['bodyParam']);

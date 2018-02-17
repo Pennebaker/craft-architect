@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Tag Group Exporting
 - Category Group Exporting
 - Field Exporting
+- Global Set Exporting
 
 ## [2.0.0] - 2018-01-29
 ### Added
