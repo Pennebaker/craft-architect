@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.1.4] - 2018-02-17
+## Added
+- Copy to clipboard button on export results page.
+
+## Fixed
+- Javascript errors when not on export page.
+
+## Changed
+- Moved exported json into textarea
+
 ## [2.1.3] - 2018-02-17
 ## Fixed
 - Errors if a string is passed into a `getById()` function.
@@ -63,7 +73,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.1.3...develop
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.1.4...develop
+[2.1.4]: https://github.com/pennebaker/craft-architect/compare/2.1.3...2.1.4
 [2.1.3]: https://github.com/pennebaker/craft-architect/compare/2.1.2...2.1.3
 [2.1.2]: https://github.com/pennebaker/craft-architect/compare/2.1.1...2.1.2
 [2.1.1]: https://github.com/pennebaker/craft-architect/compare/2.1.0...2.1.1
