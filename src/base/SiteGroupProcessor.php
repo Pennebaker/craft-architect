@@ -44,4 +44,28 @@ class SiteGroupProcessor extends Processor
     {
         return Craft::$app->sites->saveGroup($item);
     }
+
+    /**
+     * @param $item
+     * @param array $extraAttributes
+     *
+     * @return string
+     */
+    public function export($item, array $extraAttributes = [])
+    {
+        /** @var SiteGroup $item */
+        return $item->name;
+    }
+
+    /**
+     * @param $id
+     *
+     * @return string
+     */
+    public function exportById($id)
+    {
+        $siteGroup = Craft::$app->sites->getGroupById($id);
+
+        return $this->export($siteGroup);
+    }
 }

@@ -248,6 +248,19 @@ class DefaultController extends Controller
             'entryTypes' => [],
             'globalSets' => [],
         ];
+        $exportSites = Craft::$app->request->getBodyParam('siteSelection');
+        if ($exportSites) {
+            foreach ($exportSites as $siteId) {
+                $site = Architect::$processors->sites->exportById($siteId);
+
+                $siteGroupName = Architect::$processors->siteGroups->exportById($site['groupId']);
+                if (array_search($siteGroupName, $data['siteGroups']) === false) {
+                    array_push($data['siteGroups'], $siteGroupName);
+                }
+                unset($site['groupId']);
+                array_push($data['fields'], $site);
+            }
+        }
         $exportSections = Craft::$app->request->getBodyParam('sectionSelection');
         if ($exportSections) {
             foreach ($exportSections as $sectionId) {
