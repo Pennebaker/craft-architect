@@ -235,6 +235,7 @@ class DefaultController extends Controller
      * e.g.: actions/architect/default/export
      */
     public function actionExport() {
+        // Initialize export array.
         $data = [
             'siteGroups' => [],
             'sites' => [],
@@ -248,42 +249,55 @@ class DefaultController extends Controller
             'entryTypes' => [],
             'globalSets' => [],
         ];
-        $exportSites = Craft::$app->request->getBodyParam('siteSelection');
-        if ($exportSites) {
-            foreach ($exportSites as $siteId) {
-                $site = Architect::$processors->sites->exportById($siteId);
+        // The list of exportable items.
+        $exportList = [
+            'sites' => [
+                'bodyParam' => 'siteSelection',
+                'postProcess' => [
+                    'groupId' => 'siteGroups'
+                ],
+            ],
+            'sections' => [
+                'bodyParam' => 'sectionSelection',
+                'postProcess' => [
+                    'entryTypes' => 'entryTypes'
+                ],
+            ],
+            'fields' => [
+                'bodyParam' => 'fieldSelection',
+                'postProcess' => [
+                    'groupId' => 'fieldGroups'
+                ],
+            ],
+        ];
+        foreach ($exportList as $processorName => $processorInfo) {
+            $exportIds = Craft::$app->request->getBodyParam($processorInfo['bodyParam']);
+            if ($exportIds) {
+                foreach ($exportIds as $exportId) {
+                    $exportObj = Architect::$processors->$processorName->exportById($exportId);
 
-                $siteGroupName = Architect::$processors->siteGroups->exportById($site['groupId']);
-                if (array_search($siteGroupName, $data['siteGroups']) === false) {
-                    array_push($data['siteGroups'], $siteGroupName);
-                }
-                unset($site['groupId']);
-                array_push($data['fields'], $site);
-            }
-        }
-        $exportSections = Craft::$app->request->getBodyParam('sectionSelection');
-        if ($exportSections) {
-            foreach ($exportSections as $sectionId) {
-                $section = Architect::$processors->sections->exportById($sectionId);
+                    if ($processorInfo['postProcess']) {
+                        foreach ($processorInfo['postProcess'] as $postProcessKey => $postProcessorName) {
+                            switch ($postProcessKey) {
+                                case 'groupId':
+                                    $groupName = Architect::$processors->$postProcessorName->exportById($exportObj[$postProcessKey]);
+                                    if (array_search($groupName, $data[$postProcessorName]) === false) {
+                                        array_push($data[$postProcessorName], $groupName);
+                                    }
+                                    unset($exportObj[$postProcessKey]);
+                                    break;
+                                case 'entryTypes':
+                                    if (isset($exportObj[$postProcessKey]) && is_array($exportObj[$postProcessKey])) {
+                                        $data[$postProcessorName] = array_merge($data[$postProcessorName], $exportObj[$postProcessKey]);
+                                        unset($exportObj[$postProcessKey]);
+                                    }
+                                    break;
+                            }
+                        }
+                    }
 
-                if (isset($section['entryTypes']) && is_array($section['entryTypes'])) {
-                    $data['entryTypes'] = array_merge($data['entryTypes'], $section['entryTypes']);
-                    unset($section['entryTypes']);
+                    array_push($data[$processorName], $exportObj);
                 }
-                array_push($data['sections'], $section);
-            }
-        }
-        $exportFields = Craft::$app->request->getBodyParam('fieldSelection');
-        if ($exportFields) {
-            foreach ($exportFields as $fieldId) {
-                $field = Architect::$processors->fields->exportById($fieldId);
-
-                $fieldGroupName = Architect::$processors->fieldGroups->exportById($field['groupId']);
-                if (array_search($fieldGroupName, $data['fieldGroups']) === false) {
-                    array_push($data['fieldGroups'], $fieldGroupName);
-                }
-                unset($field['groupId']);
-                array_push($data['fields'], $field);
             }
         }
         foreach ($data as $key => $value) {
