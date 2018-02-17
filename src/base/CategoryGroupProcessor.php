@@ -80,4 +80,60 @@ class CategoryGroupProcessor extends Processor
 
         return $this->save($categoryGroup);
     }
+
+    /**
+     * @param $item
+     * @param array $extraAttributes
+     *
+     * @return array
+     *
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function export($item, array $extraAttributes = [])
+    {
+        /** @var CategoryGroup $item */
+        $attributeObj = [];
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        foreach($extraAttributes as $attribute) {
+            $attributeObj[$attribute] = $item->$attribute;
+        }
+
+        $categoryGroupObj = array_merge([
+            'name' => $item->name,
+            'handle' => $item->handle,
+            'maxLevels' => $item->maxLevels,
+            'siteSettings' => [],
+            'fieldLayout' => $this->exportFieldLayout($item->getFieldLayout()),
+            'requiredFields' => $this->exportRequiredFields($item->getFieldLayout()),
+        ], $attributeObj);
+
+        $siteSettings = $item->getSiteSettings();
+        foreach ($siteSettings as $siteSetting) {
+            array_push($categoryGroupObj['siteSettings'], [
+                'siteId' => ($siteSetting->getSite()->primary) ? null : $siteSetting->getSite()->handle,
+                'uriFormat' => $siteSetting->uriFormat,
+                'template' => $siteSetting->template,
+            ]);
+        }
+
+        if (count($categoryGroupObj['requiredFields']) <= 0) {
+            unset($categoryGroupObj['requiredFields']);
+        }
+
+        return $this->stripNulls($categoryGroupObj);
+    }
+
+    /**
+     * @param $id
+     *
+     * @return array
+     *
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function exportById($id)
+    {
+        $categoryGroup = Craft::$app->categories->getGroupById($id);
+
+        return $this->export($categoryGroup);
+    }
 }

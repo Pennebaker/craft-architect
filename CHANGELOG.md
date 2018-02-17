@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Volume Exporting
 - Asset Transform Exporting
 - Tag Group Exporting
+- Category Group Exporting
 - Field Exporting
 
 ## [2.0.0] - 2018-01-29

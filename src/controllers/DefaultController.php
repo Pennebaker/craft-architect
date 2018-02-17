@@ -272,6 +272,9 @@ class DefaultController extends Controller
             'tagGroups' => [
                 'bodyParam' => 'tagSelection',
             ],
+            'categoryGroups' => [
+                'bodyParam' => 'categorySelection',
+            ],
             'fields' => [
                 'bodyParam' => 'fieldSelection',
                 'postProcess' => [
