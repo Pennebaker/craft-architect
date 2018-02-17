@@ -266,6 +266,9 @@ class DefaultController extends Controller
             'volumes' => [
                 'bodyParam' => 'volumeSelection',
             ],
+            'transforms' => [
+                'bodyParam' => 'assetTransformSelection',
+            ],
             'fields' => [
                 'bodyParam' => 'fieldSelection',
                 'postProcess' => [
