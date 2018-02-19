@@ -294,7 +294,7 @@
         });
 
         var checkboxes = document.querySelectorAll('#fields [type="checkbox"]');
-        function canSubmit() {
+        function canExport() {
             var somethingChecked = (document.querySelectorAll('#fields [type="checkbox"]:checked').length > 0);
             var submit = document.querySelector('#header [type="submit"]');
             if (submit) {
@@ -307,11 +307,32 @@
                 }
             }
         }
-        canSubmit();
-        Object.keys(checkboxes).forEach(function (k) {
-            var checkbox = checkboxes[k];
-            checkbox.addEventListener('change', canSubmit);
-        });
+        if (window.location.pathname.endsWith('architect/export')) {
+            canExport();
+            Object.keys(checkboxes).forEach(function (k) {
+                var checkbox = checkboxes[k];
+                checkbox.addEventListener('change', canExport);
+            });
+        }
+        var importInput = document.getElementById('jsonData');
+        function canImport() {
+            var submit = document.querySelector('#header [type="submit"]');
+            if (submit) {
+                if (importInput.value) {
+                    removeClass('disabled', submit);
+                    submit.removeAttribute('disabled');
+                } else {
+                    addClass('disabled', submit);
+                    submit.setAttribute('disabled', true);
+                }
+            }
+        }
+        if (window.location.pathname.endsWith('architect/import')) {
+            canImport();
+            importInput.addEventListener('change', canImport);
+            importInput.addEventListener('keyup', canImport);
+            importInput.addEventListener('paste', canImport);
+        }
 
     /*
         $('#similarFields tbody tr').each(function() {

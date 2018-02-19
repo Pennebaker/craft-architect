@@ -18,47 +18,45 @@
 
 {% set selectedSubnavItem = 'import' %}
 
+{% set fullPageForm = true %}
+
+{% block actionButton %}
+    <input type="submit" class="btn submit" value="{{ 'Import'|t('architect') }}">
+{% endblock %}
+
 {# The content of the CP Section #}
 {% set content %}
     <h2>{{ "Import"|t('architect') }}</h2>
 
-    <form method="post" action="">
+    {#{% if jsonData is not defined %}#}
+        {#{% set jsonData = source('architect/test.json') %}#}
+    {#{% endif %}#}
 
-        {{ csrfInput() }}
+    {% if invalidJson %}
+        <p class="error">JSON:
+            {% switch invalidJson %}
+            {% case 1 %}
+                The maximum stack depth has been exceeded.
+            {% case 2 %}
+                Occurs with underflow or with the modes mismatch.
+            {% case 3 %}
+                Control character error, possibly incorrectly encoded.
+            {% case 4 %}
+                Syntax error.
+            {% case 5 %}
+                Malformed UTF-8 characters, possibly incorrectly encoded.
+            {% endswitch %}
+        </p>
+    {% endif %}
 
-        {#{% if jsonData is not defined %}#}
-            {#{% set jsonData = source('architect/test.json') %}#}
-        {#{% endif %}#}
-
-        {{ forms.textareaField({
-            label: "JSON Data"|t('architect'),
-            instructions: "Put your json import data here."|t('architect'),
-            id: 'jsonData',
-            class: 'code',
-            name: 'jsonData',
-            value: (jsonData is defined) ? jsonData : '',
-            rows: 30
-        }) }}
-
-        {% if invalidJson %}
-            <p class="error">JSON:
-                {% switch invalidJson %}
-                    {% case 1 %}
-                        The maximum stack depth has been exceeded.
-                    {% case 2 %}
-                        Occurs with underflow or with the modes mismatch.
-                    {% case 3 %}
-                        Control character error, possibly incorrectly encoded.
-                    {% case 4 %}
-                        Syntax error.
-                    {% case 5 %}
-                        Malformed UTF-8 characters, possibly incorrectly encoded.
-                {% endswitch %}
-            </p>
-        {% endif %}
-
-        <input type="submit" class="btn submit" value="{{ 'Import'|t('architect') }}" />
-
-    </form>
+    {{ forms.textareaField({
+        label: "JSON Data"|t('architect'),
+        instructions: "Put your json import data here."|t('architect'),
+        id: 'jsonData',
+        class: 'code',
+        name: 'jsonData',
+        value: (jsonData is defined) ? jsonData : '',
+        rows: 30
+    }) }}
 
 {% endset %}
