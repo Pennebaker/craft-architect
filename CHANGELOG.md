@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.2.0] - 2018-02-18
 ## Added
 - User Group Importing
 - User Group Exporting
@@ -78,7 +80,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.1.4...develop
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.2.0...develop
+[2.1.4]: https://github.com/pennebaker/craft-architect/compare/2.1.4...2.2.0
 [2.1.4]: https://github.com/pennebaker/craft-architect/compare/2.1.3...2.1.4
 [2.1.3]: https://github.com/pennebaker/craft-architect/compare/2.1.2...2.1.3
 [2.1.2]: https://github.com/pennebaker/craft-architect/compare/2.1.1...2.1.2

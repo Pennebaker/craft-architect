@@ -82,16 +82,16 @@ Some things to do, and ideas for potential features:
 * Convert plugin for use with Craft 3
 
 [2.0.0] ***complete***
-- Importing finished
+- Importing
 
 [2.1.0] ***complete***
-- Exporting finished
+- Exporting
 
-[2.2.0] ***in-progress***
+[2.2.0] ***complete***
 - Importing Users
 - Exporting Users
 
-[2.3.0]
-- Migrations finished
+[2.3.0] ***in-progress***
+- Migrations
 
 Brought to you by [Pennebaker](https://pennebaker.com)
