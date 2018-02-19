@@ -224,22 +224,22 @@
             }
         });
 
-        $('#allGroups').on('change', function(e) {
+        $('#allUserGroups').on('change', function(e) {
             if ($(this).is(':checked')) {
-                $('.groups [id^="group"]:not(:disabled)').prop('checked', true);
-                $('.groups [id^="group"]:not(:disabled)').change();
+                $('.userGroups [id^="userGroup"]:not(:disabled)').prop('checked', true);
+                $('.userGroups [id^="userGroup"]:not(:disabled)').change();
             } else {
-                $('.groups [id^="group"]:not(:disabled)').prop('checked', false);
-                $('.groups [id^="group"]:not(:disabled)').change();
+                $('.userGroups [id^="userGroup"]:not(:disabled)').prop('checked', false);
+                $('.userGroups [id^="userGroup"]:not(:disabled)').change();
             }
         });
-        $('.groups [id^="group"]:not(:disabled)').on('change', function(e) {
+        $('.userGroups [id^="userGroup"]:not(:disabled)').on('change', function(e) {
             if ($(this).is(':checked')) {
-                if ($('.groups [id^="group"]:checked:not(:disabled)').length == $('.groups [id^="group"]:not(:disabled)').length) {
-                    $('#allGroups').prop('checked', true);
+                if ($('.userGroups [id^="userGroup"]:checked:not(:disabled)').length == $('.userGroups [id^="userGroup"]:not(:disabled)').length) {
+                    $('#allUserGroups').prop('checked', true);
                 }
             } else {
-                $('#allGroups').prop('checked', false);
+                $('#allUserGroups').prop('checked', false);
             }
         });
 

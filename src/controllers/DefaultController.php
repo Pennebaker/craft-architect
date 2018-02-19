@@ -13,6 +13,7 @@ namespace pennebaker\architect\controllers;
 use Craft;
 use craft\web\Controller;
 use craft\models\Section_SiteSettings;
+
 use pennebaker\architect\Architect;
 
 /**
@@ -65,10 +66,12 @@ class DefaultController extends Controller
             'transforms',
             'tagGroups',
             'categoryGroups',
+            'userGroups',
             'fieldGroups',
             'fields',
             'entryTypes',
             'globalSets',
+            'users',
         ];
         // Successfully imported items needed for various post processing procedures.
         $successful = [
@@ -76,6 +79,8 @@ class DefaultController extends Controller
             'volumes' => [],
             'tagGroups' => [],
             'categoryGroups' => [],
+            'userGroups' => [],
+            'users' => [],
         ];
         /**
          * Things to process field layouts for after importing of fields.
@@ -85,6 +90,14 @@ class DefaultController extends Controller
             'volumes',
             'tagGroups',
             'categoryGroups',
+        ];
+        /**
+         * Things to process permissions for after importing of fields.
+         * Things in this list are needed for fields to import properly but can also use user groups in fields.
+         */
+        $postProcessPermissions = [
+            'users',
+            'userGroups',
         ];
         $addedEntryTypes = [];
         $results = [];
@@ -160,21 +173,20 @@ class DefaultController extends Controller
                         $item = ($item) ? $item : $itemObj;
                     }
                     if ($itemSuccess) {
+                        $jsonObj[$parseKey][$itemKey]['id'] = $item->id;
                         if ($parseKey === 'entryTypes') {
                             $addedEntryTypes[] =  Craft::$app->sections->getSectionById((int) $item->sectionId)->handle . ':' . $item->handle;
                         }
                         switch ($parseKey) {
                             case 'sections':
-                                $successful['sections'][] = $item->handle;
+                                $successful[$parseKey][] = $item->handle;
                                 break;
                             case 'volumes':
-                                $successful['volumes'][] = $itemKey;
-                                break;
                             case 'tagGroups':
-                                $successful['tagGroups'][] = $itemKey;
-                                break;
                             case 'categoryGroups':
-                                $successful['categoryGroups'][] = $itemKey;
+                            case 'userGroups':
+                            case 'users':
+                                $successful[$parseKey][] = $itemKey;
                                 break;
                         }
                     }
@@ -193,8 +205,38 @@ class DefaultController extends Controller
         foreach ($postProcessFieldLayouts as $parseKey) {
             if (isset($jsonObj[$parseKey]) && is_array($jsonObj[$parseKey])) {
                 foreach($successful[$parseKey] as $volumeHandle => $itemKey) {
-                    $item = $jsonObj[$parseKey][$itemKey];
-                    Architect::$processors->$parseKey->setFieldLayout($item);
+                    $itemObj = $jsonObj[$parseKey][$itemKey];
+                    Architect::$processors->$parseKey->setFieldLayout($itemObj);
+                }
+            }
+        }
+
+        /**
+         * Post Processing on Users to assign User Groups
+         */
+        if (isset($jsonObj['users']) && is_array($jsonObj['users'])) {
+            foreach ($successful['users'] as $itemKey) {
+                $itemObj = $jsonObj['users'][$itemKey];
+                if (isset($itemObj['groups']) && is_array($itemObj['groups'])) {
+                    $groupIds = [];
+                    foreach ($itemObj['groups'] as $groupHandle) {
+                        $group = Craft::$app->userGroups->getGroupByHandle($groupHandle);
+                        if ($group)
+                            $groupIds[] = $group->id;
+                    }
+                    Craft::$app->users->assignUserToGroups($itemObj['id'], $groupIds);
+                }
+            }
+        }
+
+        /**
+         * Post Processing to set permissions
+         */
+        foreach ($postProcessPermissions as $parseKey) {
+            if (isset($successful[$parseKey]) && is_array($successful[$parseKey])) {
+                foreach($successful[$parseKey] as $itemKey) {
+                    $itemObj = $jsonObj[$parseKey][$itemKey];
+                    Architect::$processors->$parseKey->setPermissions($parseKey, $itemObj);
                 }
             }
         }
@@ -248,6 +290,8 @@ class DefaultController extends Controller
             'fields' => [],
             'entryTypes' => [],
             'globalSets' => [],
+            'userGroups' => [],
+            'users' => [],
         ];
         // The list of exportable items.
         $exportList = [
@@ -284,7 +328,14 @@ class DefaultController extends Controller
             'globalSets' => [
                 'bodyParam' => 'globalSelection',
             ],
+            'userGroups' => [
+                'bodyParam' => 'userGroupSelection',
+            ],
+            'users' => [
+                'bodyParam' => 'userSelection',
+            ]
         ];
+
         foreach ($exportList as $processorName => $processorInfo) {
             $exportIds = Craft::$app->request->getBodyParam($processorInfo['bodyParam']);
             if ($exportIds) {
@@ -315,11 +366,13 @@ class DefaultController extends Controller
                 }
             }
         }
+
         foreach ($data as $key => $value) {
             if (count($value) <= 0) {
                 unset($data[$key]);
             }
         }
+
         $this->renderTemplate('architect/export_results', [ 'dump' => json_encode($data, JSON_PRETTY_PRINT) ]);
     }
 }

@@ -4,22 +4,22 @@
     <tr>
         <th class="checkbox-cell">
             <div class="field checkboxusergroup">
-                <input type="checkbox" id="allGroups" class="checkbox" name="allGroups" value="all"><label for="allGroups"> </label>
+                <input type="checkbox" id="allUserGroups" class="checkbox" name="allUserGroups" value="all"><label for="allUserGroups"> </label>
                 {{ "Name"|t('app') }}
             </div>
         </th>
         <th>{{ "Handle"|t('app') }}</th>
     </tr>
     </thead>
-    <tbody class="groups">
+    <tbody class="userGroups">
     {% if craft.userGroups is not null %}
-        {% for group in craft.app.userGroups.getAllGroups() %}
-            <tr class="group" data-id="{{ group.id }}" data-name="{{ group }}">
+        {% for userGroup in craft.app.userGroups.getAllGroups() %}
+            <tr class="userGroup" data-id="{{ userGroup.id }}" data-name="{{ userGroup }}">
                 <th scope="row" class="checkbox-cell">
-                    <input type="checkbox" id="group{{ group.id }}" class="checkbox" name="groupSelection[]" value="{{ group.id }}"> <label for="group{{ group.id }}">{{ group }}</label>
+                    <input type="checkbox" id="userGroup{{ userGroup.id }}" class="checkbox" name="userGroupSelection[]" value="{{ userGroup.id }}"> <label for="userGroup{{ userGroup.id }}">{{ userGroup }}</label>
                 </th>
                 <td>
-                    <code>{{ group.handle }}</code>
+                    <code>{{ userGroup.handle }}</code>
                 </td>
             </tr>
         {% endfor %}
