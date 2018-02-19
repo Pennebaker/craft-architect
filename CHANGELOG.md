@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - User Importing
 - User Exporting
 
+## Changed
+- Import page layout.
+
 ## [2.1.4] - 2018-02-17
 ## Added
 - Copy to clipboard button on export results page.
