@@ -28,6 +28,7 @@ namespace pennebaker\architect\base;
  */
 class Processors
 {
+
     public $siteGroups;
     public $sites;
     public $sections;
@@ -39,6 +40,8 @@ class Processors
     public $fields;
     public $fieldGroups;
     public $globalSets;
+    public $userGroups;
+    public $users;
 
     public function __construct()
     {
@@ -53,5 +56,7 @@ class Processors
         $this->fields = new FieldProcessor();
         $this->fieldGroups = new FieldGroupProcessor();
         $this->globalSets = new GlobalSetProcessor();
+        $this->userGroups = new UserGroupProcessor();
+        $this->users = new UserProcessor();
     }
 }

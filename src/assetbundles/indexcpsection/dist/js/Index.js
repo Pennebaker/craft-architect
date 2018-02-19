@@ -224,22 +224,22 @@
             }
         });
 
-        $('#allGroups').on('change', function(e) {
+        $('#allUserGroups').on('change', function(e) {
             if ($(this).is(':checked')) {
-                $('.groups [id^="group"]:not(:disabled)').prop('checked', true);
-                $('.groups [id^="group"]:not(:disabled)').change();
+                $('.userGroups [id^="userGroup"]:not(:disabled)').prop('checked', true);
+                $('.userGroups [id^="userGroup"]:not(:disabled)').change();
             } else {
-                $('.groups [id^="group"]:not(:disabled)').prop('checked', false);
-                $('.groups [id^="group"]:not(:disabled)').change();
+                $('.userGroups [id^="userGroup"]:not(:disabled)').prop('checked', false);
+                $('.userGroups [id^="userGroup"]:not(:disabled)').change();
             }
         });
-        $('.groups [id^="group"]:not(:disabled)').on('change', function(e) {
+        $('.userGroups [id^="userGroup"]:not(:disabled)').on('change', function(e) {
             if ($(this).is(':checked')) {
-                if ($('.groups [id^="group"]:checked:not(:disabled)').length == $('.groups [id^="group"]:not(:disabled)').length) {
-                    $('#allGroups').prop('checked', true);
+                if ($('.userGroups [id^="userGroup"]:checked:not(:disabled)').length == $('.userGroups [id^="userGroup"]:not(:disabled)').length) {
+                    $('#allUserGroups').prop('checked', true);
                 }
             } else {
-                $('#allGroups').prop('checked', false);
+                $('#allUserGroups').prop('checked', false);
             }
         });
 
@@ -294,7 +294,7 @@
         });
 
         var checkboxes = document.querySelectorAll('#fields [type="checkbox"]');
-        function canSubmit() {
+        function canExport() {
             var somethingChecked = (document.querySelectorAll('#fields [type="checkbox"]:checked').length > 0);
             var submit = document.querySelector('#header [type="submit"]');
             if (submit) {
@@ -307,11 +307,32 @@
                 }
             }
         }
-        canSubmit();
-        Object.keys(checkboxes).forEach(function (k) {
-            var checkbox = checkboxes[k];
-            checkbox.addEventListener('change', canSubmit);
-        });
+        if (window.location.pathname.endsWith('architect/export')) {
+            canExport();
+            Object.keys(checkboxes).forEach(function (k) {
+                var checkbox = checkboxes[k];
+                checkbox.addEventListener('change', canExport);
+            });
+        }
+        var importInput = document.getElementById('jsonData');
+        function canImport() {
+            var submit = document.querySelector('#header [type="submit"]');
+            if (submit) {
+                if (importInput.value) {
+                    removeClass('disabled', submit);
+                    submit.removeAttribute('disabled');
+                } else {
+                    addClass('disabled', submit);
+                    submit.setAttribute('disabled', true);
+                }
+            }
+        }
+        if (window.location.pathname.endsWith('architect/import')) {
+            canImport();
+            importInput.addEventListener('change', canImport);
+            importInput.addEventListener('keyup', canImport);
+            importInput.addEventListener('paste', canImport);
+        }
 
     /*
         $('#similarFields tbody tr').each(function() {

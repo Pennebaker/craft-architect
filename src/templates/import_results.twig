@@ -47,7 +47,7 @@
                     </tr>
                     {% for result in typeResults %}
                         <tr>
-                            <td>{{ result.item.name }}</td>
+                            <td>{{ (result.item.name is defined) ? result.item.name : result.item.email }}</td>
                             <td class="code">{{ ('handle' in result.item|keys) ? result.item.handle : '' }}</td>
                             <td>
                                 <ul class="error-list code">

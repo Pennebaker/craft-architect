@@ -29,7 +29,7 @@ class SiteProcessor extends Processor
      */
     public function parse(array $item)
     {
-        $item['groupId']= $this->getGroupByName($item['group'])->id;
+        $item['groupId'] = $this->getGroupByName($item['group'])->id;
         unset($item['group']);
         $site = new Site($item);
 

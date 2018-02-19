@@ -453,4 +453,116 @@ abstract class Processor implements ProcessorInterface
         }
         return $requiredFieldsObj;
     }
+
+    public function permissionMap() {
+        return [
+            'assignusergroup' => 'userGroup',
+            'editsite' => 'site',
+            'editentries' => 'section',
+            'createentries' => 'section',
+            'publishentries' => 'section',
+            'deleteentries' => 'section',
+            'editpeerentries' => 'section',
+            'publishpeerentries' => 'section',
+            'deletepeerentries' => 'section',
+            'editpeerentrydrafts' => 'section',
+            'publishpeerentrydrafts' => 'section',
+            'deletepeerentrydrafts' => 'section',
+            'editglobalset' => 'globalSet',
+            'editcategories' => 'category',
+            'viewvolume' => 'volume',
+            'saveassetinvolume' => 'volume',
+            'createfoldersinvolume' => 'volume',
+            'deletefilesandfoldersinvolume' => 'volume',
+            'utility' => 'utility',
+        ];
+    }
+
+    /**
+     * @param array $permissions
+     */
+    public function unmapPermissions(&$permissions) {
+        $permissionMap = $this->permissionMap();
+        foreach ($permissions as $key => $permission) {
+            if (strpos($permission, ':') > 0) {
+                list($permissionName, $permissionId) = explode(':', $permission);
+                try {
+                    switch ($permissionMap[$permissionName]) {
+                        case 'userGroup':
+                            $permissionHandle = Craft::$app->userGroups->getGroupById($permissionId)->handle;
+                            break;
+                        case 'site':
+                            $permissionHandle = Craft::$app->sites->getSiteById($permissionId)->handle;
+                            break;
+                        case 'section':
+                            $permissionHandle = Craft::$app->sections->getSectionById($permissionId)->handle;
+                            break;
+                        case 'globalSet':
+                            $permissionHandle = Craft::$app->globals->getSetById($permissionId)->handle;
+                            break;
+                        case 'category':
+                            $permissionHandle = Craft::$app->categories->getGroupById($permissionId)->handle;
+                            break;
+                        case 'volume':
+                            $permissionHandle = Craft::$app->volumes->getVolumeById($permissionId)->handle;
+                            break;
+                        default:
+                            $permissionHandle = $permissionId;
+                            break;
+                    }
+                    $permissions[$key] = $permissionName . ':'. $permissionHandle;
+                } catch (\Exception $e) {}
+            }
+        }
+    }
+
+    /**
+     * @param array $permissions
+     */
+    public function mapPermissions(&$permissions) {
+        $permissionMap = $this->permissionMap();
+        foreach ($permissions as $key => $permission) {
+            if (strpos($permission, ':') > 0) {
+                list($permissionName, $permissionHandle) = explode(':', $permission);
+                try {
+                    switch ($permissionMap[$permissionName]) {
+                        case 'userGroup':
+                            $permissionId = Craft::$app->userGroups->getGroupByHandle($permissionHandle)->id;
+                            break;
+                        case 'site':
+                            $permissionId = Craft::$app->sites->getSiteByHandle($permissionHandle)->id;
+                            break;
+                        case 'section':
+                            $permissionId = Craft::$app->sections->getSectionByHandle($permissionHandle)->id;
+                            break;
+                        case 'globalSet':
+                            $permissionId = Craft::$app->globals->getSetByHandle($permissionHandle)->id;
+                            break;
+                        case 'category':
+                            $permissionId = Craft::$app->categories->getGroupByHandle($permissionHandle)->id;
+                            break;
+                        case 'volume':
+                            $permissionId = Craft::$app->volumes->getVolumeByHandle($permissionHandle)->id;
+                            break;
+                        default:
+                            $permissionId = $permissionHandle;
+                            break;
+                    }
+                    $permissions[$key] = $permissionName . ':'. $permissionId;
+                } catch (\Exception $e) {}
+            }
+        }
+    }
+
+    public function setPermissions($type, $item) {
+        $this->mapPermissions($item['permissions']);
+        switch ($type) {
+            case 'users':
+                Craft::$app->userPermissions->saveUserPermissions($item['id'], $item['permissions']);
+                break;
+            case 'userGroups':
+                Craft::$app->userPermissions->saveGroupPermissions($item['id'], $item['permissions']);
+                break;
+        }
+    }
 }
