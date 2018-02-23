@@ -900,5 +900,22 @@
         "newDate"
       ]
     }
+  ],
+  "userGroups": [
+    {
+      "name": "User Group A",
+      "handle": "userGroupA",
+      "permissions": []
+    },
+    {
+      "name": "User Group B",
+      "handle": "userGroupB",
+      "permissions": []
+    },
+    {
+      "name": "User Group C",
+      "handle": "userGroupC",
+      "permissions": []
+    }
   ]
 }
