@@ -41,5 +41,8 @@
             "architectService": "pennebaker\\architect\\services\\ArchitectService"
         },
         "class": "pennebaker\\architect\\Architect"
+    },
+    "require-dev": {
+        "verbb/super-table": "^2.0"
     }
 }

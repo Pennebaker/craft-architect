@@ -14,6 +14,9 @@ use pennebaker\architect\Architect;
 
 use Craft;
 use craft\base\Field;
+use craft\fields\Date;
+use craft\fields\Matrix;
+use verbb\supertable\fields\SuperTableField;
 
 /**
  * FieldProcessor defines the common interface to be implemented by plugin classes.
@@ -26,17 +29,28 @@ class FieldProcessor extends Processor
 {
     /**
      * @param array $item
+     * @param bool $subField
      *
      * @return array
      */
-    public function parse(array $item)
+    public function parse(array $item, bool $subField = false)
     {
-        // Attempt to find and set group id.
         $groupId = false;
-        if (isset($item['group'])) {
-            $groupName = $item['group'];
-            unset($item['group']);
-            $groupId = $this->getGroupIdByName($groupName);
+        if ($subField === false) {
+            // Attempt to find and set group id.
+            if (isset($item['group'])) {
+                $groupId = $this->getGroupIdByName($item['group']);
+                if ($groupId) {
+                    unset($item['group']);
+                }
+            } else {
+                $errors = [
+                    'type' => [
+                        Architect::t('Field group is missing.')
+                    ]
+                ];
+                return [null, $errors];
+            }
         }
 
         // Attempt to find matching field type.
@@ -61,12 +75,17 @@ class FieldProcessor extends Processor
             return [null, $errors];
         }
 
-        $this->convertOld($item);
+        if ($subField === false) $this->convertOld($item);
         $this->mapSources($item);
         if ($item['type'] === 'craft\\fields\\Matrix') {
             $this->createNewMatrix($item);
             $this->mapTypeSettings($item);
-            foreach ($item['blockTypes'] as $blockKey => $blockType) {
+            if ($subField)
+                $blockTypes = &$item['typesettings']['blockTypes'];
+            else
+                $blockTypes = &$item['blockTypes'];
+            foreach ($blockTypes as $blockKey => $blockType) {
+                $blockTypes['new' . $blockKey] = $blockTypes[$blockKey];
                 foreach ($blockType['fields'] as $fieldKey => $field) {
                     if (isset($field['typesettings'])) {
                         foreach ($field['typesettings'] as $k => $v) {
@@ -98,9 +117,25 @@ class FieldProcessor extends Processor
                         ];
                         return [null, $errors];
                     }
-                    $item['blockTypes'][$blockKey]['fields'][$fieldKey] = $field;
+                    $fields = &$blockTypes['new' . $blockKey]['fields'];
+                    $fields['new' . $fieldKey] = $field;
+                    unset($fields[$fieldKey]);
+                }
+                unset($blockTypes[$blockKey]);
+            }
+        } else if ($item['type'] === 'verbb\\supertable\\fields\\SuperTableField') {
+            $item['blockTypes']['new'] = [
+                'fields' => []
+            ];
+            $fields = &$item['blockTypes']['new']['fields'];
+            foreach ($item['blockTypes'] as $blockFieldKey => $blockTypeField) {
+                if ($blockFieldKey !== 'new') {
+                    list ($field, $errors) = $this->parse($blockTypeField, true);
+                    $fields['new' . (count($fields) + 1)] = $field;
+                    unset($item['blockTypes'][$blockFieldKey]);
                 }
             }
+//            Craft::dd($item);
         }
 
         if ($groupId && Craft::$app->fields->getGroupById((int) $groupId)) {
@@ -111,10 +146,12 @@ class FieldProcessor extends Processor
             $field = Craft::$app->fields->createField($fieldObject);
 
             return [$field, $field->getErrors()];
+        } else if ($subField) {
+            return [$item, null];
         } else {
             $errors = [
                 'group' => [
-                    Architect::t('Group id is invalid.')
+                    Architect::t('No field group matching "{groupName}".', ['groupName' => $item['group']])
                 ]
             ];
             return [null, $errors];
@@ -140,6 +177,11 @@ class FieldProcessor extends Processor
         });
     }
 
+    /**
+     * @param string $name
+     *
+     * @return int|bool
+     */
     private function getGroupIdByName(string $name)
     {
         $fieldGroups = Craft::$app->fields->getAllGroups();
@@ -148,6 +190,7 @@ class FieldProcessor extends Processor
                 return $fieldGroup->id;
             }
         }
+        return false;
     }
 
     /**
@@ -290,10 +333,11 @@ class FieldProcessor extends Processor
     /**
      * @param $item
      * @param array $extraAttributes
+     * @param bool $useTypeSettings
      *
      * @return array
      */
-    public function export($item, array $extraAttributes = ['group']) {
+    public function export($item, array $extraAttributes = ['group'], bool $useTypeSettings = false) {
         /** @var Field $item*/
         $attributeObj = [];
         $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
@@ -310,16 +354,29 @@ class FieldProcessor extends Processor
                 $attributeObj[$attribute] = $item->$attribute;
             }
         }
-        $fieldObj = array_merge($attributeObj, [
-            'name' => $item->name,
-            'handle' => $item->handle,
-            'instructions' => $item->instructions,
-            'type' => get_class($item),
-        ], $item->getSettings());
+        if ($useTypeSettings) {
+            $fieldObj = array_merge($attributeObj, [
+                'name' => $item->name,
+                'handle' => $item->handle,
+                'instructions' => $item->instructions,
+                'type' => get_class($item),
+                'typesettings' => $item->getSettings(),
+            ]);
+        } else {
+            $fieldObj = array_merge($attributeObj, [
+                'name' => $item->name,
+                'handle' => $item->handle,
+                'instructions' => $item->instructions,
+                'type' => get_class($item),
+            ], $item->getSettings());
+        }
 
         if (isset($fieldObj['translationMethod']) && $fieldObj['translationMethod'] === 'none') unset($fieldObj['translationMethod']);
 
         if (get_class($item) === 'craft\\fields\\Matrix') {
+            /**
+             * @var Matrix $item
+             */
             $blockTypesObj = [];
             foreach ($item->getBlockTypes() as $blockType) {
                 $blockTypeObj = [
@@ -328,12 +385,19 @@ class FieldProcessor extends Processor
                     'fields' => [],
                 ];
                 foreach ($blockType->getFields() as $blockField) {
-                    array_push($blockTypeObj['fields'], $this->export($blockField, [ 'required' ]));
+                    array_push($blockTypeObj['fields'], $this->export($blockField, [ 'required' ], true));
                 }
                 array_push($blockTypesObj, $blockTypeObj);
             }
-            $fieldObj['blockTypes'] = $blockTypesObj;
+            if ($useTypeSettings) {
+                $fieldObj['typesettings']['blockTypes'] = $blockTypesObj;
+            } else {
+                $fieldObj['blockTypes'] = $blockTypesObj;
+            }
         } else if (get_class($item) === 'craft\\fields\\Date') {
+            /**
+             * @var Date $item
+             */
             $fieldObj['dateTime'] = 'show' . (
                     (boolval($fieldObj['showDate']) === false) ? 'Time' : (
                         (boolval($fieldObj['showTime']) === false) ? 'Date' : 'Both'
@@ -341,6 +405,14 @@ class FieldProcessor extends Processor
                 );
             unset($fieldObj['showDate']);
             unset($fieldObj['showTime']);
+        } else if (get_class($item) === 'verbb\\supertable\\fields\\SuperTableField') {
+            $fieldObj['blockTypes'] = [];
+            /**
+             * @var SuperTableField $item
+             */
+            foreach ($item->getBlockTypeFields() as $blockTypeField) {
+                $fieldObj['blockTypes'][] = $this->export($blockTypeField, [], true);
+            }
         }
 
         $this->unmapSources($fieldObj);

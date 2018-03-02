@@ -466,9 +466,11 @@
               "instructions": "",
               "required": false,
               "type": "craft\\fields\\PlainText",
-              "placeholder": "Placeholder text",
-              "charLimit": 140,
-              "multiline": false
+              "typesettings": {
+                "placeholder": "Placeholder text",
+                "charLimit": 140,
+                "multiline": false
+              }
             }
           ]
         },
@@ -482,10 +484,12 @@
               "instructions": "",
               "required": false,
               "type": "craft\\fields\\PlainText",
-              "placeholder": "",
-              "charLimit": null,
-              "multiline": true,
-              "initialRows": 4
+              "typesettings": {
+                "placeholder": "",
+                "charLimit": null,
+                "multiline": true,
+                "initialRows": 4
+              }
             }
           ]
         }

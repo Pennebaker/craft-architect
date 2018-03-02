@@ -33,5 +33,6 @@ return [
     'Possible values:' => 'Possible values:',
     'No field type matching "{fieldType}".' => 'No field type matching "{fieldType}".',
     'Field layout can only have 1 tab named "Content".' => 'Field layout can only have 1 tab named "Content".',
-    'Group id is invalid.' => 'Group id is invalid.',
+    'No field group matching "{groupName}".' => 'No field group matching "{groupName}".',
+    'Field group is missing.' => 'Field group is missing.',
 ];
