@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.2.1] - 2018-03-02
+## Added
+- [Super Table] field import/export support.
+
+## Changed
+- Backups are now off by default.
+- Moved import into a service to facilitate external usage.
+
+## Fixed
+- Add class scope to architect sidebar to prevent styling main CP nav styles. 
+
 ## [2.2.0] - 2018-02-18
 ## Added
 - User Group Importing
@@ -83,8 +94,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.2.0...develop
-[2.1.4]: https://github.com/pennebaker/craft-architect/compare/2.1.4...2.2.0
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.2.1...develop
+[2.2.1]: https://github.com/pennebaker/craft-architect/compare/2.2.0...2.2.1
+[2.2.0]: https://github.com/pennebaker/craft-architect/compare/2.1.4...2.2.0
 [2.1.4]: https://github.com/pennebaker/craft-architect/compare/2.1.3...2.1.4
 [2.1.3]: https://github.com/pennebaker/craft-architect/compare/2.1.2...2.1.3
 [2.1.2]: https://github.com/pennebaker/craft-architect/compare/2.1.1...2.1.2
@@ -93,3 +105,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 [2.0.0]: https://github.com/pennebaker/craft-architect/compare/2.0.0-beta.3...2.0.0
 [2.0.0-beta.3]: https://github.com/pennebaker/craft-architect/compare/2.0.0-beta.2...2.0.0-beta.3
 [2.0.0-beta.2]: https://github.com/pennebaker/craft-architect/compare/2.0.0-beta.1...2.0.0-beta.2
+
+[Super Table]: https://github.com/verbb/super-table
