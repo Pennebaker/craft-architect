@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## Changed
+- Backups are now off by default.
+- Moved import into a service to facilitate external usage.
+
+## Fixed
+- Add class scope to architect sidebar to prevent styling main CP nav styles. 
 
 ## [2.2.0] - 2018-02-18
 ## Added
