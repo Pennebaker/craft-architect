@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.2.2] - 2018-03-06
+## Fixed
+- Fixed processing of fields that use typesettings.
+
 ## [2.2.1] - 2018-03-02
 ## Added
 - [Super Table] field import/export support.
@@ -15,7 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Moved import into a service to facilitate external usage.
 
 ## Fixed
-- Add class scope to architect sidebar to prevent styling main CP nav styles. 
+- Add class scope to architect sidebar to prevent styling main CP nav styles.
 
 ## [2.2.0] - 2018-02-18
 ## Added
@@ -94,7 +98,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.2.1...develop
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.2.2...develop
+[2.2.2]: https://github.com/pennebaker/craft-architect/compare/2.2.1...2.2.2
 [2.2.1]: https://github.com/pennebaker/craft-architect/compare/2.2.0...2.2.1
 [2.2.0]: https://github.com/pennebaker/craft-architect/compare/2.1.4...2.2.0
 [2.1.4]: https://github.com/pennebaker/craft-architect/compare/2.1.3...2.1.4

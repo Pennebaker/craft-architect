@@ -240,7 +240,11 @@ class FieldProcessor extends Processor
      */
     private function mapSources(array &$item)
     {
-        switch ($item['type']) {
+        $type = $item['type'];
+        if (isset($item['typesettings'])) {
+            $item = &$item['typesettings'];
+        }
+        switch ($type) {
             case 'craft\\fields\\Assets':
                 $this->mapVolumeSources($item['sources']);
                 $this->mapVolumeSources($item['defaultUploadLocationSource']);
@@ -279,8 +283,13 @@ class FieldProcessor extends Processor
     /**
      * @param array $item
      */
-    private function unmapSources(array &$item) {
-        switch ($item['type']) {
+    private function unmapSources(array &$item)
+    {
+        $type = $item['type'];
+        if (isset($item['typesettings'])) {
+            $item = &$item['typesettings'];
+        }
+        switch ($type) {
             case 'craft\\fields\\Assets':
                 $this->unmapVolumeSources($item['sources']);
                 $this->unmapVolumeSources($item['defaultUploadLocationSource']);
