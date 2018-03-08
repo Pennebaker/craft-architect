@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.2.3] - 2018-03-06
+## Fixed
+- Fix matrix import processing.
+
 ## [2.2.2] - 2018-03-06
 ## Fixed
 - Fixed processing of fields that use typesettings.
@@ -98,7 +102,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.2.2...develop
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.2.3...develop
+[2.2.3]: https://github.com/pennebaker/craft-architect/compare/2.2.2...2.2.3
 [2.2.2]: https://github.com/pennebaker/craft-architect/compare/2.2.1...2.2.2
 [2.2.1]: https://github.com/pennebaker/craft-architect/compare/2.2.0...2.2.1
 [2.2.0]: https://github.com/pennebaker/craft-architect/compare/2.1.4...2.2.0
