@@ -367,12 +367,12 @@ abstract class Processor implements ProcessorInterface
     }
 
     /**
-     * @param array $matrix
+     * @param array $item
      */
-    public function mapTypeSettings(array &$matrix)
+    public function mapTypeSettings(array &$item)
     {
-        if (isset($matrix['blockTypes']) && is_array($matrix['blockTypes'])) {
-            foreach ($matrix['blockTypes'] as $blockKey => $blockType) {
+        if (isset($item['blockTypes']) && is_array($item['blockTypes'])) {
+            foreach ($item['blockTypes'] as $blockKey => $blockType) {
                 if (isset($blockType['fields']) && is_array($blockType['fields'])) {
                     foreach ($blockType['fields'] as $fieldKey => $field) {
                         $newField = [
@@ -393,7 +393,7 @@ abstract class Processor implements ProcessorInterface
                         unset($field['typesettings']);
 
                         $newField['typesettings'] = array_merge($oldTypeSettings, $field);
-                        $matrix['blockTypes'][$blockKey]['fields'][$fieldKey] = $newField;
+                        $item['blockTypes'][$blockKey]['fields'][$fieldKey] = $newField;
                     }
                 }
             }

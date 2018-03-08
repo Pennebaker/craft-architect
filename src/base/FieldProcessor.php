@@ -77,65 +77,31 @@ class FieldProcessor extends Processor
 
         if ($subField === false) $this->convertOld($item);
         $this->mapSources($item);
-        if ($item['type'] === 'craft\\fields\\Matrix') {
-            $this->createNewMatrix($item);
+        if ($item['type'] === 'craft\\fields\\Matrix' || $item['type'] === 'verbb\\supertable\\fields\\SuperTableField') {
             $this->mapTypeSettings($item);
-            if ($subField)
+            if ($subField) {
                 $blockTypes = &$item['typesettings']['blockTypes'];
-            else
+            } else {
                 $blockTypes = &$item['blockTypes'];
-            foreach ($blockTypes as $blockKey => $blockType) {
-                $blockTypes['new' . $blockKey] = $blockTypes[$blockKey];
+            }
+        }
+        if ($item['type'] === 'craft\\fields\\Matrix') {
+            $this->convertBlockTypesToNew($blockTypes);
+            foreach ($blockTypes as $blockKey => &$blockType) {
                 foreach ($blockType['fields'] as $fieldKey => $field) {
-                    if (isset($field['typesettings'])) {
-                        foreach ($field['typesettings'] as $k => $v) {
-                            $newK = $k;
-                            if ($k === 'maxLength') $newK = 'charLimit';
-                            if ($field['type'] === 'craft\\fields\\Categories' && $k === 'limit') $newK = 'branchLimit';
-                            $field['typesettings'][$newK] = $v;
-                            if ($newK !== $k) unset($field['typesettings'][$k]);
-                        }
-                    }
-                    // Attempt to find matching field type.
-                    $matchingFieldTypes = $this->getMatchingFieldTypes($field['type']);
-                    if (count($matchingFieldTypes) === 1) {
-                        $field = array_merge($field, [
-                            'type' => array_pop($matchingFieldTypes)
-                        ]);
-                    } else if (count($matchingFieldTypes) <= 0) {
-                        $errors = [
-                            'type' => [
-                                Architect::t('No field type matching "{fieldType}".', ['fieldType' => $field['type']])
-                            ]
-                        ];
-                        return [null, $errors];
-                    } else {
-                        $errors = [
-                            'type' => [
-                                Architect::t('Too many field types matching "{fieldType}"', ['fieldType' => $field['type']]) . '<br>' . Architect::t('Possible values:') . '<br>' . implode('<br>', $matchingFieldTypes)
-                            ]
-                        ];
-                        return [null, $errors];
-                    }
-                    $fields = &$blockTypes['new' . $blockKey]['fields'];
-                    $fields['new' . $fieldKey] = $field;
-                    unset($fields[$fieldKey]);
+                    list ($field, $errors) = $this->parse($field, true);
+                    if ($field === null) return [$field, $errors];
+                    $blockType['fields'][$fieldKey] = $field;
                 }
-                unset($blockTypes[$blockKey]);
             }
         } else if ($item['type'] === 'verbb\\supertable\\fields\\SuperTableField') {
-            $item['blockTypes']['new'] = [
-                'fields' => []
+            $newBlockTypes = [
+                [
+                    'fields' => $blockTypes
+                ]
             ];
-            $fields = &$item['blockTypes']['new']['fields'];
-            foreach ($item['blockTypes'] as $blockFieldKey => $blockTypeField) {
-                if ($blockFieldKey !== 'new') {
-                    list ($field, $errors) = $this->parse($blockTypeField, true);
-                    $fields['new' . (count($fields) + 1)] = $field;
-                    unset($item['blockTypes'][$blockFieldKey]);
-                }
-            }
-//            Craft::dd($item);
+            $blockTypes = $newBlockTypes;
+            $this->convertBlockTypesToNew($blockTypes);
         }
 
         if ($groupId && Craft::$app->fields->getGroupById((int) $groupId)) {
@@ -212,27 +178,23 @@ class FieldProcessor extends Processor
     }
 
     /**
-     * @param array $matrix
+     * @param array $blockTypes
      */
-    public function createNewMatrix(array &$matrix) {
-        if (isset($matrix['blockTypes'][0])) {
-            $newBlockTypes = [];
-            $blockCount = 1;
-            foreach ($matrix['blockTypes'] as $blockType) {
-                if (isset($blockType['fields'][0])) {
-                    $newFields = [];
-                    $fieldCount = 1;
-                    foreach ($blockType['fields'] as $field) {
-                        $newFields['new'.$fieldCount] = $field;
-                        $fieldCount++;
-                    }
-                    $blockType['fields'] = $newFields;
+    public function convertBlockTypesToNew(array &$blockTypes) {
+        $newBlockTypes = [];
+        foreach ($blockTypes as $blockType) {
+            if (isset($blockType['fields'][0])) {
+                $newFields = [];
+                $fieldCount = 1;
+                foreach ($blockType['fields'] as $field) {
+                    $newFields['new'.$fieldCount] = $field;
+                    $fieldCount++;
                 }
-                $newBlockTypes['new'.$blockCount] = $blockType;
-                $blockCount++;
+                $blockType['fields'] = $newFields;
             }
-            $matrix['blockTypes'] = $newBlockTypes;
+            $newBlockTypes['new' . (count($newBlockTypes) + 1)] = $blockType;
         }
+        $blockTypes = $newBlockTypes;
     }
 
     /**
