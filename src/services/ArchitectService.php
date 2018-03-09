@@ -35,8 +35,7 @@ class ArchitectService extends Component
     // =========================================================================
 
     /**
-     * This function can literally be anything you want, and you can have as many service
-     * functions as you want
+     * This is the import function.
      *
      * From any other plugin file, call it like this:
      *
