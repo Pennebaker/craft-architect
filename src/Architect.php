@@ -16,6 +16,7 @@ use pennebaker\architect\variables\ArchitectVariable;
 
 use Craft;
 use craft\base\Plugin;
+use craft\console\Application as ConsoleApplication;
 use craft\events\PluginEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\services\Plugins;
@@ -64,6 +65,11 @@ class Architect extends Plugin
         parent::init();
         self::$plugin = $this;
         self::$processors = new Processors();
+
+        // Add in our console commands
+        if (Craft::$app instanceof ConsoleApplication) {
+            $this->controllerNamespace = 'pennebaker\architect\console\controllers';
+        }
 
         // Register our variables
         Event::on(
