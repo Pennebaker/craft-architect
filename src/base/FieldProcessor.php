@@ -248,6 +248,11 @@ class FieldProcessor extends Processor
                 $this->mapVolumeSources($item['availableVolumes'], '');
                 $this->mapAssetTransforms($item['availableTransforms'], '');
                 break;
+            case 'typedlinkfield\\fields\\LinkField':
+                $this->mapVolumeSources($item['typeSettings']['asset']['sources']);
+                $this->mapCategorySources($item['typeSettings']['category']['sources']);
+                $this->mapSectionSources($item['typeSettings']['entry']['sources']);
+                break;
         }
     }
 
@@ -292,6 +297,11 @@ class FieldProcessor extends Processor
             case 'craft\\redactor\\Field':
                 $this->unmapVolumeSources($item['availableVolumes'], '');
                 $this->unmapAssetTransforms($item['availableTransforms'], '');
+                break;
+            case 'typedlinkfield\\fields\\LinkField':
+                $this->unmapVolumeSources($item['typeSettings']['asset']['sources']);
+                $this->unmapCategorySources($item['typeSettings']['category']['sources']);
+                $this->unmapSectionSources($item['typeSettings']['entry']['sources']);
                 break;
         }
     }
