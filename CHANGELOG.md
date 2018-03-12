@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Proper error for source mapping failures during import.
 
-[Typed Link Field]: https://github.com/sebastian-lenz/craft-linkfield
+[Typed Link]: https://github.com/sebastian-lenz/craft-linkfield
 
 ## [2.2.3] - 2018-03-06
 ### Fixed
