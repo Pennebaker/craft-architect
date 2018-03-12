@@ -18,7 +18,7 @@ use craft\models\FieldLayout;
 use craft\base\Volume;
 
 /**
- * VolumeProcessor defines the common interface to be implemented by plugin classes.
+ * VolumeProcessor
  *
  * @author    Pennebaker
  * @package   Architect

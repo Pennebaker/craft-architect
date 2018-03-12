@@ -14,7 +14,7 @@ use Craft;
 use craft\models\AssetTransform;
 
 /**
- * TransformProcessor defines the common interface to be implemented by plugin classes.
+ * TransformProcessor
  *
  * @author    Pennebaker
  * @package   Architect

@@ -11,7 +11,7 @@
 namespace pennebaker\architect\base;
 
 /**
- * ProcessorInterface defines the common interface to be implemented by plugin classes.
+ * ProcessorInterface
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  3.0
