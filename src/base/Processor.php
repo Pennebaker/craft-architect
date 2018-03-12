@@ -255,8 +255,9 @@ abstract class Processor implements ProcessorInterface
                     $sources[$k] = $prefix . $source->id;
                 }
             }
-        } else {
-            $sources = '*';
+        } else if ($sources !== '*' && $sources !== '' && $sources !== 'singles') {
+            $source = Craft::$app->sections->getSectionByHandle((int) $sources);
+            $sources = $prefix . $source->id;
         }
     }
 
@@ -274,33 +275,45 @@ abstract class Processor implements ProcessorInterface
                     $sources[$k] = $source->handle;
                 }
             }
-        } else {
-            $sources = '*';
+        } else if ($sources !== '*' && $sources !== '' && $sources !== 'singles') {
+            $source = Craft::$app->sections->getSectionById((int) $sources);
+            $sources = $source->handle;
         }
     }
 
     /**
-     * @param array|string $sourceHandle
+     * @param array|string $sources
      * @param string $prefix
      */
-    public function mapCategorySource(&$sourceHandle, $prefix = 'group:')
+    public function mapCategorySources(&$sources, $prefix = 'group:')
     {
-        $source = Craft::$app->categories->getGroupByHandle($sourceHandle);
-        if ($source) {
-            $sourceHandle = $prefix . $source->id;
+        if (is_array($sources)) {
+            foreach ($sources as $k => $sourceRef) {
+                $categoryGroup = Craft::$app->categories->getGroupByHandle($sourceRef);
+                $sources[$k] = $categoryGroup->id;
+            }
+        } else if ($sources !== '*' && $sources !== '') {
+            $categoryGroup = Craft::$app->categories->getGroupByHandle($sources);
+            $sources = $prefix . $categoryGroup->id;
         }
     }
 
     /**
-     * @param array|string $source
+     * @param array|string $sources
      * @param string $prefix
      */
-    public function unmapCategorySource(&$source, $prefix = 'group:')
+    public function unmapCategorySources(&$sources, $prefix = 'group:')
     {
-        $sourceId = substr($source, strlen($prefix));
-        $categoryGroup = Craft::$app->categories->getGroupById((int) $sourceId);
-        if ($categoryGroup) {
-            $source = $categoryGroup->handle;
+        if (is_array($sources)) {
+            foreach ($sources as $k => $sourceRef) {
+                $sourceId = substr($sourceRef, strlen($prefix));
+                $categoryGroup = Craft::$app->categories->getGroupById((int) $sourceId);
+                $sources[$k] = $categoryGroup->handle;
+            }
+        } else if ($sources !== '*' && $sources !== '') {
+            $sourceId = substr($sources, strlen($prefix));
+            $categoryGroup = Craft::$app->categories->getGroupById((int) $sourceId);
+            $sources = $categoryGroup->handle;
         }
     }
 
