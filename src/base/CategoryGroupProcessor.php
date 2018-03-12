@@ -15,7 +15,7 @@ use craft\models\CategoryGroup;
 use craft\models\CategoryGroup_SiteSettings;
 
 /**
- * CategoryGroupProcessor defines the common interface to be implemented by plugin classes.
+ * CategoryGroupProcessor
  *
  * @author    Pennebaker
  * @package   Architect

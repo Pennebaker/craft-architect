@@ -14,7 +14,7 @@ use Craft;
 use craft\elements\GlobalSet;
 
 /**
- * GlobalSetProcessor defines the common interface to be implemented by plugin classes.
+ * GlobalSetProcessor
  *
  * @author    Pennebaker
  * @package   Architect

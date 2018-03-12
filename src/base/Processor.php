@@ -15,7 +15,7 @@ use craft\models\FieldLayout;
 use craft\base\Field;
 
 /**
- * Processor defines the common interface to be implemented by plugin classes.
+ * Processor
  *
  * @author    Pennebaker
  * @package   Architect

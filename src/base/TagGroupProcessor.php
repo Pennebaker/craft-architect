@@ -18,7 +18,7 @@ use craft\models\FieldLayout;
 use craft\models\TagGroup;
 
 /**
- * TagGroupProcessor defines the common interface to be implemented by plugin classes.
+ * TagGroupProcessor
  *
  * @author    Pennebaker
  * @package   Architect

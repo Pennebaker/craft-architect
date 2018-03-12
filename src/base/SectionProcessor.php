@@ -16,7 +16,7 @@ use craft\models\Section_SiteSettings;
 use pennebaker\architect\Architect;
 
 /**
- * SectionProcessor defines the common interface to be implemented by plugin classes.
+ * SectionProcessor
  *
  * @author    Pennebaker
  * @package   Architect

@@ -19,7 +19,7 @@ use craft\fields\Matrix;
 use verbb\supertable\fields\SuperTableField;
 
 /**
- * FieldProcessor defines the common interface to be implemented by plugin classes.
+ * FieldProcessor
  *
  * @author    Pennebaker
  * @package   Architect
