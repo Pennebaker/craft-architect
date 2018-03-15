@@ -34,9 +34,6 @@ class GlobalSetProcessor extends Processor
             'handle' => $item['handle'],
         ]);
 
-        $fieldLayout = $this->createFieldLayout($item, GlobalSet::class);
-        $globalSet->setFieldLayout($fieldLayout);
-
         return [$globalSet, null];
     }
 
@@ -51,6 +48,22 @@ class GlobalSetProcessor extends Processor
     public function save($item, bool $update = false)
     {
         return Craft::$app->globals->saveSet($item);
+    }
+
+    /**
+     * @param array $item
+     *
+     * @return bool|object
+     *
+     * @throws \Throwable
+     */
+    public function setFieldLayout($item) {
+        $globalSet = Craft::$app->tags->getTagGroupByHandle($item['handle']);
+
+        $fieldLayout = $this->createFieldLayout($item, GlobalSet::class);
+        $globalSet->setFieldLayout($fieldLayout);
+
+        return $this->save($globalSet);
     }
 
     /**

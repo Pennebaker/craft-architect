@@ -29,8 +29,7 @@ class ArchitectService extends Component
     // =========================================================================
 
     /**
-     * This function can literally be anything you want, and you can have as many service
-     * functions as you want
+     * This is the import function.
      *
      * From any other plugin file, call it like this:
      *
@@ -93,6 +92,7 @@ class ArchitectService extends Component
             'categoryGroups' => [],
             'userGroups' => [],
             'users' => [],
+            'globalSets' => [],
         ];
         /**
          * Things to process field layouts for after importing of fields.
@@ -102,6 +102,7 @@ class ArchitectService extends Component
             'volumes',
             'tagGroups',
             'categoryGroups',
+            'globalSets',
         ];
         /**
          * Things to process permissions for after importing of fields.

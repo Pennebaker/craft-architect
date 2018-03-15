@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.2.5] - 2018-03-12
+### Fixed
+- Fix global set import failing on FieldLayout
+
 ## [2.2.4] - 2018-03-12
 ### Added
 - [Typed Link] field import/export support.
@@ -16,7 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Proper error for source mapping failures during import.
 
-[Typed Link Field]: https://github.com/sebastian-lenz/craft-linkfield
+[Typed Link]: https://github.com/sebastian-lenz/craft-linkfield
 
 ## [2.2.3] - 2018-03-06
 ### Fixed
@@ -116,7 +120,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.2.4...develop
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.2.5...develop
+[2.2.5]: https://github.com/pennebaker/craft-architect/compare/2.2.3...2.2.5
 [2.2.4]: https://github.com/pennebaker/craft-architect/compare/2.2.3...2.2.4
 [2.2.3]: https://github.com/pennebaker/craft-architect/compare/2.2.2...2.2.3
 [2.2.2]: https://github.com/pennebaker/craft-architect/compare/2.2.1...2.2.2
