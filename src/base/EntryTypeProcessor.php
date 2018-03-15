@@ -15,7 +15,7 @@ use craft\elements\Entry;
 use craft\models\EntryType;
 
 /**
- * EntryTypeProcessor defines the common interface to be implemented by plugin classes.
+ * EntryTypeProcessor
  *
  * @author    Pennebaker
  * @package   Architect

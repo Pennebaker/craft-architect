@@ -14,7 +14,7 @@ use Craft;
 use craft\models\SiteGroup;
 
 /**
- * SiteGroupProcessor defines the common interface to be implemented by plugin classes.
+ * SiteGroupProcessor
  *
  * @author    Pennebaker
  * @package   Architect

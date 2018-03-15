@@ -6,55 +6,69 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.2.4] - 2018-03-12
+### Added
+- [Typed Link] field import/export support.
+
+### Fixed
+- Fixed changelog formatting for CraftCMS to parse properly.
+
+### Changed
+- Proper error for source mapping failures during import.
+
+[Typed Link]: https://github.com/sebastian-lenz/craft-linkfield
+
 ## [2.2.3] - 2018-03-06
-## Fixed
+### Fixed
 - Fix matrix import processing.
 
 ## [2.2.2] - 2018-03-06
-## Fixed
+### Fixed
 - Fixed processing of fields that use typesettings.
 
 ## [2.2.1] - 2018-03-02
-## Added
+### Added
 - [Super Table] field import/export support.
 
-## Changed
+### Changed
 - Backups are now off by default.
 - Moved import into a service to facilitate external usage.
 
-## Fixed
+### Fixed
 - Add class scope to architect sidebar to prevent styling main CP nav styles.
 
+[Super Table]: https://github.com/verbb/super-table
+
 ## [2.2.0] - 2018-02-18
-## Added
+### Added
 - User Group Importing
 - User Group Exporting
 - User Importing
 - User Exporting
 
-## Changed
+### Changed
 - Import page layout.
 
 ## [2.1.4] - 2018-02-17
-## Added
+### Added
 - Copy to clipboard button on export results page.
 
-## Fixed
+### Fixed
 - Javascript errors when not on export page.
 
-## Changed
+### Changed
 - Moved exported json into textarea
 
 ## [2.1.3] - 2018-02-17
-## Fixed
+### Fixed
 - Errors if a string is passed into a `getById()` function.
 
 ## [2.1.2] - 2018-02-17
-## Fixed
+### Fixed
 - User group errors when not using Craft Pro.
 
 ## [2.1.1] - 2018-02-16
-## Fixed
+### Fixed
 - Removed export not available notification.
 
 ## [2.1.0] - 2018-02-16
@@ -102,7 +116,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.2.3...develop
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.2.4...develop
+[2.2.4]: https://github.com/pennebaker/craft-architect/compare/2.2.3...2.2.4
 [2.2.3]: https://github.com/pennebaker/craft-architect/compare/2.2.2...2.2.3
 [2.2.2]: https://github.com/pennebaker/craft-architect/compare/2.2.1...2.2.2
 [2.2.1]: https://github.com/pennebaker/craft-architect/compare/2.2.0...2.2.1
@@ -115,5 +130,3 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 [2.0.0]: https://github.com/pennebaker/craft-architect/compare/2.0.0-beta.3...2.0.0
 [2.0.0-beta.3]: https://github.com/pennebaker/craft-architect/compare/2.0.0-beta.2...2.0.0-beta.3
 [2.0.0-beta.2]: https://github.com/pennebaker/craft-architect/compare/2.0.0-beta.1...2.0.0-beta.2
-
-[Super Table]: https://github.com/verbb/super-table

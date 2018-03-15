@@ -19,7 +19,7 @@ use craft\fields\Matrix;
 use verbb\supertable\fields\SuperTableField;
 
 /**
- * FieldProcessor defines the common interface to be implemented by plugin classes.
+ * FieldProcessor
  *
  * @author    Pennebaker
  * @package   Architect
@@ -76,7 +76,16 @@ class FieldProcessor extends Processor
         }
 
         if ($subField === false) $this->convertOld($item);
-        $this->mapSources($item);
+        try {
+            $this->mapSources($item);
+        } catch (\Exception $e) {
+            $errors = [
+                'source' => [
+                    Architect::t('There was an error mapping the source handles to existing sources.')
+                ]
+            ];
+            return [null, $errors];
+        }
         if ($item['type'] === 'craft\\fields\\Matrix' || $item['type'] === 'verbb\\supertable\\fields\\SuperTableField') {
             $this->mapTypeSettings($item);
             if ($subField) {
@@ -221,7 +230,7 @@ class FieldProcessor extends Processor
                 if (is_array($item['source'])) {
                     $item['source'] = $item['source'][0];
                 }
-                $this->mapCategorySource($item['source']);
+                $this->mapCategorySources($item['source']);
                 if (isset($item['targetSiteId'])) $this->mapSites($item['targetSiteId']);
                 break;
             case 'craft\\fields\\Tags':
@@ -238,6 +247,11 @@ class FieldProcessor extends Processor
             case 'craft\\redactor\\Field':
                 $this->mapVolumeSources($item['availableVolumes'], '');
                 $this->mapAssetTransforms($item['availableTransforms'], '');
+                break;
+            case 'typedlinkfield\\fields\\LinkField':
+                $this->mapVolumeSources($item['typeSettings']['asset']['sources']);
+                $this->mapCategorySources($item['typeSettings']['category']['sources']);
+                $this->mapSectionSources($item['typeSettings']['entry']['sources']);
                 break;
         }
     }
@@ -266,7 +280,7 @@ class FieldProcessor extends Processor
                 if (is_array($item['source'])) {
                     $item['source'] = $item['source'][0];
                 }
-                $this->unmapCategorySource($item['source']);
+                $this->unmapCategorySources($item['source']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
             case 'craft\\fields\\Tags':
@@ -283,6 +297,11 @@ class FieldProcessor extends Processor
             case 'craft\\redactor\\Field':
                 $this->unmapVolumeSources($item['availableVolumes'], '');
                 $this->unmapAssetTransforms($item['availableTransforms'], '');
+                break;
+            case 'typedlinkfield\\fields\\LinkField':
+                $this->unmapVolumeSources($item['typeSettings']['asset']['sources']);
+                $this->unmapCategorySources($item['typeSettings']['category']['sources']);
+                $this->unmapSectionSources($item['typeSettings']['entry']['sources']);
                 break;
         }
     }

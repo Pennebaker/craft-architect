@@ -14,7 +14,7 @@ use Craft;
 use craft\models\FieldGroup;
 
 /**
- * FieldGroupProcessor defines the common interface to be implemented by plugin classes.
+ * FieldGroupProcessor
  *
  * @author    Pennebaker
  * @package   Architect
