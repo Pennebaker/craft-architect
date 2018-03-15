@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [2.2.5] - 2018-03-12
+## [2.2.5] - 2018-03-14
 ### Fixed
 - Fix global set import failing on FieldLayout
 
