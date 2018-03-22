@@ -393,20 +393,37 @@ class FieldProcessor extends Processor
             /**
              * @var Date $item
              */
-            $fieldObj['dateTime'] = 'show' . (
+            if ($useTypeSettings) {
+                $fieldObj['typesettings']['dateTime'] = 'show' . (
+                    (boolval($fieldObj['typesettings']['showDate']) === false) ? 'Time' : (
+                        (boolval($fieldObj['typesettings']['showTime']) === false) ? 'Date' : 'Both'
+                    )
+                );
+                unset($fieldObj['typesettings']['showDate']);
+                unset($fieldObj['typesettings']['showTime']);
+            } else {
+                $fieldObj['dateTime'] = 'show' . (
                     (boolval($fieldObj['showDate']) === false) ? 'Time' : (
                         (boolval($fieldObj['showTime']) === false) ? 'Date' : 'Both'
                     )
                 );
-            unset($fieldObj['showDate']);
-            unset($fieldObj['showTime']);
+                unset($fieldObj['showDate']);
+                unset($fieldObj['showTime']);
+            }
         } else if (get_class($item) === 'verbb\\supertable\\fields\\SuperTableField') {
-            $fieldObj['blockTypes'] = [];
             /**
              * @var SuperTableField $item
              */
-            foreach ($item->getBlockTypeFields() as $blockTypeField) {
-                $fieldObj['blockTypes'][] = $this->export($blockTypeField, [], true);
+            if ($useTypeSettings) {
+                $fieldObj['typesettings']['blockTypes'] = [];
+                foreach ($item->getBlockTypeFields() as $blockTypeField) {
+                    $fieldObj['typesettings']['blockTypes'][] = $this->export($blockTypeField, [], true);
+                }
+            } else {
+                $fieldObj['blockTypes'] = [];
+                foreach ($item->getBlockTypeFields() as $blockTypeField) {
+                    $fieldObj['blockTypes'][] = $this->export($blockTypeField, [], true);
+                }
             }
         }
 
