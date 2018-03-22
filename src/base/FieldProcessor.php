@@ -111,6 +111,11 @@ class FieldProcessor extends Processor
             ];
             $blockTypes = $newBlockTypes;
             $this->convertBlockTypesToNew($blockTypes);
+            foreach ($blockTypes as $blockKey => &$blockType) {
+                foreach ($blockType['fields'] as $fieldKey => &$field) {
+                    $this->mapSources($field);
+                }
+            }
         }
 
         if ($groupId && Craft::$app->fields->getGroupById((int) $groupId)) {

@@ -177,7 +177,7 @@ abstract class Processor implements ProcessorInterface
                     unset($sources[$k]);
                 }
             }
-        } else if ($sources !== '*') {
+        } else if (isset($sources) && $sources !== '*' && $sources !== '') {
             $sourceId = substr($sources, strlen($prefix));
             $source = Craft::$app->volumes->getVolumeById((int) $sourceId);
             if ($source) {
@@ -255,7 +255,7 @@ abstract class Processor implements ProcessorInterface
                     $sources[$k] = $prefix . $source->id;
                 }
             }
-        } else if ($sources !== '*' && $sources !== '' && $sources !== 'singles') {
+        } else if (isset($sources) && $sources !== '*' && $sources !== '' && $sources !== 'singles') {
             $source = Craft::$app->sections->getSectionByHandle((int) $sources);
             $sources = $prefix . $source->id;
         }
@@ -275,7 +275,7 @@ abstract class Processor implements ProcessorInterface
                     $sources[$k] = $source->handle;
                 }
             }
-        } else if ($sources !== '*' && $sources !== '' && $sources !== 'singles') {
+        } else if (isset($sources) && $sources !== '*' && $sources !== '' && $sources !== 'singles') {
             $source = Craft::$app->sections->getSectionById((int) $sources);
             $sources = $source->handle;
         }
@@ -290,9 +290,9 @@ abstract class Processor implements ProcessorInterface
         if (is_array($sources)) {
             foreach ($sources as $k => $sourceRef) {
                 $categoryGroup = Craft::$app->categories->getGroupByHandle($sourceRef);
-                $sources[$k] = $categoryGroup->id;
+                $sources[$k] = $prefix . $categoryGroup->id;
             }
-        } else if ($sources !== '*' && $sources !== '') {
+        } else if (isset($sources) && $sources !== '*' && $sources !== '') {
             $categoryGroup = Craft::$app->categories->getGroupByHandle($sources);
             $sources = $prefix . $categoryGroup->id;
         }
@@ -310,7 +310,7 @@ abstract class Processor implements ProcessorInterface
                 $categoryGroup = Craft::$app->categories->getGroupById((int) $sourceId);
                 $sources[$k] = $categoryGroup->handle;
             }
-        } else if ($sources !== '*' && $sources !== '') {
+        } else if (isset($sources) && $sources !== '*' && $sources !== '') {
             $sourceId = substr($sources, strlen($prefix));
             $categoryGroup = Craft::$app->categories->getGroupById((int) $sourceId);
             $sources = $categoryGroup->handle;
