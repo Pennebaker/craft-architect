@@ -30,47 +30,27 @@ use yii\helpers\Console;
  *
  * The actionIndex() method is what is executed if no sub-commands are supplied, e.g.:
  *
- * ./craft architect/default
- *
- * Actions must be in 'kebab-case' so actionDoSomething() maps to 'do-something',
- * and would be invoked via:
- *
- * ./craft architect/default/import
- * ./craft architect/default/export
+ * ./craft architect/export
  *
  * @author    Pennebaker
  * @package   Architect
  * @since     1.0.0
  */
-class DefaultController extends Controller
+class ExportController extends Controller
 {
     // Public Methods
     // =========================================================================
 
     /**
-     * Import a json file structure.
+     * Export a json file structure.
      *
      * @return mixed
      */
-    public function actionImport()
+    public function actionIndex()
     {
         $result = 'something';
 
-        echo "Welcome to the console DefaultController actionImport() method\n";
-
-        return $result;
-    }
-
-    /**
-     * Export everything to a json file.
-     *
-     * @return mixed
-     */
-    public function actionExport()
-    {
-        $result = 'something';
-
-        echo "Welcome to the console DefaultController actionExport() method\n";
+        echo "Welcome to the console ExportController actionIndex() method\n";
 
         return $result;
     }

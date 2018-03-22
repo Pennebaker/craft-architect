@@ -92,6 +92,10 @@ Some things to do, and ideas for potential features:
 - Exporting Users
 
 [2.3.0] ***in-progress***
+- Command Line
+- Import and Update
+
+[2.4.0] ***brainstorming***
 - Migrations
 
 Brought to you by [Pennebaker](https://pennebaker.com)
