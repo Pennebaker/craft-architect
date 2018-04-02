@@ -44,14 +44,10 @@ class ExportController extends Controller
     /**
      * Export a json file structure.
      *
-     * @return mixed
+     * @param string $filename
      */
-    public function actionIndex()
+    public function actionIndex($filename)
     {
-        $result = 'something';
-
         echo "Welcome to the console ExportController actionIndex() method\n";
-
-        return $result;
     }
 }

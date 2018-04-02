@@ -58,7 +58,7 @@ class GlobalSetProcessor extends Processor
      * @throws \Throwable
      */
     public function setFieldLayout($item) {
-        $globalSet = Craft::$app->tags->getTagGroupByHandle($item['handle']);
+        $globalSet = Craft::$app->globals->getSetByHandle($item['handle']);
 
         $fieldLayout = $this->createFieldLayout($item, GlobalSet::class);
         $globalSet->setFieldLayout($fieldLayout);

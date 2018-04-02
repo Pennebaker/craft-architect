@@ -205,6 +205,7 @@ class ArchitectService extends Component
                             case 'categoryGroups':
                             case 'userGroups':
                             case 'users':
+                            case 'globalSets':
                                 $successful[$parseKey][] = $itemKey;
                                 break;
                         }

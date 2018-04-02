@@ -222,9 +222,9 @@ class FieldProcessor extends Processor
         }
         switch ($type) {
             case 'craft\\fields\\Assets':
-                $this->mapVolumeSources($item['sources']);
-                $this->mapVolumeSources($item['defaultUploadLocationSource']);
-                $this->mapVolumeSources($item['singleUploadLocationSource']);
+                $this->mapFolderSources($item['sources']);
+                $this->mapFolderSources($item['defaultUploadLocationSource']);
+                $this->mapFolderSources($item['singleUploadLocationSource']);
                 if (isset($item['targetSiteId'])) $this->mapSites($item['targetSiteId']);
                 break;
             case 'craft\\fields\\Entries':
@@ -250,11 +250,11 @@ class FieldProcessor extends Processor
                 if (isset($item['targetSiteId'])) $this->mapSites($item['targetSiteId']);
                 break;
             case 'craft\\redactor\\Field':
-                $this->mapVolumeSources($item['availableVolumes'], '');
+                $this->mapVolumeSources($item['availableVolumes']);
                 $this->mapAssetTransforms($item['availableTransforms'], '');
                 break;
             case 'typedlinkfield\\fields\\LinkField':
-                $this->mapVolumeSources($item['typeSettings']['asset']['sources']);
+                $this->mapFolderSources($item['typeSettings']['asset']['sources']);
                 $this->mapCategorySources($item['typeSettings']['category']['sources']);
                 $this->mapSectionSources($item['typeSettings']['entry']['sources']);
                 break;
@@ -272,9 +272,9 @@ class FieldProcessor extends Processor
         }
         switch ($type) {
             case 'craft\\fields\\Assets':
-                $this->unmapVolumeSources($item['sources']);
-                $this->unmapVolumeSources($item['defaultUploadLocationSource']);
-                $this->unmapVolumeSources($item['singleUploadLocationSource']);
+                $this->unmapFolderSources($item['sources']);
+                $this->unmapFolderSources($item['defaultUploadLocationSource']);
+                $this->unmapFolderSources($item['singleUploadLocationSource']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
             case 'craft\\fields\\Entries':
@@ -304,7 +304,7 @@ class FieldProcessor extends Processor
                 $this->unmapAssetTransforms($item['availableTransforms'], '');
                 break;
             case 'typedlinkfield\\fields\\LinkField':
-                $this->unmapVolumeSources($item['typeSettings']['asset']['sources']);
+                $this->unmapFolderSources($item['typeSettings']['asset']['sources']);
                 $this->unmapCategorySources($item['typeSettings']['category']['sources']);
                 $this->unmapSectionSources($item['typeSettings']['entry']['sources']);
                 break;
