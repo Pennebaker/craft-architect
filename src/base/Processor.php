@@ -11,6 +11,7 @@
 namespace pennebaker\architect\base;
 
 use Craft;
+use craft\base\VolumeInterface;
 use craft\models\FieldLayout;
 use craft\base\Field;
 
@@ -138,7 +139,7 @@ abstract class Processor implements ProcessorInterface
      * @param array|string $sources
      * @param string $prefix
      */
-    public function mapVolumeSources(&$sources, $prefix = 'folder:')
+    public function mapVolumeSources(&$sources, $prefix = '')
     {
         if (is_array($sources)) {
             foreach ($sources as $k => $sourceHandle) {
@@ -165,7 +166,7 @@ abstract class Processor implements ProcessorInterface
      * @param array|string $sources
      * @param string $prefix
      */
-    public function unmapVolumeSources(&$sources, $prefix = 'folder:')
+    public function unmapVolumeSources(&$sources, $prefix = '')
     {
         if (is_array($sources)) {
             foreach ($sources as $k => $sourceRef) {
@@ -182,6 +183,65 @@ abstract class Processor implements ProcessorInterface
             $source = Craft::$app->volumes->getVolumeById((int) $sourceId);
             if ($source) {
                 $sources = $source->handle;
+            } else {
+                $sources = '*';
+            }
+        }
+    }
+
+    /**
+     * @param array|string $sources
+     * @param string $prefix
+     */
+    public function mapFolderSources(&$sources, $prefix = 'folder:')
+    {
+        if (is_array($sources)) {
+            foreach ($sources as $k => $sourceHandle) {
+                $volume = Craft::$app->volumes->getVolumeByHandle($sourceHandle);
+                $folder = Craft::$app->assets->getRootFolderByVolumeId($volume->id);
+                if ($folder) {
+                    $sources[$k] = $prefix . $folder->id;
+                } else {
+                    unset($sources[$k]);
+                }
+            }
+        } else if (is_string($sources)) {
+            /** @var VolumeInterface $source */
+            $volume = Craft::$app->volumes->getVolumeByHandle($sources);
+            $folder = Craft::$app->assets->getRootFolderByVolumeId($volume->id);
+            if ($folder) {
+                $sources = $prefix . $folder->id;
+            } else {
+                $sources = '*';
+            }
+        } else {
+            $sources = '*';
+        }
+    }
+
+    /**
+     * @param array|string $sources
+     * @param string $prefix
+     */
+    public function unmapFolderSources(&$sources, $prefix = 'folder:')
+    {
+        if (is_array($sources)) {
+            foreach ($sources as $k => $sourceRef) {
+                $sourceId = substr($sourceRef, strlen($prefix));
+                $folder = Craft::$app->assets->getFolderById((int) $sourceId);
+                $volume = Craft::$app->volumes->getVolumeById((int) $folder->volumeId);
+                if ($volume) {
+                    $sources[$k] = $volume->handle;
+                } else {
+                    unset($sources[$k]);
+                }
+            }
+        } else if (isset($sources) && $sources !== '*' && $sources !== '') {
+            $sourceId = substr($sources, strlen($prefix));
+            $folder = Craft::$app->assets->getFolderById((int) $sourceId);
+            $volume = Craft::$app->volumes->getVolumeById((int) $folder->volumeId);
+            if ($volume) {
+                $sources = $volume->handle;
             } else {
                 $sources = '*';
             }
