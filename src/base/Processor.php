@@ -208,7 +208,11 @@ abstract class Processor implements ProcessorInterface
         } else if (is_string($sources)) {
             /** @var VolumeInterface $source */
             $volume = Craft::$app->volumes->getVolumeByHandle($sources);
-            $folder = Craft::$app->assets->getRootFolderByVolumeId($volume->id);
+            if ($volume) {
+                $folder = Craft::$app->assets->getRootFolderByVolumeId($volume->id);
+            } else {
+                $folder = false;
+            }
             if ($folder) {
                 $sources = $prefix . $folder->id;
             } else {
