@@ -316,7 +316,11 @@ abstract class Processor implements ProcessorInterface
             foreach ($sources as $k => $sourceHandle) {
                 if ($sourceHandle !== 'singles') {
                     $source = Craft::$app->sections->getSectionByHandle($sourceHandle);
-                    $sources[$k] = $prefix . $source->id;
+                    if ($source->type === 'single') {
+                        $sources[$k] = 'single:' . $source->id;
+                    } else {
+                        $sources[$k] = $prefix . $source->id;
+                    }
                 }
             }
         } else if (isset($sources) && $sources !== '*' && $sources !== '' && $sources !== 'singles') {
@@ -333,7 +337,11 @@ abstract class Processor implements ProcessorInterface
     {
         if (is_array($sources)) {
             foreach ($sources as $k => $sourceRef) {
-                if ($sourceRef !== 'singles') {
+                if (substr($sourceRef, 0, strlen('single:')) === 'single:') {
+                    $sourceId = substr($sourceRef, strlen('single:'));
+                    $source = Craft::$app->sections->getSectionById((int) $sourceId);
+                    $sources[$k] = $source->handle;
+                } else if ($sourceRef !== 'singles') {
                     $sourceId = substr($sourceRef, strlen($prefix));
                     $source = Craft::$app->sections->getSectionById((int) $sourceId);
                     $sources[$k] = $source->handle;

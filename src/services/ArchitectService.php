@@ -46,6 +46,7 @@ class ArchitectService extends Component
      */
     public function import($jsonData, $runBackup = false)
     {
+        \Craft::Client;
         // Convert json into an array.
         $jsonObj = json_decode($jsonData, true);
         // Return if json is not properly decoded.
@@ -115,7 +116,7 @@ class ArchitectService extends Component
         $addedEntryTypes = [];
         $results = [];
         foreach ($parseOrder as $parseKey) {
-            if (isset($jsonObj[$parseKey]) && is_array($jsonObj[$parseKey])) {
+            if (isset($jsonObj[$parseKey]) && \is_array($jsonObj[$parseKey])) {
                 $results[$parseKey] = [];
                 foreach ($jsonObj[$parseKey] as $itemKey => $itemObj) {
                     try {
@@ -125,9 +126,13 @@ class ArchitectService extends Component
                             list($item, $itemErrors) = Architect::$processors->$parseKey->parse($itemObj);
                         }
 
-                        if ($parseKey === 'entryTypes' && array_search($itemObj['sectionHandle'], $successful['sections']) === false) {
-                            if (!isset($itemObj['name'])) $itemObj['name'] = '';
-                            if (!isset($itemObj['handle'])) $itemObj['handle'] = $itemObj['sectionHandle'];
+                        if ($parseKey === 'entryTypes' && \in_array($itemObj['sectionHandle'], $successful['sections']) === false) {
+                            if (!isset($itemObj['name'])) {
+                                $itemObj['name'] = '';
+                            }
+                            if (!isset($itemObj['handle'])) {
+                                $itemObj['handle'] = $itemObj['sectionHandle'];
+                            }
                             $item = false;
                             $itemErrors = [
                                 'parent' => [
@@ -177,15 +182,17 @@ class ArchitectService extends Component
                         ];
                     }
 
-                    if (!$itemSuccess) $noErrors = false;
+                    if (!$itemSuccess) {
+                        $noErrors = false;
+                    }
 
                     if ($parseKey === 'fieldGroups' || $parseKey === 'siteGroups') {
-                        $item = ($item) ? $item : ['name' => $itemObj];
+                        $item = $item ?: ['name' => $itemObj];
                     } else {
-                        $item = ($item) ? $item : $itemObj;
+                        $item = $item ?: $itemObj;
                     }
                     if ($itemSuccess) {
-                        if (in_array($parseKey, $onlyStrings)) {
+                        if (\in_array($parseKey, $onlyStrings)) {
                             $jsonObj[$parseKey][$itemKey] = [
                                 'name' => $itemObj,
                                 'id' => $item->id
@@ -223,7 +230,7 @@ class ArchitectService extends Component
          * Post Processing to set Field Layouts
          */
         foreach ($postProcessFieldLayouts as $parseKey) {
-            if (isset($jsonObj[$parseKey]) && is_array($jsonObj[$parseKey])) {
+            if (isset($jsonObj[$parseKey]) && \is_array($jsonObj[$parseKey])) {
                 foreach($successful[$parseKey] as $volumeHandle => $itemKey) {
                     $itemObj = $jsonObj[$parseKey][$itemKey];
                     Architect::$processors->$parseKey->setFieldLayout($itemObj);
@@ -234,15 +241,16 @@ class ArchitectService extends Component
         /**
          * Post Processing on Users to assign User Groups
          */
-        if (isset($jsonObj['users']) && is_array($jsonObj['users'])) {
+        if (isset($jsonObj['users']) && \is_array($jsonObj['users'])) {
             foreach ($successful['users'] as $itemKey) {
                 $itemObj = $jsonObj['users'][$itemKey];
-                if (isset($itemObj['groups']) && is_array($itemObj['groups'])) {
+                if (isset($itemObj['groups']) && \is_array($itemObj['groups'])) {
                     $groupIds = [];
                     foreach ($itemObj['groups'] as $groupHandle) {
                         $group = Craft::$app->userGroups->getGroupByHandle($groupHandle);
-                        if ($group)
+                        if ($group) {
                             $groupIds[] = $group->id;
+                        }
                     }
                     Craft::$app->users->assignUserToGroups($itemObj['id'], $groupIds);
                 }
@@ -253,7 +261,7 @@ class ArchitectService extends Component
          * Post Processing to set permissions
          */
         foreach ($postProcessPermissions as $parseKey) {
-            if (isset($successful[$parseKey]) && is_array($successful[$parseKey])) {
+            if (isset($successful[$parseKey]) && \is_array($successful[$parseKey])) {
                 foreach($successful[$parseKey] as $itemKey) {
                     $itemObj = $jsonObj[$parseKey][$itemKey];
                     Architect::$processors->$parseKey->setPermissions($parseKey, $itemObj);
@@ -266,12 +274,12 @@ class ArchitectService extends Component
          * This is to loop over all entry types in a section and remove entry types that do not match one that was meant to be created.
          * ex. A section was created for Employees but there is only entry types defined for Board Members & Management
          */
-        if (isset($jsonObj['sections']) && is_array($jsonObj['sections']) && isset($jsonObj['entryTypes']) && is_array($jsonObj['entryTypes'])) {
+        if (isset($jsonObj['sections'], $jsonObj['entryTypes']) && \is_array($jsonObj['sections']) && \is_array($jsonObj['entryTypes'])) {
             forEach ($successful['sections'] as $sectionHandle) {
                 $section = Craft::$app->sections->getSectionByHandle($sectionHandle);
                 $entryTypes = $section->getEntryTypes();
                 foreach ($entryTypes as $entryType) {
-                    if (array_search($section->handle. ':' . $entryType->handle, $addedEntryTypes) === false) {
+                    if (\in_array($section->handle . ':' . $entryType->handle, $addedEntryTypes) === false) {
                         Craft::$app->sections->deleteEntryType($entryType);
                     }
                 }
