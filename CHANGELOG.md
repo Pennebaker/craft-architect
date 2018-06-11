@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.2.8] - 2018-04-06
+### Fixed
+- Fix folder source failure to map when set to use all sources.
+
 ## [2.2.7] - 2018-04-02
 ### Fixed
 - Asset field source mapping on import/export.
@@ -134,7 +138,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.2.7...develop
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.2.8...develop
+[2.2.8]: https://github.com/pennebaker/craft-architect/compare/2.2.7...2.2.8
 [2.2.7]: https://github.com/pennebaker/craft-architect/compare/2.2.6...2.2.7
 [2.2.6]: https://github.com/pennebaker/craft-architect/compare/2.2.5...2.2.6
 [2.2.5]: https://github.com/pennebaker/craft-architect/compare/2.2.4...2.2.5

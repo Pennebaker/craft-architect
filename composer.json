@@ -2,7 +2,7 @@
     "name": "pennebaker/craft-architect",
     "description": "CraftCMS plugin to generate content models from JSON data.",
     "type": "craft-plugin",
-    "version": "2.2.7",
+    "version": "2.2.8",
     "keywords": [
         "craft",
         "cms",
