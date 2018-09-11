@@ -91,7 +91,7 @@ class SiteProcessor extends Processor
             'handle' => $item->handle,
             'language' => $item->language,
             'primary' => $item->primary,
-            'hasUrls' => $item->hasUrls,
+            'hasUrls' => boolval($item->hasUrls),
             'baseUrl' => $item->baseUrl,
         ], $attributeObj);
 

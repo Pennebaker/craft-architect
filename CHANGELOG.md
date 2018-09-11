@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.2.10] - 2018-09-11
+### Fixed
+- Fix section uriFormats.
+- Fix importing a section without title labels/formats.
+- Fix unknown sections throwing an error during export.
+- Fix import of Super Tables containing Matrix fields.
+
 ## [2.2.9] - 2018-06-11
 ### Fixed
 - Fix section source failure to map when chosen section is a single.
@@ -142,8 +149,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.2.9...develop
-[2.2.8]: https://github.com/pennebaker/craft-architect/compare/2.2.8...2.2.9
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.2.10...develop
+[2.2.10]: https://github.com/pennebaker/craft-architect/compare/2.2.9...2.2.10
+[2.2.9]: https://github.com/pennebaker/craft-architect/compare/2.2.8...2.2.9
 [2.2.8]: https://github.com/pennebaker/craft-architect/compare/2.2.7...2.2.8
 [2.2.7]: https://github.com/pennebaker/craft-architect/compare/2.2.6...2.2.7
 [2.2.6]: https://github.com/pennebaker/craft-architect/compare/2.2.5...2.2.6

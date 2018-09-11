@@ -51,8 +51,11 @@ class EntryTypeProcessor extends Processor
         $entryType->name = $item['name'];
         $entryType->handle = $item['handle'];
         $entryType->hasTitleField = $item['hasTitleField'];
-        $entryType->titleLabel = $item['titleLabel'];
-        $entryType->titleFormat = $item['titleFormat'];
+        if (boolval($item['hasTitleField'])) {
+            $entryType->titleLabel = $item['titleLabel'];
+        } else {
+            $entryType->titleFormat = $item['titleFormat'];
+        }
 
         $fieldLayout = $this->createFieldLayout($item, Entry::class);
 

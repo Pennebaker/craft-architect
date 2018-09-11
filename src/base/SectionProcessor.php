@@ -37,6 +37,9 @@ class SectionProcessor extends Processor
             $siteSettings = new Section_SiteSettings(array_merge($settings, [
                 'siteId' => (isset($settings['siteId'])) ? Craft::$app->sites->getSiteByHandle($settings['siteId'])->id : Craft::$app->sites->getPrimarySite()->id,
             ]));
+            if (isset($siteSettings['hasUrls']) && boolval($siteSettings['hasUrls']) === false) {
+                $siteSettings['uriFormat'] = null;
+            }
             $item['siteSettings'][$settingKey] = $siteSettings;
         }
         $section = new Section($item);
@@ -106,10 +109,11 @@ class SectionProcessor extends Processor
         $siteSettings = $item->getSiteSettings();
         $sectionObj['siteSettings'] = [];
         foreach ($siteSettings as $siteSetting) {
+            $hasUrls = boolval($siteSetting->hasUrls);
             array_push($sectionObj['siteSettings'], [
                 'siteId' => ($siteSetting->getSite()->primary) ? null : $siteSetting->getSite()->handle,
-                'hasUrls' => $siteSetting->hasUrls,
-                'uriFormat' => $siteSetting->uriFormat,
+                'hasUrls' => $hasUrls,
+                'uriFormat' => ($hasUrls) ? $siteSetting->uriFormat : null,
                 'template' => $siteSetting->template,
                 'enabledByDefault' => boolval($siteSetting->enabledByDefault),
             ]);

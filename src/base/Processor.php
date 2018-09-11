@@ -340,11 +340,19 @@ abstract class Processor implements ProcessorInterface
                 if (substr($sourceRef, 0, strlen('single:')) === 'single:') {
                     $sourceId = substr($sourceRef, strlen('single:'));
                     $source = Craft::$app->sections->getSectionById((int) $sourceId);
-                    $sources[$k] = $source->handle;
+                    if ($source) {
+                        $sources[$k] = $source->handle;
+                    } else {
+                        unset($sources[$k]);
+                    }
                 } else if ($sourceRef !== 'singles') {
                     $sourceId = substr($sourceRef, strlen($prefix));
                     $source = Craft::$app->sections->getSectionById((int) $sourceId);
-                    $sources[$k] = $source->handle;
+                    if ($source) {
+                        $sources[$k] = $source->handle;
+                    } else {
+                        unset($sources[$k]);
+                    }
                 }
             }
         } else if (isset($sources) && $sources !== '*' && $sources !== '' && $sources !== 'singles') {
