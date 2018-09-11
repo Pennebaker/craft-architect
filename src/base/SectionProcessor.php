@@ -37,6 +37,9 @@ class SectionProcessor extends Processor
             $siteSettings = new Section_SiteSettings(array_merge($settings, [
                 'siteId' => (isset($settings['siteId'])) ? Craft::$app->sites->getSiteByHandle($settings['siteId'])->id : Craft::$app->sites->getPrimarySite()->id,
             ]));
+            if (isset($siteSettings['hasUrls']) && boolval($siteSettings['hasUrls']) === false) {
+                $siteSettings['uriFormat'] = null;
+            }
             $item['siteSettings'][$settingKey] = $siteSettings;
         }
         $section = new Section($item);
