@@ -114,6 +114,9 @@ class FieldProcessor extends Processor
             foreach ($blockTypes as $blockKey => &$blockType) {
                 foreach ($blockType['fields'] as $fieldKey => &$field) {
                     $this->mapSources($field);
+                    if ($field['type'] === 'craft\\fields\\Matrix') {
+                        $this->convertBlockTypesToNew($field['typesettings']['blockTypes']);
+                    }
                 }
             }
         }
