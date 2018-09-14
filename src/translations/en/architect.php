@@ -42,4 +42,8 @@ return [
     'Syntax error.' => 'Syntax error.',
     'Malformed UTF-8 characters, possibly incorrectly encoded.' => 'Malformed UTF-8 characters, possibly incorrectly encoded.',
     'One or more recursive references in the value to be encoded.' => 'One or more recursive references in the value to be encoded.',
+    'Allow updating existing items.' => 'Allow updating existing items.',
+    'Import Results' => 'Import Results',
+    'Update existing ' => 'Update existing ',
+    'This is the json data that was submitted.' => 'This is the json data that was submitted.'
 ];
