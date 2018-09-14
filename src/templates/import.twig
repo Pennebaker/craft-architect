@@ -49,6 +49,14 @@
         </p>
     {% endif %}
 
+    {{ forms.checkboxField({
+        label: "Allow updating existing items."|t('architect'),
+        instructions: "Supported is currently limited to: [ fields ] . Not all fields have been fully tested.",
+        id: 'updateExisting',
+        name: 'updateExisting',
+        checked: (updateExisting is defined) ? updateExisting : false
+    }) }}
+
     {{ forms.textareaField({
         label: "JSON Data"|t('architect'),
         instructions: "Put your json import data here."|t('architect'),

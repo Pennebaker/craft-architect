@@ -44,7 +44,7 @@ class ArchitectService extends Component
      * @throws \craft\errors\ShellCommandException
      * @throws \yii\base\Exception
      */
-    public function import($jsonData, $runBackup = false)
+    public function import($jsonData, $runBackup = false, $update = false)
     {
         \Craft::Client;
         // Convert json into an array.
@@ -142,7 +142,7 @@ class ArchitectService extends Component
                         }
 
                         if ($item) {
-                            $itemSuccess = Architect::$processors->$parseKey->save($item);
+                            $itemSuccess = Architect::$processors->$parseKey->save($item, $update);
                             if ($parseKey === 'sections') {
                                 $itemErrors = [];
                                 /** @var mixed $item */
