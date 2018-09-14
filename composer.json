@@ -22,6 +22,7 @@
         }
     ],
     "require": {
+        "ext-json": "*",
         "craftcms/cms": "^3.0.0"
     },
     "autoload": {
