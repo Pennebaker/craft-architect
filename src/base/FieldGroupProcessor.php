@@ -27,7 +27,7 @@ class FieldGroupProcessor extends Processor
      *
      * @return array
      */
-    public function parse(array $item)
+    public function parse(array $item): array
     {
         return [new FieldGroup($item), null];
     }
@@ -51,7 +51,7 @@ class FieldGroupProcessor extends Processor
      *
      * @return string
      */
-    public function export($item, array $extraAttributes = [])
+    public function export($item, array $extraAttributes = []): string
     {
         /** @var FieldGroup $item */
         return $item->name;
@@ -62,7 +62,7 @@ class FieldGroupProcessor extends Processor
      *
      * @return string
      */
-    public function exportById($id)
+    public function exportById($id): string
     {
         $fieldGroup = Craft::$app->fields->getGroupById((int) $id);
 

@@ -27,7 +27,7 @@ class SiteGroupProcessor extends Processor
      *
      * @return array
      */
-    public function parse(array $item)
+    public function parse(array $item): array
     {
         return [new SiteGroup($item), null];
     }
@@ -51,7 +51,7 @@ class SiteGroupProcessor extends Processor
      *
      * @return string
      */
-    public function export($item, array $extraAttributes = [])
+    public function export($item, array $extraAttributes = []): string
     {
         /** @var SiteGroup $item */
         return $item->name;
@@ -62,7 +62,7 @@ class SiteGroupProcessor extends Processor
      *
      * @return string
      */
-    public function exportById($id)
+    public function exportById($id): string
     {
         $siteGroup = Craft::$app->sites->getGroupById((int) $id);
 

@@ -27,7 +27,7 @@ class GlobalSetProcessor extends Processor
      *
      * @return array
      */
-    public function parse(array $item)
+    public function parse(array $item): array
     {
         $globalSet = new GlobalSet([
             'name' => $item['name'],
@@ -57,13 +57,16 @@ class GlobalSetProcessor extends Processor
      *
      * @throws \Throwable
      */
-    public function setFieldLayout($item) {
+    public function setFieldLayout($item)
+    {
         $globalSet = Craft::$app->globals->getSetByHandle($item['handle']);
+        if ($globalSet) {
+            $fieldLayout = $this->createFieldLayout($item, GlobalSet::class);
+            $globalSet->setFieldLayout($fieldLayout);
 
-        $fieldLayout = $this->createFieldLayout($item, GlobalSet::class);
-        $globalSet->setFieldLayout($fieldLayout);
-
-        return $this->save($globalSet);
+            return $this->save($globalSet);
+        }
+        return false;
     }
 
     /**
@@ -72,11 +75,11 @@ class GlobalSetProcessor extends Processor
      *
      * @return array
      */
-    public function export($item, array $extraAttributes = [])
+    public function export($item, array $extraAttributes = []): array
     {
         /** @var GlobalSet $item */
         $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)));
         foreach($extraAttributes as $attribute) {
             $attributeObj[$attribute] = $item->$attribute;
         }
@@ -88,7 +91,7 @@ class GlobalSetProcessor extends Processor
             'requiredFields' => $this->exportRequiredFields($item->getFieldLayout()),
         ], $attributeObj);
 
-        if (count($globalSetObj['requiredFields']) <= 0) {
+        if (\count($globalSetObj['requiredFields']) <= 0) {
             unset($globalSetObj['requiredFields']);
         }
 
@@ -100,7 +103,7 @@ class GlobalSetProcessor extends Processor
      *
      * @return array
      */
-    public function exportById($id)
+    public function exportById($id): array
     {
         $globalSet = Craft::$app->globals->getSetById((int) $id);
 

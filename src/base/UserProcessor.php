@@ -29,10 +29,9 @@ class UserProcessor extends Processor
      *
      * @return array
      */
-    public function parse(array $item)
+    public function parse(array $item): array
     {
-        unset($item['permissions']);
-        unset($item['groups']);
+        unset($item['permissions'], $item['groups']);
         $item['pending'] = true;
 
         $user = new User($item);
@@ -66,16 +65,16 @@ class UserProcessor extends Processor
      * @param mixed $item The item to save
      * @param array $extraAttributes
      *
-     * @return mixed
+     * @return array
      */
-    public function export($item, array $extraAttributes = [])
+    public function export($item, array $extraAttributes = []): array
     {
         /** @var User $item */
         $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)));
         foreach($extraAttributes as $attribute) {
             if ($attribute === 'propagateEntries') {
-                $attributeObj[$attribute] = boolval($item->$attribute);
+                $attributeObj[$attribute] = (bool) $item->$attribute;
             } else {
                 $attributeObj[$attribute] = $item->$attribute;
             }
@@ -86,11 +85,11 @@ class UserProcessor extends Processor
             'email' => $item->email,
             'firstName' => $item->firstName,
             'lastName' => $item->lastName,
-            'admin' => boolval($item->admin),
+            'admin' => (bool) $item->admin,
             'permissions' => [],
         ], $attributeObj);
 
-        if (boolval($item->admin)) {
+        if ((bool) $item->admin) {
             $userObj['permissions'] = null;
         } else {
             $permissionsFromGroup = [];
@@ -105,14 +104,16 @@ class UserProcessor extends Processor
                 $userObj['groups'][] = $group->handle;
                 $groupPermissions = Craft::$app->userPermissions->getPermissionsByGroupId($group->id);
                 foreach ($groupPermissions as $permission) {
-                    if (array_search($permission, $permissionsFromGroup) === false)
+                    if (\in_array($permission, $permissionsFromGroup, false) === false) {
                         $permissionsFromGroup[] = $permission;
+                    }
                 }
             }
             $permissions = Craft::$app->userPermissions->getPermissionsByUserId($item->id);
             foreach ($permissions as $permission) {
-                if (array_search($permission, $permissionsFromGroup) === false)
+                if (\in_array($permission, $permissionsFromGroup, false) === false) {
                     $userObj['permissions'][] = $permission;
+                }
             }
 
             $this->unmapPermissions($userObj['permissions']);
@@ -126,9 +127,9 @@ class UserProcessor extends Processor
      *
      * @param $id
      *
-     * @return mixed
+     * @return array
      */
-    public function exportById($id)
+    public function exportById($id): array
     {
         $user = Craft::$app->users->getUserById($id);
         return $this->export($user);

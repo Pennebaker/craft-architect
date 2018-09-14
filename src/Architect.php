@@ -17,9 +17,9 @@ use pennebaker\architect\variables\ArchitectVariable;
 use Craft;
 use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
-use craft\events\PluginEvent;
+//use craft\events\PluginEvent;
 use craft\events\RegisterUrlRulesEvent;
-use craft\services\Plugins;
+//use craft\services\Plugins;
 use craft\web\UrlManager;
 use craft\web\twig\variables\CraftVariable;
 
@@ -98,6 +98,7 @@ class Architect extends Plugin
          );
 
         // Do something after we're installed
+        /*
         Event::on(
             Plugins::class,
             Plugins::EVENT_AFTER_INSTALL_PLUGIN,
@@ -107,6 +108,7 @@ class Architect extends Plugin
                 }
             }
         );
+        */
 
         self::info('{name} plugin loaded', ['name' => $this->name]);
     }
@@ -117,14 +119,14 @@ class Architect extends Plugin
      *
      * @return string
      */
-    public static function t($message, array $params = [])
+    public static function t($message, array $params = []): string
     {
         return Craft::t('architect', $message, $params);
     }
 
-    public static function trace($message, array $params = [])
+    public static function debug($message, array $params = [])
     {
-        Craft::trace(self::t($message, $params), __METHOD__);
+        Craft::debug(self::t($message, $params), __METHOD__);
     }
 
     public static function info($message, array $params = [])

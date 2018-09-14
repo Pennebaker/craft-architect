@@ -19,7 +19,7 @@ class ArchitectVariable
     /**
      * @return array
      */
-    public function getAllUsers()
+    public function getAllUsers(): array
     {
         return User::findAll();
     }

@@ -29,7 +29,7 @@ class UserGroupProcessor extends Processor
      *
      * @return array
      */
-    public function parse(array $item)
+    public function parse(array $item): array
     {
         unset($item['permissions']);
         $userGroup = new UserGroup($item);
@@ -43,6 +43,8 @@ class UserGroupProcessor extends Processor
      * @param bool $update The item to save
      *
      * @return bool|object
+     *
+     * @throws \craft\errors\WrongEditionException
      */
     public function save($item, bool $update = false)
     {
@@ -61,10 +63,10 @@ class UserGroupProcessor extends Processor
     {
         /** @var UserGroup $item */
         $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)));
         foreach($extraAttributes as $attribute) {
             if ($attribute === 'propagateEntries') {
-                $attributeObj[$attribute] = boolval($item->$attribute);
+                $attributeObj[$attribute] = (bool) $item->$attribute;
             } else {
                 $attributeObj[$attribute] = $item->$attribute;
             }

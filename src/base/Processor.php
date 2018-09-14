@@ -30,7 +30,8 @@ abstract class Processor implements ProcessorInterface
      *
      * @return FieldLayout
      */
-    public function createFieldLayout($item, $type) {
+    public function createFieldLayout($item, $type): FieldLayout
+    {
         $fieldLayout = new FieldLayout();
 
         if (isset($item['fieldLayout'])) {

@@ -31,13 +31,13 @@ class SectionProcessor extends Processor
      *
      * @throws \craft\errors\SiteNotFoundException
      */
-    public function parse(array $item)
+    public function parse(array $item): array
     {
         foreach ($item['siteSettings'] as $settingKey => $settings) {
             $siteSettings = new Section_SiteSettings(array_merge($settings, [
-                'siteId' => (isset($settings['siteId'])) ? Craft::$app->sites->getSiteByHandle($settings['siteId'])->id : Craft::$app->sites->getPrimarySite()->id,
+                'siteId' => isset($settings['siteId']) ? Craft::$app->sites->getSiteByHandle($settings['siteId'])->id : Craft::$app->sites->getPrimarySite()->id,
             ]));
-            if (isset($siteSettings['hasUrls']) && boolval($siteSettings['hasUrls']) === false) {
+            if (isset($siteSettings['hasUrls']) && (bool) $siteSettings['hasUrls'] === false) {
                 $siteSettings['uriFormat'] = null;
             }
             $item['siteSettings'][$settingKey] = $siteSettings;
@@ -75,7 +75,7 @@ class SectionProcessor extends Processor
                 'propagateEntries'
             ],
         ];
-        return (isset($additionalAttributes[$class])) ? $additionalAttributes[$class] : [];
+        return $additionalAttributes[$class] ?? [];
     }
 
     /**
@@ -86,14 +86,14 @@ class SectionProcessor extends Processor
      *
      * @throws \yii\base\InvalidConfigException
      */
-    public function export($item, array $extraAttributes = [])
+    public function export($item, array $extraAttributes = []): array
     {
         /** @var Section $item */
         $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)), $this->additionalAttributes($item->type));
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)), $this->additionalAttributes($item->type));
         foreach($extraAttributes as $attribute) {
             if ($attribute === 'propagateEntries') {
-                $attributeObj[$attribute] = boolval($item->$attribute);
+                $attributeObj[$attribute] = (bool) $item->$attribute;
             } else {
                 $attributeObj[$attribute] = $item->$attribute;
             }
@@ -103,25 +103,25 @@ class SectionProcessor extends Processor
             'name' => $item->name,
             'handle' => $item->handle,
             'type' => $item->type,
-            'enableVersioning' => boolval($item->enableVersioning),
+            'enableVersioning' => (bool) $item->enableVersioning,
         ], $attributeObj);
 
         $siteSettings = $item->getSiteSettings();
         $sectionObj['siteSettings'] = [];
         foreach ($siteSettings as $siteSetting) {
-            $hasUrls = boolval($siteSetting->hasUrls);
-            array_push($sectionObj['siteSettings'], [
-                'siteId' => ($siteSetting->getSite()->primary) ? null : $siteSetting->getSite()->handle,
+            $hasUrls = (bool) $siteSetting->hasUrls;
+            $sectionObj['siteSettings'][] = [
+                'siteId' => $siteSetting->getSite()->primary ? null : $siteSetting->getSite()->handle,
                 'hasUrls' => $hasUrls,
-                'uriFormat' => ($hasUrls) ? $siteSetting->uriFormat : null,
+                'uriFormat' => $hasUrls ? $siteSetting->uriFormat : null,
                 'template' => $siteSetting->template,
-                'enabledByDefault' => boolval($siteSetting->enabledByDefault),
-            ]);
+                'enabledByDefault' => (bool) $siteSetting->enabledByDefault,
+            ];
         }
         $entryTypes = $item->getEntryTypes();
         $sectionObj['entryTypes'] = [];
         foreach ($entryTypes as $entryType) {
-            array_push($sectionObj['entryTypes'], Architect::$processors->entryTypes->export($entryType));
+            $sectionObj['entryTypes'][] = Architect::$processors->entryTypes->export($entryType);
         }
 
         return $this->stripNulls($sectionObj);
@@ -134,7 +134,7 @@ class SectionProcessor extends Processor
      *
      * @throws \yii\base\InvalidConfigException
      */
-    public function exportById($id)
+    public function exportById($id): array
     {
         $section = Craft::$app->sections->getSectionById((int) $id);
 

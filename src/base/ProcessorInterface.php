@@ -28,7 +28,7 @@ interface ProcessorInterface
      *
      * @return array
      */
-    public function parse(array $item);
+    public function parse(array $item): array;
 
     /**
      * Saves the object to the database

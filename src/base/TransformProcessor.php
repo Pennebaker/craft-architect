@@ -27,7 +27,7 @@ class TransformProcessor extends Processor
      *
      * @return array
      */
-    public function parse(array $item)
+    public function parse(array $item): array
     {
         $transform = new AssetTransform();
 
@@ -57,11 +57,11 @@ class TransformProcessor extends Processor
      *
      * @return array
      */
-    public function export($item, array $extraAttributes = [])
+    public function export($item, array $extraAttributes = []): array
     {
         /** @var AssetTransform $item */
         $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)));
         foreach($extraAttributes as $attribute) {
             $attributeObj[$attribute] = $item->$attribute;
         }
@@ -86,7 +86,7 @@ class TransformProcessor extends Processor
      *
      * @return array
      */
-    public function exportById($id)
+    public function exportById($id): array
     {
         $transform = Craft::$app->assetTransforms->getTransformById((int) $id);
 

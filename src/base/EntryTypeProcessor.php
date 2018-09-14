@@ -28,9 +28,10 @@ class EntryTypeProcessor extends Processor
      *
      * @return array
      */
-    public function parse(array $item)
+    public function parse(array $item): array
     {
         $section = Craft::$app->sections->getSectionByHandle($item['sectionHandle']);
+
         $item['sectionId'] = $section->id;
 
         $sectionEntryTypes = $section->getEntryTypes();
@@ -46,12 +47,12 @@ class EntryTypeProcessor extends Processor
             }
         }
 
-        $entryType = (isset($item['id'])) ? Craft::$app->sections->getEntryTypeById((int) $item['id']) : new EntryType();
+        $entryType = isset($item['id']) ? Craft::$app->sections->getEntryTypeById((int) $item['id']) : new EntryType();
         $entryType->sectionId = $section->id;
         $entryType->name = $item['name'];
         $entryType->handle = $item['handle'];
         $entryType->hasTitleField = $item['hasTitleField'];
-        if (boolval($item['hasTitleField'])) {
+        if ((bool) $item['hasTitleField']) {
             $entryType->titleLabel = $item['titleLabel'];
         } else {
             $entryType->titleFormat = $item['titleFormat'];
@@ -88,27 +89,27 @@ class EntryTypeProcessor extends Processor
      *
      * @throws \yii\base\InvalidConfigException
      */
-    public function export($item, array $extraAttributes = [])
+    public function export($item, array $extraAttributes = []): array
     {
         /** @var EntryType $item */
         $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)));
         foreach($extraAttributes as $attribute) {
             $attributeObj[$attribute] = $item->$attribute;
         }
-        $hasTitleField = boolval($item->hasTitleField);
+        $hasTitleField = (bool) $item->hasTitleField;
         $entryTypeObj = array_merge([
             'sectionHandle' => $item->getSection()->handle,
             'name' => $item->name,
             'handle' => $item->handle,
             'hasTitleField' => $hasTitleField,
-            'titleLabel' => ($hasTitleField) ? $item->titleLabel : "",
-            'titleFormat' => (!$hasTitleField) ? $item->titleFormat : "",
+            'titleLabel' => $hasTitleField ? $item->titleLabel : '',
+            'titleFormat' => (!$hasTitleField) ? $item->titleFormat : '',
             'fieldLayout' => $this->exportFieldLayout($item->getFieldLayout()),
             'requiredFields' => $this->exportRequiredFields($item->getFieldLayout()),
         ], $attributeObj);
         
-        if (count($entryTypeObj['requiredFields']) <= 0) {
+        if (\count($entryTypeObj['requiredFields']) <= 0) {
             unset($entryTypeObj['requiredFields']);
         }
 
@@ -122,7 +123,7 @@ class EntryTypeProcessor extends Processor
      *
      * @throws \yii\base\InvalidConfigException
      */
-    public function exportById($id)
+    public function exportById($id): array
     {
         $entryType = Craft::$app->sections->getEntryTypeById((int) $id);
 
