@@ -34,18 +34,20 @@
 
     {% if invalidJson %}
         <p class="error">JSON:
-            {% switch invalidJson %}
-            {% case 1 %}
-                The maximum stack depth has been exceeded.
-            {% case 2 %}
-                Occurs with underflow or with the modes mismatch.
-            {% case 3 %}
-                Control character error, possibly incorrectly encoded.
-            {% case 4 %}
-                Syntax error.
-            {% case 5 %}
-                Malformed UTF-8 characters, possibly incorrectly encoded.
-            {% endswitch %}
+            {% switch invalidJson -%}
+                {%- case 1 -%}
+                    {{ "The maximum stack depth has been exceeded."|t('architect') }}
+                {%- case 2 -%}
+                    {{ "Invalid or malformed JSON."|t('architect') }}
+                {%- case 3 -%}
+                    {{ "Control character error, possibly incorrectly encoded."|t('architect') }}
+                {%- case 4 -%}
+                    {{ "Syntax error."|t('architect') }}
+                {%- case 5 -%}
+                    {{ "Malformed UTF-8 characters, possibly incorrectly encoded."|t('architect') }}
+                {%- case 6 -%}
+                    {{ "One or more recursive references in the value to be encoded."|t('architect') }}
+            {%- endswitch -%}
         </p>
     {% endif %}
 
