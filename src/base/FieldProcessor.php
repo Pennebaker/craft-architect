@@ -10,6 +10,7 @@
 
 namespace pennebaker\architect\base;
 
+use craft\models\FieldLayout;
 use pennebaker\architect\Architect;
 
 use Craft;
@@ -96,7 +97,9 @@ class FieldProcessor extends Processor
             }
         }
         if ($item['type'] === Matrix::class) {
-            $this->convertBlockTypesToNew($blockTypes);
+            if (isset($blockTypes[0])) {
+                $this->convertBlockTypesToNew($blockTypes);
+            }
             foreach ($blockTypes as $blockKey => &$blockType) {
                 foreach ($blockType['fields'] as $fieldKey => $field) {
                     list ($field, $errors) = $this->parse($field, true);
@@ -160,6 +163,104 @@ class FieldProcessor extends Processor
         return Craft::$app->fields->saveField($item);
     }
 
+    /**
+     * @param array $itemObj
+     *
+     * @return array|null
+     *
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function update(array &$itemObj)
+    {
+        if (isset($itemObj['id'])) {
+            $field = Craft::$app->fields->getFieldById($itemObj['id']);
+        } else {
+            $field = Craft::$app->fields->getFieldByHandle($itemObj['handle']);
+            if ($field) {
+                $itemObj['id'] = $field->id;
+            }
+        }
+        if ($field) {
+            if ($itemObj['type'] !== \get_class($field)) {
+                $errors = [
+                    'type' => [
+                        Architect::t('Type does not match existing type: "{fieldType}".', ['fieldType' => \get_class($field) ])
+                    ]
+                ];
+                return $errors;
+            }
+            switch ($itemObj['type']) {
+                case Matrix::class:
+                    $itemObj['blockTypes'] = $this->mergeBlockTypes($field->getBlockTypes(), $itemObj['blockTypes']);
+                    break;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param array $oldBlockTypes
+     * @param array $newBlockTypes
+     *
+     * @return array
+     *
+     * @throws \yii\base\InvalidConfigException
+     */
+    private function mergeBlockTypes(array $oldBlockTypes, array $newBlockTypes): array
+    {
+        $oldIDs = array_map(function($a) { return $a['id']; }, $oldBlockTypes);
+        $oldHandles = array_map(function($a) { return $a['handle']; }, $oldBlockTypes);
+        $updatedBlockTypes = [];
+        $newCount = 1;
+        /* @var craft\models\MatrixBlockType[] $oldBlockTypes */
+        foreach ($newBlockTypes as $newIndex => $blockType) {
+            if (isset($blockType['id'])) {
+                $oldIndex = array_search($blockType['id'], $oldIDs, false);
+            } else {
+                $oldIndex = array_search($blockType['handle'], $oldHandles, false);
+            }
+            $oldFieldLayout = $oldBlockTypes[$oldIndex]->getFieldLayout();
+            $newFields = $blockType['fields'];
+            $blockType['fields'] = $this->mergeFieldLayout($oldFieldLayout, $newFields);
+            if ($oldIndex !== false) {
+                $updatedBlockTypes[$oldBlockTypes[$oldIndex]['id']] = $blockType;
+            } else {
+                $updatedBlockTypes['new' . $newCount] = $blockType;
+                $newCount++;
+            }
+        }
+        return $updatedBlockTypes;
+    }
+
+    /**
+     * @param FieldLayout $oldFieldLayout
+     * @param array $newFields
+     *
+     * @return array
+     */
+    private function mergeFieldLayout(FieldLayout $oldFieldLayout, array $newFields): array
+    {
+        $oldFields = $oldFieldLayout->getFields();
+        $oldIDs = array_map(function($a) { return $a['id']; }, $oldFields);
+        $oldHandles = array_map(function($a) { return $a['handle']; }, $oldFields);
+        $updatedFields = [];
+        $newCount = 1;
+        foreach ($newFields as $newIndex => $field) {
+            if (isset($field['id'])) {
+                $oldIndex = array_search($field['id'], $oldIDs, false);
+            } else {
+                $oldIndex = array_search($field['handle'], $oldHandles, false);
+            }
+            if ($oldIndex !== false) {
+                $field['id'] = $oldFields[$oldIndex]['id'];
+                $updatedFields[$oldFields[$oldIndex]['id']] = $field;
+            } else {
+                $updatedFields['new' . $newCount] = $field;
+                $newCount++;
+            }
+        }
+        return $updatedFields;
+    }
 
     /**
      * @param string $fieldType

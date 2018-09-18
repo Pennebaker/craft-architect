@@ -120,13 +120,15 @@ class ArchitectService extends Component
                 $results[$parseKey] = [];
                 foreach ($jsonObj[$parseKey] as $itemKey => $itemObj) {
                     try {
+                        if ($update) {
+                            $itemErrors = Architect::$processors->$parseKey->update($itemObj);
+                        }
                         if ($parseKey === 'fieldGroups' || $parseKey === 'siteGroups') {
                             list($item, $itemErrors) = Architect::$processors->$parseKey->parse(['name' => $itemObj]);
                         } else {
                             list($item, $itemErrors) = Architect::$processors->$parseKey->parse($itemObj);
                         }
-
-                        if ($parseKey === 'entryTypes' && \in_array($itemObj['sectionHandle'], $successful['sections']) === false) {
+                        if ($parseKey === 'entryTypes' && \in_array($itemObj['sectionHandle'], $successful['sections'], false) === false) {
                             if (!isset($itemObj['name'])) {
                                 $itemObj['name'] = '';
                             }
@@ -150,13 +152,15 @@ class ArchitectService extends Component
                                     /** @var Section_SiteSettings $settings */
                                     foreach ($settings->getErrors() as $errorKey => $errors) {
                                         if (isset($itemErrors[$errorKey])) {
-                                            $itemErrors[$errorKey] = array_merge($itemErrors[$errorKey], $errors);
+//                                            $itemErrors[$errorKey] = array_merge($itemErrors[$errorKey], $errors);
+                                            $itemErrors[$errorKey] = array_push($itemErrors[$errorKey], ...$errors);
                                         } else {
                                             $itemErrors[$errorKey] = $errors;
                                         }
                                     }
                                 }
-                                $itemErrors = array_merge($itemErrors, $item->getErrors());
+//                                $itemErrors = array_merge($itemErrors, $item->getErrors());
+                                $itemErrors = array_push($itemErrors, ...$item->getErrors());
                             } else {
                                 /** @var mixed $item */
                                 $itemErrors = $item->getErrors();

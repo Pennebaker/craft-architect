@@ -36,6 +36,7 @@ return [
     'No field group matching "{groupName}".' => 'No field group matching "{groupName}".',
     'Field group is missing.' => 'Field group is missing.',
     'There was an error mapping the source handles to existing sources.' => 'There was an error mapping the source handles to existing sources.',
+    'Type does not match existing type: "{fieldType}".' => 'Type does not match existing type: "{fieldType}".',
     'The maximum stack depth has been exceeded.' => 'The maximum stack depth has been exceeded.',
     'Invalid or malformed JSON.' => 'Invalid or malformed JSON.',
     'Control character error, possibly incorrectly encoded.' => 'Control character error, possibly incorrectly encoded.',

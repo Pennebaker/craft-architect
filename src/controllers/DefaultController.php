@@ -39,11 +39,14 @@ class DefaultController extends Controller
         // Load posted json data into a variable.
         $jsonData = Craft::$app->request->getBodyParam('jsonData');
 
-        list($jsonError, $noErrors, $backup, $results) = Architect::$plugin->architectService->import($jsonData, false);
+        $updateExisting = (bool) Craft::$app->request->getBodyParam('updateExisting');
+
+        list($jsonError, $noErrors, $backup, $results) = Architect::$plugin->architectService->import($jsonData, false, $updateExisting);
 
         if ($jsonError) {
             $this->renderTemplate('architect/import', [
                 'invalidJson' => json_last_error(),
+                'updateExisting' => $updateExisting,
                 'jsonData' => $jsonData,
             ]);
             return;
@@ -53,6 +56,7 @@ class DefaultController extends Controller
             'noErrors' => $noErrors,
             'backupLocation' => $backup,
             'results' => $results,
+            'updateExisting' => $updateExisting,
             'jsonData' => $jsonData,
         ]);
     }
