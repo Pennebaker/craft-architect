@@ -160,6 +160,20 @@ class FieldProcessor extends Processor
      */
     public function save($item, bool $update = false)
     {
+        if ($update || $item->id) {
+            if ($item->id) {
+                $field = Craft::$app->fields->getFieldById($item->id);
+            } else {
+                $field = Craft::$app->fields->getFieldByHandle($item->handle);
+            }
+            if ($field) {
+                if (\get_class($item) !== \get_class($field)) {
+                    $error = Architect::t('Type does not match existing type: "{fieldType}".', ['fieldType' => \get_class($field) ]);
+                    $item->addError('type', $error);
+                    return false;
+                }
+            }
+        }
         return Craft::$app->fields->saveField($item);
     }
 

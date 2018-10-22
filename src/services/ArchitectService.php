@@ -153,14 +153,14 @@ class ArchitectService extends Component
                                     foreach ($settings->getErrors() as $errorKey => $errors) {
                                         if (isset($itemErrors[$errorKey])) {
 //                                            $itemErrors[$errorKey] = array_merge($itemErrors[$errorKey], $errors);
-                                            $itemErrors[$errorKey] = array_push($itemErrors[$errorKey], ...$errors);
+                                            array_push($itemErrors[$errorKey], ...$errors);
                                         } else {
                                             $itemErrors[$errorKey] = $errors;
                                         }
                                     }
                                 }
 //                                $itemErrors = array_merge($itemErrors, $item->getErrors());
-                                $itemErrors = array_push($itemErrors, ...$item->getErrors());
+                                array_push($itemErrors, ...$item->getErrors());
                             } else {
                                 /** @var mixed $item */
                                 $itemErrors = $item->getErrors();
