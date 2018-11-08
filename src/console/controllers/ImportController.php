@@ -67,6 +67,13 @@ class ImportController extends Controller
 			printf("unable to parse the YAML file provided: %s", $exception->getMessage());
 		}
 
+		//remove yaml templates
+	    foreach ($data as $key => $value) {
+			if ($key[0] == ".") {
+				unset($data->{$key});
+			}
+		};
+
 		$dataAsJson = json_encode($data);
 
 		list($jsonError, $noErrors, $backup, $results) = Architect::$plugin->architectService->import($dataAsJson, false);
