@@ -10,14 +10,17 @@
 
 namespace pennebaker\architect\base;
 
-use craft\models\FieldLayout;
 use pennebaker\architect\Architect;
 
 use Craft;
 use craft\base\Field;
 use craft\fields\Date;
 use craft\fields\Matrix;
+use craft\models\FieldLayout;
+use craft\helpers\Json;
 use verbb\supertable\fields\SuperTableField;
+use benf\neo\Field as Neo;
+use benf\neo\records\BlockType as NeoBlockType;
 
 /**
  * FieldProcessor
@@ -557,6 +560,34 @@ class FieldProcessor extends Processor
                 );
                 unset($fieldObj['showDate'], $fieldObj['showTime']);
             }
+        } else if ($item instanceof Neo) {
+            $blockTypesObj = [];
+            /**
+             * @var Neo $item
+             */
+            foreach ($item->getBlockTypes() as $blockType) {
+                /* @var NeoBlockType $blockType */
+                $blockTypeObj = [
+                    'name' => $blockType->name,
+                    'handle' => $blockType->handle,
+                    'maxBlocks' => $blockType->maxBlocks,
+                    'childBlocks' => Json::decodeIfJson($blockType->childBlocks),
+                    'maxChildBlocks' => $blockType->maxBlocks,
+                    'topLevel' => (bool) $blockType->topLevel,
+                    'fieldLayout' => [],
+                ];
+                /* @var FieldLayout $fieldLayout */
+                $fieldLayout = $blockType->getFieldLayout();
+                foreach ($fieldLayout->getTabs() as $tab) {
+                    $blockTypeObj['fieldLayout'][$tab->name] = [];
+                    foreach ($tab->getFields() as $field) {
+                        $blockTypeObj['fieldLayout'][$tab->name][] = $field->handle;
+                    }
+                }
+                $blockTypesObj[] = $blockTypeObj;
+            }
+            $fieldObj['blockTypes'] = $blockTypesObj;
+//            Craft::dd($item);
         } else if ($item instanceof SuperTableField) {
             /**
              * @var SuperTableField $item
