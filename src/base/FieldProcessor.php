@@ -16,7 +16,11 @@ use Craft;
 use craft\base\Field;
 use craft\fields\Date;
 use craft\fields\Matrix;
+use craft\models\FieldLayout;
+use craft\helpers\Json;
 use verbb\supertable\fields\SuperTableField;
+use benf\neo\Field as Neo;
+use benf\neo\records\BlockType as NeoBlockType;
 
 /**
  * FieldProcessor
@@ -33,7 +37,7 @@ class FieldProcessor extends Processor
      *
      * @return array
      */
-    public function parse(array $item, bool $subField = false)
+    public function parse(array $item, bool $subField = false): array
     {
         $groupId = false;
         if ($subField === false) {
@@ -55,11 +59,11 @@ class FieldProcessor extends Processor
 
         // Attempt to find matching field type.
         $matchingFieldTypes = $this->getMatchingFieldTypes($item['type']);
-        if (count($matchingFieldTypes) === 1) {
+        if (\count($matchingFieldTypes) === 1) {
             $item = array_merge($item, [
                 'type' => array_pop($matchingFieldTypes)
             ]);
-        } else if (count($matchingFieldTypes) <= 0) {
+        } else if (\count($matchingFieldTypes) <= 0) {
             $errors = [
                 'type' => [
                     Architect::t('No field type matching "{fieldType}".', ['fieldType' => $item['type']])
@@ -74,8 +78,9 @@ class FieldProcessor extends Processor
             ];
             return [null, $errors];
         }
-
-        if ($subField === false) $this->convertOld($item);
+        if ($subField === false) {
+            $this->convertOld($item);
+        }
         try {
             $this->mapSources($item);
         } catch (\Exception $e) {
@@ -86,7 +91,7 @@ class FieldProcessor extends Processor
             ];
             return [null, $errors];
         }
-        if ($item['type'] === 'craft\\fields\\Matrix' || $item['type'] === 'verbb\\supertable\\fields\\SuperTableField') {
+        if ($item['type'] === Matrix::class || $item['type'] === 'verbb\\supertable\\fields\\SuperTableField') {
             $this->mapTypeSettings($item);
             if ($subField) {
                 $blockTypes = &$item['typesettings']['blockTypes'];
@@ -94,15 +99,20 @@ class FieldProcessor extends Processor
                 $blockTypes = &$item['blockTypes'];
             }
         }
-        if ($item['type'] === 'craft\\fields\\Matrix') {
-            $this->convertBlockTypesToNew($blockTypes);
+        if ($item['type'] === Matrix::class) {
+            if (isset($blockTypes[0])) {
+                $this->convertBlockTypesToNew($blockTypes);
+            }
             foreach ($blockTypes as $blockKey => &$blockType) {
                 foreach ($blockType['fields'] as $fieldKey => $field) {
                     list ($field, $errors) = $this->parse($field, true);
-                    if ($field === null) return [$field, $errors];
+                    if ($field === null) {
+                        return [$field, $errors];
+                    }
                     $blockType['fields'][$fieldKey] = $field;
                 }
             }
+            unset($blockType);
         } else if ($item['type'] === 'verbb\\supertable\\fields\\SuperTableField') {
             $newBlockTypes = [
                 [
@@ -114,11 +124,13 @@ class FieldProcessor extends Processor
             foreach ($blockTypes as $blockKey => &$blockType) {
                 foreach ($blockType['fields'] as $fieldKey => &$field) {
                     $this->mapSources($field);
-                    if ($field['type'] === 'craft\\fields\\Matrix') {
+                    if ($field['type'] === Matrix::class) {
                         $this->convertBlockTypesToNew($field['typesettings']['blockTypes']);
                     }
                 }
+                unset($field);
             }
+            unset($blockType);
         }
 
         if ($groupId && Craft::$app->fields->getGroupById((int) $groupId)) {
@@ -129,32 +141,150 @@ class FieldProcessor extends Processor
             $field = Craft::$app->fields->createField($fieldObject);
 
             return [$field, $field->getErrors()];
-        } else if ($subField) {
-            return [$item, null];
-        } else {
-            $errors = [
-                'group' => [
-                    Architect::t('No field group matching "{groupName}".', ['groupName' => $item['group']])
-                ]
-            ];
-            return [null, $errors];
         }
+        if ($subField) {
+            return [$item, null];
+        }
+        $errors = [
+            'group' => [
+                Architect::t('No field group matching "{groupName}".', ['groupName' => $item['group']])
+            ]
+        ];
+        return [null, $errors];
     }
 
     /**
      * @param $item
-     * @param bool $update
+     * @param bool $update Attempt to update an existing field instead of making a new one.
      *
-     * @return bool|object
+     * @return bool|object|array
      *
      * @throws \Throwable
      */
     public function save($item, bool $update = false)
     {
+        if ($update || $item->id) {
+            if ($item->id) {
+                $field = Craft::$app->fields->getFieldById($item->id);
+            } else {
+                $field = Craft::$app->fields->getFieldByHandle($item->handle);
+            }
+            if ($field) {
+                if (\get_class($item) !== \get_class($field)) {
+                    $error = Architect::t('Type does not match existing type: "{fieldType}".', ['fieldType' => \get_class($field) ]);
+                    $item->addError('type', $error);
+                    return false;
+                }
+            }
+        }
         return Craft::$app->fields->saveField($item);
     }
 
-    private function getMatchingFieldTypes($fieldType) {
+    /**
+     * @param array $itemObj
+     *
+     * @return array|null
+     *
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function update(array &$itemObj)
+    {
+        if (isset($itemObj['id'])) {
+            $field = Craft::$app->fields->getFieldById($itemObj['id']);
+        } else {
+            $field = Craft::$app->fields->getFieldByHandle($itemObj['handle']);
+            if ($field) {
+                $itemObj['id'] = $field->id;
+            }
+        }
+        if ($field) {
+            if ($itemObj['type'] !== \get_class($field)) {
+                $errors = [
+                    'type' => [
+                        Architect::t('Type does not match existing type: "{fieldType}".', ['fieldType' => \get_class($field) ])
+                    ]
+                ];
+                return $errors;
+            }
+            switch ($itemObj['type']) {
+                case Matrix::class:
+                    $itemObj['blockTypes'] = $this->mergeBlockTypes($field->getBlockTypes(), $itemObj['blockTypes']);
+                    break;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param array $oldBlockTypes
+     * @param array $newBlockTypes
+     *
+     * @return array
+     *
+     * @throws \yii\base\InvalidConfigException
+     */
+    private function mergeBlockTypes(array $oldBlockTypes, array $newBlockTypes): array
+    {
+        $oldIDs = array_map(function($a) { return $a['id']; }, $oldBlockTypes);
+        $oldHandles = array_map(function($a) { return $a['handle']; }, $oldBlockTypes);
+        $updatedBlockTypes = [];
+        $newCount = 1;
+        /* @var craft\models\MatrixBlockType[] $oldBlockTypes */
+        foreach ($newBlockTypes as $newIndex => $blockType) {
+            if (isset($blockType['id'])) {
+                $oldIndex = array_search($blockType['id'], $oldIDs, false);
+            } else {
+                $oldIndex = array_search($blockType['handle'], $oldHandles, false);
+            }
+            $oldFieldLayout = $oldBlockTypes[$oldIndex]->getFieldLayout();
+            $newFields = $blockType['fields'];
+            $blockType['fields'] = $this->mergeFieldLayout($oldFieldLayout, $newFields);
+            if ($oldIndex !== false) {
+                $updatedBlockTypes[$oldBlockTypes[$oldIndex]['id']] = $blockType;
+            } else {
+                $updatedBlockTypes['new' . $newCount] = $blockType;
+                $newCount++;
+            }
+        }
+        return $updatedBlockTypes;
+    }
+
+    /**
+     * @param FieldLayout $oldFieldLayout
+     * @param array $newFields
+     *
+     * @return array
+     */
+    private function mergeFieldLayout(FieldLayout $oldFieldLayout, array $newFields): array
+    {
+        $oldFields = $oldFieldLayout->getFields();
+        $oldIDs = array_map(function($a) { return $a['id']; }, $oldFields);
+        $oldHandles = array_map(function($a) { return $a['handle']; }, $oldFields);
+        $updatedFields = [];
+        $newCount = 1;
+        foreach ($newFields as $newIndex => $field) {
+            if (isset($field['id'])) {
+                $oldIndex = array_search($field['id'], $oldIDs, false);
+            } else {
+                $oldIndex = array_search($field['handle'], $oldHandles, false);
+            }
+            if ($oldIndex !== false) {
+                $field['id'] = $oldFields[$oldIndex]['id'];
+                $updatedFields[$oldFields[$oldIndex]['id']] = $field;
+            } else {
+                $updatedFields['new' . $newCount] = $field;
+                $newCount++;
+            }
+        }
+        return $updatedFields;
+    }
+
+    /**
+     * @param string $fieldType
+     * @return array
+     */
+    private function getMatchingFieldTypes($fieldType): array
+    {
         return array_filter(Craft::$app->fields->getAllFieldTypes(), function($haystack) use ($fieldType) {
             return (strpos($haystack, $fieldType) !== false);
         });
@@ -183,13 +313,16 @@ class FieldProcessor extends Processor
     {
         if (isset($item['typesettings'])) {
             foreach ($item['typesettings'] as $k => $v) {
-                if ($k === 'maxLength') $k = 'charLimit';
-                if ($item['type'] === 'craft\\fields\\Categories' && $k === 'limit') $k = 'branchLimit';
-
-                if (($k !== 'useSingleFolder' && $item['type'] === 'craft\\fields\\Categories') || $item['type'] !== 'craft\\fields\\Categories')
+                if ($k === 'maxLength') {
+                    $k = 'charLimit';
+                }
+                if ($k === 'limit' && $item['type'] === \craft\fields\Categories::class) {
+                    $k = 'branchLimit';
+                }
+                if (($k !== 'useSingleFolder' && $item['type'] === \craft\fields\Categories::class) || $item['type'] !== \craft\fields\Categories::class) {
                     $item[$k] = $v;
+                }
             }
-            unset($item['typesettings']);
             unset($item['typesettings']);
         }
     }
@@ -197,7 +330,8 @@ class FieldProcessor extends Processor
     /**
      * @param array $blockTypes
      */
-    public function convertBlockTypesToNew(array &$blockTypes) {
+    public function convertBlockTypesToNew(array &$blockTypes)
+    {
         $newBlockTypes = [];
         foreach ($blockTypes as $blockType) {
             if (isset($blockType['fields'][0])) {
@@ -209,7 +343,7 @@ class FieldProcessor extends Processor
                 }
                 $blockType['fields'] = $newFields;
             }
-            $newBlockTypes['new' . (count($newBlockTypes) + 1)] = $blockType;
+            $newBlockTypes['new' . (\count($newBlockTypes) + 1)] = $blockType;
         }
         $blockTypes = $newBlockTypes;
     }
@@ -224,33 +358,43 @@ class FieldProcessor extends Processor
             $item = &$item['typesettings'];
         }
         switch ($type) {
-            case 'craft\\fields\\Assets':
+            case \craft\fields\Assets::class:
                 $this->mapFolderSources($item['sources']);
                 $this->mapFolderSources($item['defaultUploadLocationSource']);
                 $this->mapFolderSources($item['singleUploadLocationSource']);
-                if (isset($item['targetSiteId'])) $this->mapSites($item['targetSiteId']);
+                if (isset($item['targetSiteId'])) {
+                    $this->mapSites($item['targetSiteId']);
+                }
                 break;
-            case 'craft\\fields\\Entries':
+            case \craft\fields\Entries::class:
                 $this->mapSectionSources($item['sources']);
-                if (isset($item['targetSiteId'])) $this->mapSites($item['targetSiteId']);
+                if (isset($item['targetSiteId'])) {
+                    $this->mapSites($item['targetSiteId']);
+                }
                 break;
-            case 'craft\\fields\\Categories':
-                if (is_array($item['source'])) {
+            case \craft\fields\Categories::class:
+                if (\is_array($item['source'])) {
                     $item['source'] = $item['source'][0];
                 }
                 $this->mapCategorySources($item['source']);
-                if (isset($item['targetSiteId'])) $this->mapSites($item['targetSiteId']);
+                if (isset($item['targetSiteId'])) {
+                    $this->mapSites($item['targetSiteId']);
+                }
                 break;
-            case 'craft\\fields\\Tags':
-                if (is_array($item['source'])) {
+            case \craft\fields\Tags::class:
+                if (\is_array($item['source'])) {
                     $item['source'] = $item['source'][0];
                 }
                 $this->mapTagSource($item['source']);
-                if (isset($item['targetSiteId'])) $this->mapSites($item['targetSiteId']);
+                if (isset($item['targetSiteId'])) {
+                    $this->mapSites($item['targetSiteId']);
+                }
                 break;
-            case 'craft\\fields\\Users':
+            case \craft\fields\Users::class:
                 $this->mapUserGroupSources($item['sources']);
-                if (isset($item['targetSiteId'])) $this->mapSites($item['targetSiteId']);
+                if (isset($item['targetSiteId'])) {
+                    $this->mapSites($item['targetSiteId']);
+                }
                 break;
             case 'craft\\redactor\\Field':
                 $this->mapVolumeSources($item['availableVolumes']);
@@ -274,31 +418,31 @@ class FieldProcessor extends Processor
             $item = &$item['typesettings'];
         }
         switch ($type) {
-            case 'craft\\fields\\Assets':
+            case \craft\fields\Assets::class:
                 $this->unmapFolderSources($item['sources']);
                 $this->unmapFolderSources($item['defaultUploadLocationSource']);
                 $this->unmapFolderSources($item['singleUploadLocationSource']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
-            case 'craft\\fields\\Entries':
+            case \craft\fields\Entries::class:
                 $this->unmapSectionSources($item['sources']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
-            case 'craft\\fields\\Categories':
-                if (is_array($item['source'])) {
+            case \craft\fields\Categories::class:
+                if (\is_array($item['source'])) {
                     $item['source'] = $item['source'][0];
                 }
                 $this->unmapCategorySources($item['source']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
-            case 'craft\\fields\\Tags':
-                if (is_array($item['source'])) {
+            case \craft\fields\Tags::class:
+                if (\is_array($item['source'])) {
                     $item['source'] = $item['source'][0];
                 }
                 $this->unmapTagSource($item['source']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
-            case 'craft\\fields\\Users':
+            case \craft\fields\Users::class:
                 $this->unmapUserGroupSources($item['sources']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
@@ -319,13 +463,14 @@ class FieldProcessor extends Processor
      *
      * @return array|mixed
      */
-    public function additionalAttributes(string $class) {
+    public function additionalAttributes(string $class)
+    {
         $additionalAttributes = [
 //            'craft\\fields\\PlainText' => [
 //                'placeholder',
 //            ],
         ];
-        return (isset($additionalAttributes[$class])) ? $additionalAttributes[$class] : [];
+        return $additionalAttributes[$class] ?? [];
     }
 
     /**
@@ -335,11 +480,12 @@ class FieldProcessor extends Processor
      *
      * @return array
      */
-    public function export($item, array $extraAttributes = ['group'], bool $useTypeSettings = false) {
+    public function export($item, array $extraAttributes = ['group'], bool $useTypeSettings = false): array
+    {
         /** @var Field $item*/
         $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
-        if (count($item->supportedTranslationMethods()) > 1) {
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)));
+        if (\count($item::supportedTranslationMethods()) > 1) {
             $extraAttributes = array_merge($extraAttributes, ['translationMethod', 'translationKeyFormat']);
         }
         foreach($extraAttributes as $attribute) {
@@ -347,7 +493,7 @@ class FieldProcessor extends Processor
                 $attributeObj[$attribute] = $item->$attribute->name;
                 $attributeObj[$attribute . 'Id'] = $item->$attribute->id;
             } else if ($attribute === 'required') {
-                $attributeObj[$attribute] = boolval($item->$attribute);
+                $attributeObj[$attribute] = (bool) $item->$attribute;
             } else {
                 $attributeObj[$attribute] = $item->$attribute;
             }
@@ -357,7 +503,7 @@ class FieldProcessor extends Processor
                 'name' => $item->name,
                 'handle' => $item->handle,
                 'instructions' => $item->instructions,
-                'type' => get_class($item),
+                'type' => \get_class($item),
                 'typesettings' => $item->getSettings(),
             ]);
         } else {
@@ -365,13 +511,15 @@ class FieldProcessor extends Processor
                 'name' => $item->name,
                 'handle' => $item->handle,
                 'instructions' => $item->instructions,
-                'type' => get_class($item),
+                'type' => \get_class($item),
             ], $item->getSettings());
         }
 
-        if (isset($fieldObj['translationMethod']) && $fieldObj['translationMethod'] === 'none') unset($fieldObj['translationMethod']);
+        if (isset($fieldObj['translationMethod']) && $fieldObj['translationMethod'] === 'none') {
+            unset($fieldObj['translationMethod']);
+        }
 
-        if (get_class($item) === 'craft\\fields\\Matrix') {
+        if ($item instanceof Matrix) {
             /**
              * @var Matrix $item
              */
@@ -383,37 +531,64 @@ class FieldProcessor extends Processor
                     'fields' => [],
                 ];
                 foreach ($blockType->getFields() as $blockField) {
-                    array_push($blockTypeObj['fields'], $this->export($blockField, [ 'required' ], true));
+                    $blockTypeObj['fields'][] = $this->export($blockField, [ 'required' ], true);
                 }
-                array_push($blockTypesObj, $blockTypeObj);
+                $blockTypesObj[] = $blockTypeObj;
             }
             if ($useTypeSettings) {
                 $fieldObj['typesettings']['blockTypes'] = $blockTypesObj;
             } else {
                 $fieldObj['blockTypes'] = $blockTypesObj;
             }
-        } else if (get_class($item) === 'craft\\fields\\Date') {
+            unset($fieldObj['contentTable']);
+        } else if ($item instanceof Date) {
             /**
              * @var Date $item
              */
             if ($useTypeSettings) {
                 $fieldObj['typesettings']['dateTime'] = 'show' . (
-                    (boolval($fieldObj['typesettings']['showDate']) === false) ? 'Time' : (
-                        (boolval($fieldObj['typesettings']['showTime']) === false) ? 'Date' : 'Both'
+                    ((bool) $fieldObj['typesettings']['showDate'] === false) ? 'Time' : (
+                        ((bool) $fieldObj['typesettings']['showTime'] === false) ? 'Date' : 'Both'
                     )
                 );
-                unset($fieldObj['typesettings']['showDate']);
-                unset($fieldObj['typesettings']['showTime']);
+                unset($fieldObj['typesettings']['showDate'], $fieldObj['typesettings']['showTime']);
             } else {
                 $fieldObj['dateTime'] = 'show' . (
-                    (boolval($fieldObj['showDate']) === false) ? 'Time' : (
-                        (boolval($fieldObj['showTime']) === false) ? 'Date' : 'Both'
+                    ((bool) $fieldObj['showDate']) === false ? 'Time' : (
+                        ((bool) $fieldObj['showTime']) === false ? 'Date' : 'Both'
                     )
                 );
-                unset($fieldObj['showDate']);
-                unset($fieldObj['showTime']);
+                unset($fieldObj['showDate'], $fieldObj['showTime']);
             }
-        } else if (get_class($item) === 'verbb\\supertable\\fields\\SuperTableField') {
+        } else if ($item instanceof Neo) {
+            $blockTypesObj = [];
+            /**
+             * @var Neo $item
+             */
+            foreach ($item->getBlockTypes() as $blockType) {
+                /* @var NeoBlockType $blockType */
+                $blockTypeObj = [
+                    'name' => $blockType->name,
+                    'handle' => $blockType->handle,
+                    'maxBlocks' => $blockType->maxBlocks,
+                    'childBlocks' => Json::decodeIfJson($blockType->childBlocks),
+                    'maxChildBlocks' => $blockType->maxBlocks,
+                    'topLevel' => (bool) $blockType->topLevel,
+                    'fieldLayout' => [],
+                ];
+                /* @var FieldLayout $fieldLayout */
+                $fieldLayout = $blockType->getFieldLayout();
+                foreach ($fieldLayout->getTabs() as $tab) {
+                    $blockTypeObj['fieldLayout'][$tab->name] = [];
+                    foreach ($tab->getFields() as $field) {
+                        $blockTypeObj['fieldLayout'][$tab->name][] = $field->handle;
+                    }
+                }
+                $blockTypesObj[] = $blockTypeObj;
+            }
+            $fieldObj['blockTypes'] = $blockTypesObj;
+//            Craft::dd($item);
+        } else if ($item instanceof SuperTableField) {
             /**
              * @var SuperTableField $item
              */
@@ -440,7 +615,7 @@ class FieldProcessor extends Processor
      *
      * @return array
      */
-    public function exportById($id)
+    public function exportById($id): array
     {
         $field = Craft::$app->fields->getFieldById((int) $id);
 
@@ -452,7 +627,8 @@ class FieldProcessor extends Processor
      *
      * @return array
      */
-    public function exportByHandle(string $handle) {
+    public function exportByHandle(string $handle): array
+    {
         $field = Craft::$app->fields->getFieldByHandle($handle);
         return $this->export($field);
     }
