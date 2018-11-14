@@ -87,6 +87,7 @@ class ArchitectService extends Component
         ];
         // Successfully imported items needed for various post processing procedures.
         $successful = [
+            'fields' => [],
             'sections' => [],
             'volumes' => [],
             'tagGroups' => [],
@@ -100,6 +101,7 @@ class ArchitectService extends Component
          * Things in this list are needed for fields to import properly but can also use fields in field layouts.
          */
         $postProcessFieldLayouts = [
+            'fields',
             'volumes',
             'tagGroups',
             'categoryGroups',
@@ -208,6 +210,9 @@ class ArchitectService extends Component
                             $addedEntryTypes[] =  Craft::$app->sections->getSectionById((int) $item->sectionId)->handle . ':' . $item->handle;
                         }
                         switch ($parseKey) {
+                            case 'fields':
+                                $successful[$parseKey][] = $itemKey;
+                                break;
                             case 'sections':
                                 $successful[$parseKey][] = $item->handle;
                                 break;

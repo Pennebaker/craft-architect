@@ -45,6 +45,7 @@
         "class": "pennebaker\\architect\\Architect"
     },
     "require-dev": {
-        "verbb/super-table": "^2.0"
+        "verbb/super-table": "^2.0",
+        "spicyweb/craft-neo": "^2.0"
     }
 }
