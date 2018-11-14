@@ -20,7 +20,9 @@ use craft\models\FieldLayout;
 use craft\helpers\Json;
 use verbb\supertable\fields\SuperTableField;
 use benf\neo\Field as Neo;
+use benf\neo\elements\Block as NeoBlock;
 use benf\neo\records\BlockType as NeoBlockType;
+use benf\neo\records\BlockTypeGroup as NeoBlockTypeGroup;
 
 /**
  * FieldProcessor
@@ -91,7 +93,7 @@ class FieldProcessor extends Processor
             ];
             return [null, $errors];
         }
-        if ($item['type'] === Matrix::class || $item['type'] === 'verbb\\supertable\\fields\\SuperTableField') {
+        if ($item['type'] === Matrix::class || $item['type'] === SuperTableField::class || $item['type'] === Neo::class) {
             $this->mapTypeSettings($item);
             if ($subField) {
                 $blockTypes = &$item['typesettings']['blockTypes'];
@@ -113,7 +115,27 @@ class FieldProcessor extends Processor
                 }
             }
             unset($blockType);
-        } else if ($item['type'] === 'verbb\\supertable\\fields\\SuperTableField') {
+        } else if ($item['type'] === Neo::class) {
+            if (isset($blockTypes[0])) {
+                $this->convertBlockTypesToNew($blockTypes);
+            }
+            foreach ($blockTypes as &$blockType) {
+                if (!array_key_exists('childBlocks', $blockType)) {
+                    $blockType['childBlocks'] = null;
+                }
+                foreach ($blockType['fieldLayout'] as &$fields) {
+                    if (is_array($fields)) {
+                        $fields = $this->handlesToIds($fields);
+                    }
+                }
+                unset($fields);
+                if (\is_array($blockType['requiredFields'])) {
+                    $blockType['requiredFields'] = $this->handlesToIds($blockType['requiredFields']);
+                }
+                unset($requiredFields);
+            }
+            unset($blockType);
+        } else if ($item['type'] === SuperTableField::class) {
             $newBlockTypes = [
                 [
                     'fields' => $blockTypes
@@ -154,6 +176,25 @@ class FieldProcessor extends Processor
     }
 
     /**
+     * @param array $fields
+     *
+     * @return array
+     */
+    public function handlesToIds($fields) : array
+    {
+        foreach ($fields as &$fieldHandle) {
+            // Replace field handles with their respective IDs
+            $field = Craft::$app->fields->getFieldByHandle($fieldHandle);
+            if ($field) {
+                $fieldHandle = $field->id;
+            } else {
+                $fieldHandle = null;
+            }
+        }
+        return $this->stripNulls($fields);
+    }
+
+    /**
      * @param $item
      * @param bool $update Attempt to update an existing field instead of making a new one.
      *
@@ -178,6 +219,28 @@ class FieldProcessor extends Processor
             }
         }
         return Craft::$app->fields->saveField($item);
+    }
+
+    /**
+     * @param array $item
+     *
+     * @return bool|object
+     *
+     * @throws \Throwable
+     */
+    public function setFieldLayout($item)
+    {
+        $field = Craft::$app->fields->getFieldByHandle($item['handle']);
+        if ($field) {
+            $fieldId = $field->id;
+            if ($item['type'] === Neo::class) {
+                /* @var Neo $field */
+                list($field) = $this->parse($item); // This shouldn't fail because it only got to this point by succeeding the first time.
+                $field['id'] = $fieldId;
+                return $this->save($field, true);
+            }
+        }
+        return false;
     }
 
     /**
