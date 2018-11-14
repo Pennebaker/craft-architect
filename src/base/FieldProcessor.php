@@ -541,6 +541,35 @@ class FieldProcessor extends Processor
                 $fieldObj['blockTypes'] = $blockTypesObj;
             }
             unset($fieldObj['contentTable']);
+        } else if ($item instanceof Neo) {
+            $blockTypesObj = [];
+            $blockTypeGroupsObj = [];
+            /**
+             * @var Neo $item
+             */
+            foreach ($item->getGroups() as $group) {
+                /* @var NeoBlockTypeGroup $blockType */
+                $blockTypeGroupsObj[] = [
+                    'name' => $group->name,
+                    'sortOrder' => (int) $group->sortOrder
+                ];
+            }
+            $fieldObj['groups'] = $blockTypeGroupsObj;
+            foreach ($item->getBlockTypes() as $blockType) {
+                /* @var NeoBlockType $blockType */
+                $blockTypesObj[] = [
+                    'name' => $blockType->name,
+                    'handle' => $blockType->handle,
+                    'sortOrder' => (int) $blockType->sortOrder,
+                    'maxBlocks' => (int) $blockType->maxBlocks,
+                    'childBlocks' => Json::decodeIfJson((string) $blockType->childBlocks),
+                    'maxChildBlocks' => (int) $blockType->maxBlocks,
+                    'topLevel' => (bool) $blockType->topLevel,
+                    'fieldLayout' => $this->exportFieldLayout($blockType->getFieldLayout()),
+                    'requiredFields' => $this->exportRequiredFields($blockType->getFieldLayout()),
+                ];
+            }
+            $fieldObj['blockTypes'] = $blockTypesObj;
         } else if ($item instanceof Date) {
             /**
              * @var Date $item
@@ -560,34 +589,6 @@ class FieldProcessor extends Processor
                 );
                 unset($fieldObj['showDate'], $fieldObj['showTime']);
             }
-        } else if ($item instanceof Neo) {
-            $blockTypesObj = [];
-            /**
-             * @var Neo $item
-             */
-            foreach ($item->getBlockTypes() as $blockType) {
-                /* @var NeoBlockType $blockType */
-                $blockTypeObj = [
-                    'name' => $blockType->name,
-                    'handle' => $blockType->handle,
-                    'maxBlocks' => $blockType->maxBlocks,
-                    'childBlocks' => Json::decodeIfJson($blockType->childBlocks),
-                    'maxChildBlocks' => $blockType->maxBlocks,
-                    'topLevel' => (bool) $blockType->topLevel,
-                    'fieldLayout' => [],
-                ];
-                /* @var FieldLayout $fieldLayout */
-                $fieldLayout = $blockType->getFieldLayout();
-                foreach ($fieldLayout->getTabs() as $tab) {
-                    $blockTypeObj['fieldLayout'][$tab->name] = [];
-                    foreach ($tab->getFields() as $field) {
-                        $blockTypeObj['fieldLayout'][$tab->name][] = $field->handle;
-                    }
-                }
-                $blockTypesObj[] = $blockTypeObj;
-            }
-            $fieldObj['blockTypes'] = $blockTypesObj;
-//            Craft::dd($item);
         } else if ($item instanceof SuperTableField) {
             /**
              * @var SuperTableField $item
