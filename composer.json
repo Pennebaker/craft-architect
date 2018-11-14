@@ -23,7 +23,8 @@
     ],
     "require": {
         "ext-json": "*",
-        "craftcms/cms": "^3.0.0"
+        "craftcms/cms": "^3.0.0",
+        "symfony/yaml": "^4.1"
     },
     "autoload": {
         "psr-4": {
