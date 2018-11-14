@@ -510,7 +510,6 @@ abstract class Processor implements ProcessorInterface
      * @return array
      */
     public function exportFieldLayout($fieldLayout) {
-//        Craft::dump($fieldLayout);
         $fieldLayoutObj = [];
         $tabs = $fieldLayout->getTabs();
         usort($tabs, function($a, $b) {
@@ -531,7 +530,6 @@ abstract class Processor implements ProcessorInterface
      * @return array
      */
     public function exportRequiredFields($fieldLayout) {
-//        Craft::dump($fieldLayout);
         $requiredFieldsObj = [];
         $tabs = $fieldLayout->getTabs();
         usort($tabs, function($a, $b) {
