@@ -31,12 +31,12 @@ class TagGroupProcessor extends Processor
      *
      * @return array
      */
-    public function parse(array $item)
+    public function parse(array $item): array
     {
-        if (sizeof($item['fieldLayout']) > 1 || (sizeof($item['fieldLayout']) === 1 && !isset($item['fieldLayout']['Content']))) {
+        if (\count($item['fieldLayout']) > 1) {
             $errors = [
                 'fieldLayout' => [
-                    Architect::t('Field layout can only have 1 tab named "Content".')
+                    Architect::t('Field layout can only have 1 tab.')
 
                 ]
             ];
@@ -74,26 +74,32 @@ class TagGroupProcessor extends Processor
      *
      * @throws \Throwable
      */
-    public function setFieldLayout($item) {
+    public function setFieldLayout($item)
+    {
         $tagGroup = Craft::$app->tags->getTagGroupByHandle($item['handle']);
 
-        $fieldLayout = $this->createFieldLayout($item, Tag::class);
-        $tagGroup->setFieldLayout($fieldLayout);
+        if ($tagGroup) {
+            $fieldLayout = $this->createFieldLayout($item, Tag::class);
+            $tagGroup->setFieldLayout($fieldLayout);
 
-        return $this->save($tagGroup);
+            return $this->save($tagGroup);
+        }
+        return false;
     }
 
     /**
-     * @param $item
+     * @param mixed $item
      * @param array $extraAttributes
      *
      * @return array
+     *
+     * @throws \yii\base\InvalidConfigException
      */
-    public function export($item, array $extraAttributes = [])
+    public function export($item, array $extraAttributes = []): array
     {
         /** @var TagGroup $item */
         $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)));
         foreach($extraAttributes as $attribute) {
             $attributeObj[$attribute] = $item->$attribute;
         }
@@ -105,7 +111,7 @@ class TagGroupProcessor extends Processor
             'requiredFields' => $this->exportRequiredFields($item->getFieldLayout()),
         ], $attributeObj);
 
-        if (count($tagGroupObj['requiredFields']) <= 0) {
+        if (\count($tagGroupObj['requiredFields']) <= 0) {
             unset($tagGroupObj['requiredFields']);
         }
 
@@ -116,8 +122,10 @@ class TagGroupProcessor extends Processor
      * @param $id
      *
      * @return array
+     *
+     * @throws \yii\base\InvalidConfigException
      */
-    public function exportById($id)
+    public function exportById($id): array
     {
         $tagGroup = Craft::$app->tags->getTagGroupById((int) $id);
 

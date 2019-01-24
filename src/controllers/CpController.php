@@ -10,9 +10,6 @@
 
 namespace pennebaker\architect\controllers;
 
-use pennebaker\architect\Architect;
-
-use Craft;
 use craft\web\Controller;
 
 /**
@@ -37,7 +34,7 @@ class CpController extends Controller
      */
     public function actionIndex()
     {
-        $this->redirect('architect/import');
+        return $this->redirect('architect/import');
     }
 
     /**
@@ -48,7 +45,7 @@ class CpController extends Controller
      */
     public function actionImport()
     {
-        $this->renderTemplate('architect/import', [ 'invalidJson' => false ]);
+        return $this->renderTemplate('architect/import', [ 'invalidJson' => false ]);
     }
 
     /**
@@ -59,7 +56,7 @@ class CpController extends Controller
      */
     public function actionExport()
     {
-        $this->renderTemplate('architect/export');
+        return $this->renderTemplate('architect/export');
     }
 
     /**
@@ -70,6 +67,6 @@ class CpController extends Controller
      */
     public function actionMigrations()
     {
-        $this->renderTemplate('architect/migrations');
+        return $this->renderTemplate('architect/migrations');
     }
 }

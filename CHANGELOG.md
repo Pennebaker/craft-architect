@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.2.12] - 2019-01-24
+### Fixed
+- Craft 3.1 fix for UIDs [source key references].
+- Tag Group and Volume Field layout tabs don't have to be named "Content".
+
+[source key references]: https://craftcms.com/guides/updating-plugins-for-craft-3-1#update-element-source-key-references
+
 ## [2.2.11] - 2018-11-14
 ### Added
 - [Neo] field import/export support.
@@ -155,7 +162,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.2.11...develop
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.2.12...develop
+[2.2.12]: https://github.com/pennebaker/craft-architect/compare/2.2.11...2.2.12
 [2.2.11]: https://github.com/pennebaker/craft-architect/compare/2.2.10...2.2.11
 [2.2.10]: https://github.com/pennebaker/craft-architect/compare/2.2.9...2.2.10
 [2.2.9]: https://github.com/pennebaker/craft-architect/compare/2.2.8...2.2.9

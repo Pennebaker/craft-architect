@@ -44,7 +44,7 @@ class ArchitectService extends Component
      * @throws \craft\errors\ShellCommandException
      * @throws \yii\base\Exception
      */
-    public function import($jsonData, $runBackup = false)
+    public function import($jsonData, $runBackup = false, $update = false)
     {
         \Craft::Client;
         // Convert json into an array.
@@ -87,6 +87,7 @@ class ArchitectService extends Component
         ];
         // Successfully imported items needed for various post processing procedures.
         $successful = [
+            'fields' => [],
             'sections' => [],
             'volumes' => [],
             'tagGroups' => [],
@@ -100,6 +101,7 @@ class ArchitectService extends Component
          * Things in this list are needed for fields to import properly but can also use fields in field layouts.
          */
         $postProcessFieldLayouts = [
+            'fields',
             'volumes',
             'tagGroups',
             'categoryGroups',
@@ -120,13 +122,15 @@ class ArchitectService extends Component
                 $results[$parseKey] = [];
                 foreach ($jsonObj[$parseKey] as $itemKey => $itemObj) {
                     try {
+                        if ($update) {
+                            $itemErrors = Architect::$processors->$parseKey->update($itemObj);
+                        }
                         if ($parseKey === 'fieldGroups' || $parseKey === 'siteGroups') {
                             list($item, $itemErrors) = Architect::$processors->$parseKey->parse(['name' => $itemObj]);
                         } else {
                             list($item, $itemErrors) = Architect::$processors->$parseKey->parse($itemObj);
                         }
-
-                        if ($parseKey === 'entryTypes' && \in_array($itemObj['sectionHandle'], $successful['sections']) === false) {
+                        if ($parseKey === 'entryTypes' && \in_array($itemObj['sectionHandle'], $successful['sections'], false) === false) {
                             if (!isset($itemObj['name'])) {
                                 $itemObj['name'] = '';
                             }
@@ -142,7 +146,7 @@ class ArchitectService extends Component
                         }
 
                         if ($item) {
-                            $itemSuccess = Architect::$processors->$parseKey->save($item);
+                            $itemSuccess = Architect::$processors->$parseKey->save($item, $update);
                             if ($parseKey === 'sections') {
                                 $itemErrors = [];
                                 /** @var mixed $item */
@@ -150,13 +154,21 @@ class ArchitectService extends Component
                                     /** @var Section_SiteSettings $settings */
                                     foreach ($settings->getErrors() as $errorKey => $errors) {
                                         if (isset($itemErrors[$errorKey])) {
-                                            $itemErrors[$errorKey] = array_merge($itemErrors[$errorKey], $errors);
+//                                            $itemErrors[$errorKey] = array_merge($itemErrors[$errorKey], $errors);
+                                            array_push($itemErrors[$errorKey], ...$errors);
                                         } else {
                                             $itemErrors[$errorKey] = $errors;
                                         }
                                     }
                                 }
-                                $itemErrors = array_merge($itemErrors, $item->getErrors());
+                                foreach ($item->getErrors() as $errorKey => $errors) {
+                                    if (isset($itemErrors[$errorKey])) {
+//                                            $itemErrors[$errorKey] = array_merge($itemErrors[$errorKey], $errors);
+                                        array_push($itemErrors[$errorKey], ...$errors);
+                                    } else {
+                                        $itemErrors[$errorKey] = $errors;
+                                    }
+                                }
                             } else {
                                 /** @var mixed $item */
                                 $itemErrors = $item->getErrors();
@@ -204,6 +216,9 @@ class ArchitectService extends Component
                             $addedEntryTypes[] =  Craft::$app->sections->getSectionById((int) $item->sectionId)->handle . ':' . $item->handle;
                         }
                         switch ($parseKey) {
+                            case 'fields':
+                                $successful[$parseKey][] = $itemKey;
+                                break;
                             case 'sections':
                                 $successful[$parseKey][] = $item->handle;
                                 break;

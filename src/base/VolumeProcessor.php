@@ -31,12 +31,12 @@ class VolumeProcessor extends Processor
      *
      * @return array
      */
-    public function parse(array $item)
+    public function parse(array $item): array
     {
-        if (sizeof($item['fieldLayout']) > 1 || (sizeof($item['fieldLayout']) === 1 && !isset($item['fieldLayout']['Content']))) {
+        if (\count($item['fieldLayout']) > 1) {
             $errors = [
                 'fieldLayout' => [
-                    Architect::t('Field layout can only have 1 tab named "Content".')
+                    Architect::t('Field layout can only have 1 tab.')
 
                 ]
             ];
@@ -79,7 +79,8 @@ class VolumeProcessor extends Processor
      *
      * @throws \Throwable
      */
-    public function setFieldLayout($item) {
+    public function setFieldLayout($item)
+    {
         $volume = Craft::$app->volumes->getVolumeByHandle($item['handle']);
 
         $fieldLayout = $this->createFieldLayout($item, Asset::class);
@@ -93,29 +94,31 @@ class VolumeProcessor extends Processor
      * @param array $extraAttributes
      *
      * @return array
+     *
+     * @throws \yii\base\InvalidConfigException
      */
-    public function export($item, array $extraAttributes = [])
+    public function export($item, array $extraAttributes = []): array
     {
         /** @var Volume $item */
         $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)));
         foreach($extraAttributes as $attribute) {
             $attributeObj[$attribute] = $item->$attribute;
         }
 
-        $hasUrls = boolval($item->hasUrls);
+        $hasUrls = (bool) $item->hasUrls;
         $volumeObj = array_merge([
             'name' => $item->name,
             'handle' => $item->handle,
-            'type' => get_class($item),
+            'type' => \get_class($item),
             'hasUrls' => $hasUrls,
-            'url' => ($hasUrls) ? $item->url : null,
+            'url' => $hasUrls ? $item->url : null,
             'settings' => $item->settings,
             'fieldLayout' => $this->exportFieldLayout($item->getFieldLayout()),
             'requiredFields' => $this->exportRequiredFields($item->getFieldLayout()),
         ], $attributeObj);
 
-        if (count($volumeObj['requiredFields']) <= 0) {
+        if (\count($volumeObj['requiredFields']) <= 0) {
             unset($volumeObj['requiredFields']);
         }
 
@@ -126,8 +129,10 @@ class VolumeProcessor extends Processor
      * @param $id
      *
      * @return array
+     *
+     * @throws \yii\base\InvalidConfigException
      */
-    public function exportById($id)
+    public function exportById($id): array
     {
         $volume = Craft::$app->volumes->getVolumeById((int) $id);
 

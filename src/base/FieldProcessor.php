@@ -422,15 +422,15 @@ class FieldProcessor extends Processor
         }
         switch ($type) {
             case \craft\fields\Assets::class:
-                $this->mapFolderSources($item['sources']);
-                $this->mapFolderSources($item['defaultUploadLocationSource']);
-                $this->mapFolderSources($item['singleUploadLocationSource']);
+                $this->map($item['sources'], 'asset');
+                $this->map($item['defaultUploadLocationSource'], 'asset');
+                $this->map($item['singleUploadLocationSource'], 'asset');
                 if (isset($item['targetSiteId'])) {
                     $this->mapSites($item['targetSiteId']);
                 }
                 break;
             case \craft\fields\Entries::class:
-                $this->mapSectionSources($item['sources']);
+                $this->map($item['sources'], 'section');
                 if (isset($item['targetSiteId'])) {
                     $this->mapSites($item['targetSiteId']);
                 }
@@ -439,7 +439,7 @@ class FieldProcessor extends Processor
                 if (\is_array($item['source'])) {
                     $item['source'] = $item['source'][0];
                 }
-                $this->mapCategorySources($item['source']);
+                $this->map($item['source'], 'group');
                 if (isset($item['targetSiteId'])) {
                     $this->mapSites($item['targetSiteId']);
                 }
@@ -448,25 +448,27 @@ class FieldProcessor extends Processor
                 if (\is_array($item['source'])) {
                     $item['source'] = $item['source'][0];
                 }
-                $this->mapTagSource($item['source']);
+                $this->map($item['source'], 'taggroup');
                 if (isset($item['targetSiteId'])) {
                     $this->mapSites($item['targetSiteId']);
                 }
                 break;
             case \craft\fields\Users::class:
-                $this->mapUserGroupSources($item['sources']);
+                $this->map($item['sources'], 'group');
                 if (isset($item['targetSiteId'])) {
                     $this->mapSites($item['targetSiteId']);
                 }
                 break;
             case 'craft\\redactor\\Field':
-                $this->mapVolumeSources($item['availableVolumes']);
-                $this->mapAssetTransforms($item['availableTransforms'], '');
+                $this->map($item['availableVolumes'], 'volume', false);
+                $this->map($item['availableTransforms'], 'transform', false);
                 break;
             case 'typedlinkfield\\fields\\LinkField':
-                $this->mapFolderSources($item['typeSettings']['asset']['sources']);
-                $this->mapCategorySources($item['typeSettings']['category']['sources']);
-                $this->mapSectionSources($item['typeSettings']['entry']['sources']);
+                $this->map($item['typeSettings']['asset']['sources'], 'folder');
+                $this->map($item['typeSettings']['category']['sources'], 'group');
+                $this->map($item['typeSettings']['entry']['sources'], 'section');
+                $this->map($item['typeSettings']['user']['sources'], 'group');
+                $this->mapSites($item['typeSettings']['site']['sites'], '', true);
                 break;
         }
     }
@@ -482,41 +484,43 @@ class FieldProcessor extends Processor
         }
         switch ($type) {
             case \craft\fields\Assets::class:
-                $this->unmapFolderSources($item['sources']);
-                $this->unmapFolderSources($item['defaultUploadLocationSource']);
-                $this->unmapFolderSources($item['singleUploadLocationSource']);
+                $this->unmap($item['sources']);
+                $this->unmap($item['defaultUploadLocationSource']);
+                $this->unmap($item['singleUploadLocationSource']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
             case \craft\fields\Entries::class:
-                $this->unmapSectionSources($item['sources']);
+                $this->unmap($item['sources']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
             case \craft\fields\Categories::class:
                 if (\is_array($item['source'])) {
                     $item['source'] = $item['source'][0];
                 }
-                $this->unmapCategorySources($item['source']);
+                $this->unmap($item['source']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
             case \craft\fields\Tags::class:
                 if (\is_array($item['source'])) {
                     $item['source'] = $item['source'][0];
                 }
-                $this->unmapTagSource($item['source']);
+                $this->unmap($item['source']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
             case \craft\fields\Users::class:
-                $this->unmapUserGroupSources($item['sources']);
+                $this->unmap($item['sources']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
             case 'craft\\redactor\\Field':
-                $this->unmapVolumeSources($item['availableVolumes'], '');
-                $this->unmapAssetTransforms($item['availableTransforms'], '');
+                $this->unmap($item['availableVolumes'], 'volume');
+                $this->unmap($item['availableTransforms'], 'transform');
                 break;
             case 'typedlinkfield\\fields\\LinkField':
-                $this->unmapFolderSources($item['typeSettings']['asset']['sources']);
-                $this->unmapCategorySources($item['typeSettings']['category']['sources']);
-                $this->unmapSectionSources($item['typeSettings']['entry']['sources']);
+                $this->unmap($item['typeSettings']['asset']['sources'], 'folder');
+                $this->unmap($item['typeSettings']['category']['sources'], 'group');
+                $this->unmap($item['typeSettings']['entry']['sources'], 'section');
+                $this->unmap($item['typeSettings']['user']['sources'], 'group');
+                $this->unmapSites($item['typeSettings']['site']['sites']);
                 break;
         }
     }
@@ -640,16 +644,16 @@ class FieldProcessor extends Processor
             if ($useTypeSettings) {
                 $fieldObj['typesettings']['dateTime'] = 'show' . (
                     ((bool) $fieldObj['typesettings']['showDate'] === false) ? 'Time' : (
-                    ((bool) $fieldObj['typesettings']['showTime'] === false) ? 'Date' : 'Both'
+                        ((bool) $fieldObj['typesettings']['showTime'] === false) ? 'Date' : 'Both'
                     )
-                    );
+                );
                 unset($fieldObj['typesettings']['showDate'], $fieldObj['typesettings']['showTime']);
             } else {
                 $fieldObj['dateTime'] = 'show' . (
                     ((bool) $fieldObj['showDate']) === false ? 'Time' : (
-                    ((bool) $fieldObj['showTime']) === false ? 'Date' : 'Both'
+                        ((bool) $fieldObj['showTime']) === false ? 'Date' : 'Both'
                     )
-                    );
+                );
                 unset($fieldObj['showDate'], $fieldObj['showTime']);
             }
         } else if ($item instanceof SuperTableField) {

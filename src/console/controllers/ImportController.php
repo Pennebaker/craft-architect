@@ -16,6 +16,9 @@ use Craft;
 use yii\console\Controller;
 use yii\helpers\Console;
 
+use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Exception\ParseException;
+
 /**
  * Default Command
  *
@@ -49,5 +52,47 @@ class ImportController extends Controller
     public function actionIndex($filename)
     {
         echo "Welcome to the console ImportController actionIndex() method\n";
+    }
+
+    /**
+     * Import a yaml file structure.
+     *
+     * @param string $filename
+     */
+    public function actionYaml($filename)
+    {
+		try {
+			$data = Yaml::parse(file_get_contents($filename));
+		} catch (ParseException $exception) {
+			printf("unable to parse the YAML file provided: %s", $exception->getMessage());
+		}
+
+		//remove yaml templates
+	    foreach ($data as $key => $value) {
+			if ($key[0] == ".") {
+				unset($data->{$key});
+			}
+		};
+
+		$dataAsJson = json_encode($data);
+
+		list($jsonError, $noErrors, $backup, $results) = Architect::$plugin->architectService->import($dataAsJson, false);
+
+		if ($jsonError) {
+			printf("invalid json: %s", json_last_error());
+			return;
+		}
+
+		foreach ($results as $value) {
+			foreach ($value as $item) {
+				if ($item['success'] != true) {
+					foreach ($item['errors'] as $err) {
+						printf("Error: %s\n", $err[0]);
+					}
+				}
+			}
+		}
+
+		return 1;
     }
 }

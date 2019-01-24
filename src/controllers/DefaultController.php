@@ -39,11 +39,14 @@ class DefaultController extends Controller
         // Load posted json data into a variable.
         $jsonData = Craft::$app->request->getBodyParam('jsonData');
 
-        list($jsonError, $noErrors, $backup, $results) = Architect::$plugin->architectService->import($jsonData, false);
+        $updateExisting = (bool) Craft::$app->request->getBodyParam('updateExisting');
+
+        list($jsonError, $noErrors, $backup, $results) = Architect::$plugin->architectService->import($jsonData, false, $updateExisting);
 
         if ($jsonError) {
             $this->renderTemplate('architect/import', [
                 'invalidJson' => json_last_error(),
+                'updateExisting' => $updateExisting,
                 'jsonData' => $jsonData,
             ]);
             return;
@@ -53,6 +56,7 @@ class DefaultController extends Controller
             'noErrors' => $noErrors,
             'backupLocation' => $backup,
             'results' => $results,
+            'updateExisting' => $updateExisting,
             'jsonData' => $jsonData,
         ]);
     }
@@ -132,13 +136,13 @@ class DefaultController extends Controller
                             switch ($postProcessKey) {
                                 case 'groupId':
                                     $groupName = Architect::$processors->$postProcessorName->exportById($exportObj[$postProcessKey]);
-                                    if (array_search($groupName, $data[$postProcessorName]) === false) {
-                                        array_push($data[$postProcessorName], $groupName);
+                                    if (\in_array($groupName, $data[$postProcessorName], false) === false) {
+                                        $data[$postProcessorName][] = $groupName;
                                     }
                                     unset($exportObj[$postProcessKey]);
                                     break;
                                 case 'entryTypes':
-                                    if (isset($exportObj[$postProcessKey]) && is_array($exportObj[$postProcessKey])) {
+                                    if (isset($exportObj[$postProcessKey]) && \is_array($exportObj[$postProcessKey])) {
                                         $data[$postProcessorName] = array_merge($data[$postProcessorName], $exportObj[$postProcessKey]);
                                         unset($exportObj[$postProcessKey]);
                                     }
@@ -147,13 +151,13 @@ class DefaultController extends Controller
                         }
                     }
 
-                    array_push($data[$processorName], $exportObj);
+                    $data[$processorName][] = $exportObj;
                 }
             }
         }
 
         foreach ($data as $key => $value) {
-            if (count($value) <= 0) {
+            if (\count($value) <= 0) {
                 unset($data[$key]);
             }
         }
