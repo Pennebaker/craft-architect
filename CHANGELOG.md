@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [2.2.12] - 2019-01-24
 ### Fixed
-- Craft 3.1 fix for UIDs [source key references]
+- Craft 3.1 fix for UIDs [source key references].
+- Tag Group and Volume Field layout tabs don't have to be named "Content".
 
 [source key references]: https://craftcms.com/guides/updating-plugins-for-craft-3-1#update-element-source-key-references
 
