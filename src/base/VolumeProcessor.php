@@ -33,10 +33,10 @@ class VolumeProcessor extends Processor
      */
     public function parse(array $item): array
     {
-        if (\count($item['fieldLayout']) > 1 || (\count($item['fieldLayout']) === 1 && !isset($item['fieldLayout']['Content']))) {
+        if (\count($item['fieldLayout']) > 1) {
             $errors = [
                 'fieldLayout' => [
-                    Architect::t('Field layout can only have 1 tab named "Content".')
+                    Architect::t('Field layout can only have 1 tab.')
 
                 ]
             ];
