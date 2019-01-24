@@ -422,15 +422,15 @@ class FieldProcessor extends Processor
         }
         switch ($type) {
             case \craft\fields\Assets::class:
-                $this->mapFolderSources($item['sources']);
-                $this->mapFolderSources($item['defaultUploadLocationSource']);
-                $this->mapFolderSources($item['singleUploadLocationSource']);
+                $this->map($item['sources'], 'asset');
+                $this->map($item['defaultUploadLocationSource'], 'asset');
+                $this->map($item['singleUploadLocationSource'], 'asset');
                 if (isset($item['targetSiteId'])) {
                     $this->mapSites($item['targetSiteId']);
                 }
                 break;
             case \craft\fields\Entries::class:
-                $this->mapSectionSources($item['sources']);
+                $this->map($item['sources'], 'section');
                 if (isset($item['targetSiteId'])) {
                     $this->mapSites($item['targetSiteId']);
                 }
@@ -439,7 +439,7 @@ class FieldProcessor extends Processor
                 if (\is_array($item['source'])) {
                     $item['source'] = $item['source'][0];
                 }
-                $this->mapCategorySources($item['source']);
+                $this->map($item['source'], 'group');
                 if (isset($item['targetSiteId'])) {
                     $this->mapSites($item['targetSiteId']);
                 }
@@ -448,25 +448,27 @@ class FieldProcessor extends Processor
                 if (\is_array($item['source'])) {
                     $item['source'] = $item['source'][0];
                 }
-                $this->mapTagSource($item['source']);
+                $this->map($item['source'], 'taggroup');
                 if (isset($item['targetSiteId'])) {
                     $this->mapSites($item['targetSiteId']);
                 }
                 break;
             case \craft\fields\Users::class:
-                $this->mapUserGroupSources($item['sources']);
+                $this->map($item['sources'], 'group');
                 if (isset($item['targetSiteId'])) {
                     $this->mapSites($item['targetSiteId']);
                 }
                 break;
             case 'craft\\redactor\\Field':
-                $this->mapVolumeSources($item['availableVolumes']);
-                $this->mapAssetTransforms($item['availableTransforms'], '');
+                $this->map($item['availableVolumes'], 'volume', false);
+                $this->map($item['availableTransforms'], 'transform', false);
                 break;
             case 'typedlinkfield\\fields\\LinkField':
-                $this->mapFolderSources($item['typeSettings']['asset']['sources']);
-                $this->mapCategorySources($item['typeSettings']['category']['sources']);
-                $this->mapSectionSources($item['typeSettings']['entry']['sources']);
+                $this->map($item['typeSettings']['asset']['sources'], 'folder');
+                $this->map($item['typeSettings']['category']['sources'], 'group');
+                $this->map($item['typeSettings']['entry']['sources'], 'section');
+                $this->map($item['typeSettings']['user']['sources'], 'group');
+                $this->mapSites($item['typeSettings']['site']['sites'], '', true);
                 break;
         }
     }

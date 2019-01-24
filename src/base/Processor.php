@@ -85,25 +85,82 @@ abstract class Processor implements ProcessorInterface
     }
 
     /**
-     * @param array|string|null $obj
+     * @param $item
+     * @param string $type
+     * @param string $handle
+     * @param bool $prefix
      */
-    public function map(&$obj)
+    public function mapService(&$item, $type, $handle, $prefix)
+    {
+        $service = null;
+        switch ($type) {
+            case 'asset':
+                $type = 'volume';
+                $service = Craft::$app->volumes->getVolumeByHandle($handle);
+                if (!$service) {
+                    $type = 'folder';
+                    $service = Craft::$app->assets->findFolder(['name' => $handle]);
+                }
+                break;
+            case 'volume':
+                $service = Craft::$app->volumes->getVolumeByHandle($handle);
+                break;
+            case 'folder':
+                $service = Craft::$app->assets->findFolder(['name' => $handle]);
+                break;
+            case 'section':
+                $service = Craft::$app->sections->getSectionByHandle($handle);
+                break;
+            case 'group':
+                $service = Craft::$app->categories->getGroupByHandle($handle);
+                if (!$service) {
+                    $service = Craft::$app->userGroups->getGroupByHandle($handle);
+                }
+                break;
+            case 'taggroup':
+                $service = Craft::$app->tags->getTagGroupByHandle($handle);
+                break;
+            case 'transform':
+                $service = Craft::$app->assetTransforms->getTransformByHandle($handle);
+                break;
+            default:
+                break;
+        }
+        if ($service) {
+            if ($prefix) {
+                $item = $type . ':' . $service->uid;
+            } else {
+                $item = $service->uid;
+            }
+        }
+    }
+
+    /**
+     * @param array|string|null $obj
+     * @param string $expectedType
+     * @param bool $prefix
+     */
+    public function map(&$obj, $expectedType, $prefix = true)
     {
         if (is_string($obj)) {
             if ($obj !== '*' && $obj !== '') {
                 try {
                     list($type, $handle) = explode(':', $obj);
                 } catch (\Exception $e) {
+                    $type = $expectedType;
                     $handle = $obj;
                 }
+                $this->mapService($obj, $type, $handle, $prefix);
             }
         } else if (is_array($obj)) {
-            foreach ($obj as $k => $item) {
+            foreach ($obj as $k => &$item) {
                 try {
                     list($type, $handle) = explode(':', $item);
                 } catch (\Exception $e) {
-                    $handle = $obj;
+                    $type = $expectedType;
+                    $handle = $item;
                 }
+                $this->mapService($item, $type, $handle, $prefix);
             }
         } else {
             $obj = null;
@@ -115,7 +172,8 @@ abstract class Processor implements ProcessorInterface
      * @param string $type
      * @param string $uid
      */
-    public function unmapService(&$item, $type, $uid) {
+    public function unmapService(&$item, $type, $uid)
+    {
         $service = null;
         switch ($type) {
             case 'volume':
@@ -140,7 +198,6 @@ abstract class Processor implements ProcessorInterface
                 $service = Craft::$app->assetTransforms->getTransformByUid($uid);
                 break;
             default:
-                Craft:dd($type);
                 break;
         }
         if ($service) {
@@ -183,13 +240,17 @@ abstract class Processor implements ProcessorInterface
      * @param array|string $sites
      * @param string $prefix
      */
-    public function mapSites(&$sites, $prefix = '')
+    public function mapSites(&$sites, $prefix = '', $useIds = false)
     {
         if (is_array($sites)) {
             foreach ($sites as $k => $siteHandle) {
                 $site = Craft::$app->sites->getSiteByHandle($siteHandle);
                 if ($site) {
-                    $sites[$k] = $prefix . $site->id;
+                    if ($useIds) {
+                        $sites[$k] = $prefix . $site->id;
+                    } else {
+                        $sites[$k] = $prefix . $site->uid;
+                    }
                 } else {
                     unset($sites[$k]);
                 }
@@ -197,7 +258,11 @@ abstract class Processor implements ProcessorInterface
         } else {
             $site = Craft::$app->sites->getSiteByHandle($sites);
             if ($site) {
-                $sites = $prefix . $site->id;
+                if ($useIds) {
+                    $sites = $prefix . $site->id;
+                } else {
+                    $sites = $prefix . $site->uid;
+                }
             } else {
                 $sites = null;
             }
