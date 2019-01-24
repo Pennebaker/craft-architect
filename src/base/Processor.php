@@ -12,6 +12,7 @@ namespace pennebaker\architect\base;
 
 use Craft;
 use craft\base\VolumeInterface;
+use craft\errors\SiteNotFoundException;
 use craft\models\FieldLayout;
 use craft\base\Field;
 
@@ -68,7 +69,8 @@ abstract class Processor implements ProcessorInterface
      * @param array $obj
      * @return array
      */
-    public function stripNulls(array $obj) {
+    public function stripNulls(array $obj):array
+    {
         $allowedNulls = [
             'maxLevels'
         ];
@@ -80,6 +82,101 @@ abstract class Processor implements ProcessorInterface
             }
         }
         return $obj;
+    }
+
+    /**
+     * @param array|string|null $obj
+     */
+    public function map(&$obj)
+    {
+        if (is_string($obj)) {
+            if ($obj !== '*' && $obj !== '') {
+                try {
+                    list($type, $handle) = explode(':', $obj);
+                } catch (\Exception $e) {
+                    $handle = $obj;
+                }
+            }
+        } else if (is_array($obj)) {
+            foreach ($obj as $k => $item) {
+                try {
+                    list($type, $handle) = explode(':', $item);
+                } catch (\Exception $e) {
+                    $handle = $obj;
+                }
+            }
+        } else {
+            $obj = null;
+        }
+    }
+
+    /**
+     * @param $item
+     * @param string $type
+     * @param string $uid
+     */
+    public function unmapService(&$item, $type, $uid) {
+        $service = null;
+        switch ($type) {
+            case 'volume':
+                $service = Craft::$app->volumes->getVolumeByUid($uid);
+                break;
+            case 'folder':
+                $service = Craft::$app->assets->getFolderByUid($uid);
+                break;
+            case 'section':
+                $service = Craft::$app->sections->getSectionByUid($uid);
+                break;
+            case 'group':
+                $service = Craft::$app->categories->getGroupByUid($uid);
+                if (!$service) {
+                    $service = Craft::$app->userGroups->getGroupByUid($uid);
+                }
+                break;
+            case 'taggroup':
+                $service = Craft::$app->tags->getTagGroupByUid($uid);
+                break;
+            case 'transform':
+                $service = Craft::$app->assetTransforms->getTransformByUid($uid);
+                break;
+            default:
+                Craft:dd($type);
+                break;
+        }
+        if ($service) {
+            try {
+                $handle = $service->handle;
+            } catch (\Exception $e) {
+                $handle = $service->name;
+            }
+            $item = $type . ':' . $handle;
+        }
+    }
+
+    /**
+     * @param array|string|null $obj
+     * @param \stdClass|null $expectedType
+     */
+    public function unmap(&$obj, $expectedType = null)
+    {
+        if (is_string($obj)) {
+            if ($obj !== '*' && $obj !== '') {
+                list($type, $uid) = explode(':', $obj);
+                $this->unmapService($obj, $type, $uid);
+            }
+        } else if (is_array($obj)) {
+            foreach ($obj as $k => &$item) {
+                try {
+                    list($type, $uid) = explode(':', $item);
+                } catch (\Exception $e) {
+                    $type = $expectedType;
+                    $uid = $item;
+                }
+                $this->unmapService($item, $type, $uid);
+            }
+        } else {
+            $obj = null;
+        }
     }
 
     /**
@@ -108,28 +205,35 @@ abstract class Processor implements ProcessorInterface
     }
 
     /**
-     * @param array|string $sites
-     * @param string $prefix
+     * @param array|string|null $sites
      */
-    public function unmapSites(&$sites, $prefix = '')
+    public function unmapSites(&$sites)
     {
         if (is_array($sites)) {
             foreach ($sites as $k => $siteRef) {
-                $siteId = substr($siteRef, strlen($prefix));
-                $site = Craft::$app->sites->getSiteById((int) $siteId);
-                if ($site) {
+                try {
+                    $site = Craft::$app->sites->getSiteByUid($siteRef);
                     $sites[$k] = $site->handle;
-                } else {
-                    unset($sites[$k]);
+                } catch (SiteNotFoundException $e) {
+                    $site = Craft::$app->sites->getSiteById($siteRef);
+                    if ($site) {
+                        $sites[$k] = $site->handle;
+                    } else {
+                        unset($sites[$k]);
+                    }
                 }
             }
         } else if (is_string($sites)) {
-            $siteId = substr($sites, strlen($prefix));
-            $site = Craft::$app->sites->getSiteById((int) $siteId);
-            if ($site) {
+            try {
+                $site = Craft::$app->sites->getSiteByUid($sites);
                 $sites = $site->handle;
-            } else {
-                $sites = null;
+            } catch (SiteNotFoundException $e) {
+                $site = Craft::$app->sites->getSiteById($sites);
+                if ($site) {
+                    $sites = $site->handle;
+                } else {
+                    $sites = null;
+                }
             }
         } else {
             $sites = null;

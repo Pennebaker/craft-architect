@@ -482,41 +482,43 @@ class FieldProcessor extends Processor
         }
         switch ($type) {
             case \craft\fields\Assets::class:
-                $this->unmapFolderSources($item['sources']);
-                $this->unmapFolderSources($item['defaultUploadLocationSource']);
-                $this->unmapFolderSources($item['singleUploadLocationSource']);
+                $this->unmap($item['sources']);
+                $this->unmap($item['defaultUploadLocationSource']);
+                $this->unmap($item['singleUploadLocationSource']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
             case \craft\fields\Entries::class:
-                $this->unmapSectionSources($item['sources']);
+                $this->unmap($item['sources']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
             case \craft\fields\Categories::class:
                 if (\is_array($item['source'])) {
                     $item['source'] = $item['source'][0];
                 }
-                $this->unmapCategorySources($item['source']);
+                $this->unmap($item['source']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
             case \craft\fields\Tags::class:
                 if (\is_array($item['source'])) {
                     $item['source'] = $item['source'][0];
                 }
-                $this->unmapTagSource($item['source']);
+                $this->unmap($item['source']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
             case \craft\fields\Users::class:
-                $this->unmapUserGroupSources($item['sources']);
+                $this->unmap($item['sources']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
             case 'craft\\redactor\\Field':
-                $this->unmapVolumeSources($item['availableVolumes'], '');
-                $this->unmapAssetTransforms($item['availableTransforms'], '');
+                $this->unmap($item['availableVolumes'], 'volume');
+                $this->unmap($item['availableTransforms'], 'transform');
                 break;
             case 'typedlinkfield\\fields\\LinkField':
-                $this->unmapFolderSources($item['typeSettings']['asset']['sources']);
-                $this->unmapCategorySources($item['typeSettings']['category']['sources']);
-                $this->unmapSectionSources($item['typeSettings']['entry']['sources']);
+                $this->unmap($item['typeSettings']['asset']['sources'], 'folder');
+                $this->unmap($item['typeSettings']['category']['sources'], 'group');
+                $this->unmap($item['typeSettings']['entry']['sources'], 'section');
+                $this->unmap($item['typeSettings']['user']['sources'], 'group');
+                $this->unmapSites($item['typeSettings']['site']['sites']);
                 break;
         }
     }

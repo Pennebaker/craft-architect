@@ -17,9 +17,11 @@
     {% for section in craft.app.sections.getAllSections() %}
         {% set utilizedFields = {} %}
         {% for entryType in section.getEntryTypes() %}
-            {% for fieldId in craft.app.fields.getLayoutById(entryType.fieldLayoutId).getFieldIds() %}
-                {% set utilizedFields = utilizedFields | merge([fieldId]) %}
-            {% endfor %}
+            {% if entryType.fieldLayoutId %}
+                {% for fieldId in craft.app.fields.getLayoutById(entryType.fieldLayoutId).getFieldIds() %}
+                    {% set utilizedFields = utilizedFields | merge([fieldId]) %}
+                {% endfor %}
+            {% endif %}
         {% endfor %}
         <tr class="section" data-id="{{ section.id }}" data-name="{{ section }}" data-fields="{% for id in utilizedFields %}{{ id }} {% endfor %}">
             <th scope="row" class="checkbox-cell">
