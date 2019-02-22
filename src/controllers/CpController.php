@@ -10,7 +10,9 @@
 
 namespace pennebaker\architect\controllers;
 
+use Craft;
 use craft\web\Controller;
+use craft\helpers\FileHelper;
 
 /**
  * Cp Controller
@@ -60,13 +62,28 @@ class CpController extends Controller
     }
 
     /**
-     * Handle a request going to our plugin's migrations URL,
-     * e.g.: actions/architect/cp/migrations
+     * Handle a request going to our plugin's blueprints URL,
+     * e.g.: actions/architect/cp/blueprints
      *
      * @return mixed
+     *
+     * @throws \yii\base\Exception
      */
-    public function actionMigrations()
+    public function actionBlueprints()
     {
-        return $this->renderTemplate('architect/migrations');
+        $configPath = Craft::$app->getPath()->getConfigPath() . DIRECTORY_SEPARATOR . 'architect';
+        $configFiles = FileHelper::findFiles($configPath, [
+            'only' => ['*.json', '*.yaml'],
+            'recursive' => false
+        ]);
+
+        foreach ($configFiles as &$file) {
+            $file = pathinfo($file, PATHINFO_BASENAME);
+        }
+        unset($file);
+
+        return $this->renderTemplate('architect/blueprints', [
+            'files' => $configFiles
+        ]);
     }
 }

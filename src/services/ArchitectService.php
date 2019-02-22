@@ -11,13 +11,13 @@
 namespace pennebaker\architect\services;
 
 use pennebaker\architect\Architect;
-use craft\models\Section_SiteSettings;
-
-use Symfony\Component\Yaml\Yaml;
-use Symfony\Component\Yaml\Exception\ParseException;
 
 use Craft;
 use craft\base\Component;
+use craft\models\Section_SiteSettings;
+use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Exception\ParseException;
+
 
 /**
  * ArchitectService Service
@@ -49,7 +49,6 @@ class ArchitectService extends Component
      */
     public function import($importData, $runBackup = false, $update = false)
     {
-        \Craft::Client;
         // Convert json into an array.
         $importObj = json_decode($importData, true);
         // Attempt yaml parsing if json_decode failed.

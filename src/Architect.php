@@ -90,10 +90,10 @@ class Architect extends Plugin
                  $event->rules['architect/'] = 'architect/cp';
                  $event->rules['GET architect/import'] = 'architect/cp/import';
                  $event->rules['GET architect/export'] = 'architect/cp/export';
-                 $event->rules['GET architect/migrations'] = 'architect/cp/migrations';
+                 $event->rules['GET architect/blueprints'] = 'architect/cp/blueprints';
                  $event->rules['POST architect/import'] = 'architect/default/import';
                  $event->rules['POST architect/export'] = 'architect/default/export';
-                 $event->rules['POST architect/migrations'] = 'architect/default/migrations';
+                 $event->rules['POST architect/blueprints'] = 'architect/default/blueprints';
              }
          );
 

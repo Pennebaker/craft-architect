@@ -1,0 +1,44 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Architect plugin for Craft CMS 3.x
+ *
+ * Architect import.twig
+ *
+ * @author    Pennebaker
+ * @copyright Copyright (c) 2018 Pennebaker
+ * @link      https://pennebaker.com
+ * @package   Architect
+ * @since     2.0.0
+ */
+#}
+
+{% extends "architect/_layouts/base" %}
+{% import "_includes/forms" as forms %}
+
+{% set selectedSubnavItem = 'blueprints' %}
+
+{# The content of the CP Section #}
+{% set content %}
+    <h2>{{ "Blueprints"|t('app') }}</h2>
+    {%- for file in files -%}
+        <a href="{{ cpUrl('architect/import', { 'file': file }) }}">{{ file }}</a>
+        <div class="fld-tabs">
+            {% for group, items in craft.architect.getData(file) %}
+                <div class="fld-tab unused">
+                    <div class="tabs">
+                        <div class="tab sel"><span>{{ group }}</span></div>
+                    </div>
+                    <div class="fld-tabcontent">
+                        {% for item in items %}
+                            <div class="fld-field unused">
+                                <span title="{{ item }}">{{ item }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <br clear="all">
+    {%- endfor -%}
+{% endset %}
