@@ -131,6 +131,11 @@ class ArchitectService extends Component
                     try {
                         if ($update) {
                             $itemErrors = Architect::$processors->$parseKey->update($itemObj);
+                            $results[$parseKey][] = [
+                                'item' => false,
+                                'success' => false,
+                                'errors' => $itemErrors,
+                            ];
                             if ($itemErrors) {
                                 continue;
                             }
