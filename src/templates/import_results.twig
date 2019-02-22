@@ -70,12 +70,12 @@
 
             {{ forms.textareaField({
                 label: "JSON Data"|t('architect'),
-                instructions: "This is the json data that was submitted."|t('architect'),
-                id: 'jsonData',
+                instructions: "This is the json/yaml data that was submitted."|t('architect'),
+                id: 'importData',
                 class: 'code',
-                value: jsonData,
+                value: importData,
                 readonly: true,
-                name: 'jsonData',
+                name: 'importData',
                 rows: 30
             }) }}
         </div>

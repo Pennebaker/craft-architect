@@ -314,7 +314,7 @@
                 checkbox.addEventListener('change', canExport);
             });
         }
-        var importInput = document.getElementById('jsonData');
+        var importInput = document.getElementById('importData');
         function canImport() {
             var submit = document.querySelector('#header [type="submit"]');
             if (submit) {

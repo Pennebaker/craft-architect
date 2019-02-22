@@ -2,7 +2,7 @@
 /**
  * Architect plugin for Craft CMS 3.x
  *
- * CraftCMS plugin to generate content models from JSON data.
+ * CraftCMS plugin to generate content models from JSON/YAML data.
  *
  * @link      https://pennebaker.com
  * @copyright Copyright (c) 2018 Pennebaker
@@ -20,7 +20,6 @@ use craft\models\FieldLayout;
 use craft\helpers\Json;
 use verbb\supertable\fields\SuperTableField;
 use benf\neo\Field as Neo;
-use benf\neo\elements\Block as NeoBlock;
 use benf\neo\records\BlockType as NeoBlockType;
 use benf\neo\records\BlockTypeGroup as NeoBlockTypeGroup;
 

@@ -96,6 +96,6 @@ Some things to do, and ideas for potential features:
 - Import and Update
 
 [2.4.0] ***brainstorming***
-- Migrations
+- Store with field and section layouts?
 
 Brought to you by [Pennebaker](https://pennebaker.com)

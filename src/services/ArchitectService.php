@@ -2,7 +2,7 @@
 /**
  * Architect plugin for Craft CMS 3.x
  *
- * CraftCMS plugin to generate content models from JSON data.
+ * CraftCMS plugin to generate content models from JSON/YAML data.
  *
  * @link      https://pennebaker.com
  * @copyright Copyright (c) 2018 Pennebaker
@@ -12,6 +12,9 @@ namespace pennebaker\architect\services;
 
 use pennebaker\architect\Architect;
 use craft\models\Section_SiteSettings;
+
+use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Exception\ParseException;
 
 use Craft;
 use craft\base\Component;
@@ -35,7 +38,7 @@ class ArchitectService extends Component
      *
      *     Architect::$plugin->architectService->import()
      *
-     * @param string $jsonData
+     * @param string $importData
      * @param bool $runBackup
      *
      * @return mixed
@@ -44,14 +47,18 @@ class ArchitectService extends Component
      * @throws \craft\errors\ShellCommandException
      * @throws \yii\base\Exception
      */
-    public function import($jsonData, $runBackup = false, $update = false)
+    public function import($importData, $runBackup = false, $update = false)
     {
         \Craft::Client;
         // Convert json into an array.
-        $jsonObj = json_decode($jsonData, true);
-        // Return if json is not properly decoded.
-        if ($jsonObj === null) {
-            return [true, null, null, null];
+        $importObj = json_decode($importData, true);
+        // Attempt yaml parsing if json_decode failed.
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            try {
+                $importObj = Yaml::parse($importData);
+            } catch (ParseException $exception) {
+                return [true, null, null, [json_last_error(), $exception->getMessage()]];
+            }
         }
 
         if ($runBackup) {
@@ -118,9 +125,9 @@ class ArchitectService extends Component
         $addedEntryTypes = [];
         $results = [];
         foreach ($parseOrder as $parseKey) {
-            if (isset($jsonObj[$parseKey]) && \is_array($jsonObj[$parseKey])) {
+            if (isset($importObj[$parseKey]) && \is_array($importObj[$parseKey])) {
                 $results[$parseKey] = [];
-                foreach ($jsonObj[$parseKey] as $itemKey => $itemObj) {
+                foreach ($importObj[$parseKey] as $itemKey => $itemObj) {
                     try {
                         if ($update) {
                             $itemErrors = Architect::$processors->$parseKey->update($itemObj);
@@ -205,12 +212,12 @@ class ArchitectService extends Component
                     }
                     if ($itemSuccess) {
                         if (\in_array($parseKey, $onlyStrings)) {
-                            $jsonObj[$parseKey][$itemKey] = [
+                            $importObj[$parseKey][$itemKey] = [
                                 'name' => $itemObj,
                                 'id' => $item->id
                             ];
                         } else {
-                            $jsonObj[$parseKey][$itemKey]['id'] = $item->id;
+                            $importObj[$parseKey][$itemKey]['id'] = $item->id;
                         }
                         if ($parseKey === 'entryTypes') {
                             $addedEntryTypes[] =  Craft::$app->sections->getSectionById((int) $item->sectionId)->handle . ':' . $item->handle;
@@ -245,9 +252,9 @@ class ArchitectService extends Component
          * Post Processing to set Field Layouts
          */
         foreach ($postProcessFieldLayouts as $parseKey) {
-            if (isset($jsonObj[$parseKey]) && \is_array($jsonObj[$parseKey])) {
+            if (isset($importObj[$parseKey]) && \is_array($importObj[$parseKey])) {
                 foreach($successful[$parseKey] as $volumeHandle => $itemKey) {
-                    $itemObj = $jsonObj[$parseKey][$itemKey];
+                    $itemObj = $importObj[$parseKey][$itemKey];
                     Architect::$processors->$parseKey->setFieldLayout($itemObj);
                 }
             }
@@ -256,9 +263,9 @@ class ArchitectService extends Component
         /**
          * Post Processing on Users to assign User Groups
          */
-        if (isset($jsonObj['users']) && \is_array($jsonObj['users'])) {
+        if (isset($importObj['users']) && \is_array($importObj['users'])) {
             foreach ($successful['users'] as $itemKey) {
-                $itemObj = $jsonObj['users'][$itemKey];
+                $itemObj = $importObj['users'][$itemKey];
                 if (isset($itemObj['groups']) && \is_array($itemObj['groups'])) {
                     $groupIds = [];
                     foreach ($itemObj['groups'] as $groupHandle) {
@@ -278,7 +285,7 @@ class ArchitectService extends Component
         foreach ($postProcessPermissions as $parseKey) {
             if (isset($successful[$parseKey]) && \is_array($successful[$parseKey])) {
                 foreach($successful[$parseKey] as $itemKey) {
-                    $itemObj = $jsonObj[$parseKey][$itemKey];
+                    $itemObj = $importObj[$parseKey][$itemKey];
                     Architect::$processors->$parseKey->setPermissions($parseKey, $itemObj);
                 }
             }
@@ -289,7 +296,7 @@ class ArchitectService extends Component
          * This is to loop over all entry types in a section and remove entry types that do not match one that was meant to be created.
          * ex. A section was created for Employees but there is only entry types defined for Board Members & Management
          */
-        if (isset($jsonObj['sections'], $jsonObj['entryTypes']) && \is_array($jsonObj['sections']) && \is_array($jsonObj['entryTypes'])) {
+        if (isset($importObj['sections'], $importObj['entryTypes']) && \is_array($importObj['sections']) && \is_array($importObj['entryTypes'])) {
             forEach ($successful['sections'] as $sectionHandle) {
                 $section = Craft::$app->sections->getSectionByHandle($sectionHandle);
                 $entryTypes = $section->getEntryTypes();

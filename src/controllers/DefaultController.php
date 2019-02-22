@@ -2,7 +2,7 @@
 /**
  * Architect plugin for Craft CMS 3.x
  *
- * CraftCMS plugin to generate content models from JSON data.
+ * CraftCMS plugin to generate content models from JSON/YAML data.
  *
  * @link      https://pennebaker.com
  * @copyright Copyright (c) 2018 Pennebaker
@@ -37,17 +37,18 @@ class DefaultController extends Controller
     public function actionImport()
     {
         // Load posted json data into a variable.
-        $jsonData = Craft::$app->request->getBodyParam('jsonData');
+        $importData = Craft::$app->request->getBodyParam('importData');
 
         $updateExisting = (bool) Craft::$app->request->getBodyParam('updateExisting');
 
-        list($jsonError, $noErrors, $backup, $results) = Architect::$plugin->architectService->import($jsonData, false, $updateExisting);
+        list($parseError, $noErrors, $backup, $results) = Architect::$plugin->architectService->import($importData, false, $updateExisting);
 
-        if ($jsonError) {
+        if ($parseError) {
             $this->renderTemplate('architect/import', [
-                'invalidJson' => json_last_error(),
+                'invalidJSON' => $results[0],
+                'invalidYAML' => $results[1],
                 'updateExisting' => $updateExisting,
-                'jsonData' => $jsonData,
+                'importData' => $importData,
             ]);
             return;
         }
@@ -57,7 +58,7 @@ class DefaultController extends Controller
             'backupLocation' => $backup,
             'results' => $results,
             'updateExisting' => $updateExisting,
-            'jsonData' => $jsonData,
+            'importData' => $importData,
         ]);
     }
 

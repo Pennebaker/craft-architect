@@ -12,12 +12,9 @@ namespace pennebaker\architect\console\controllers;
 
 use pennebaker\architect\Architect;
 
-use Craft;
+use craft\helpers\Console;
 use yii\console\Controller;
-use yii\helpers\Console;
-
-use Symfony\Component\Yaml\Yaml;
-use Symfony\Component\Yaml\Exception\ParseException;
+use yii\console\ExitCode;
 
 /**
  * Default Command
@@ -45,54 +42,43 @@ class ImportController extends Controller
     // =========================================================================
 
     /**
-     * Import a json file structure.
+     * Import a json/yaml file structure.
      *
      * @param string $filename
+     *
+     * @return int
+     *
+     * @throws \Throwable
+     * @throws \craft\errors\ShellCommandException
+     * @throws \yii\base\Exception
      */
     public function actionIndex($filename)
     {
-        echo "Welcome to the console ImportController actionIndex() method\n";
-    }
+        list($parseError, $noErrors, $backup, $results) = Architect::$plugin->architectService->import(file_get_contents($filename), false);
 
-    /**
-     * Import a yaml file structure.
-     *
-     * @param string $filename
-     */
-    public function actionYaml($filename)
-    {
-		try {
-			$data = Yaml::parse(file_get_contents($filename));
-		} catch (ParseException $exception) {
-			printf("unable to parse the YAML file provided: %s", $exception->getMessage());
-		}
+        if ($parseError) {
+            $this->stdout('JSON: ', Console::FG_RED);
+            $this->stdout($results[0] . PHP_EOL);
+            $this->stdout('YAML: ', Console::FG_RED);
+            $this->stdout($results[1] . PHP_EOL);
 
-		//remove yaml templates
-	    foreach ($data as $key => $value) {
-			if ($key[0] == ".") {
-				unset($data->{$key});
-			}
-		};
+            return ExitCode::DATAERR;
+        }
 
-		$dataAsJson = json_encode($data);
+        foreach ($results as $value) {
+            foreach ($value as $item) {
+                if ($item['success'] === true) {
+                    $this->stdout("Success: \n", Console::FG_GREEN);
+                    $this->stdout('- ' . get_class($item['item']) . ' ' . $item['item']['name'] . PHP_EOL);
+                } else {
+                    $this->stdout("Error: \n", Console::FG_RED);
+                    foreach ($item['errors'] as $err) {
+                        $this->stdout('- ' . $err[0] . PHP_EOL);
+                    }
+                }
+            }
+        }
 
-		list($jsonError, $noErrors, $backup, $results) = Architect::$plugin->architectService->import($dataAsJson, false);
-
-		if ($jsonError) {
-			printf("invalid json: %s", json_last_error());
-			return;
-		}
-
-		foreach ($results as $value) {
-			foreach ($value as $item) {
-				if ($item['success'] != true) {
-					foreach ($item['errors'] as $err) {
-						printf("Error: %s\n", $err[0]);
-					}
-				}
-			}
-		}
-
-		return 1;
+        return ExitCode::OK;
     }
 }

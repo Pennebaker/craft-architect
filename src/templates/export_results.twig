@@ -19,7 +19,7 @@
 {% set selectedSubnavItem = 'export' %}
 
 {% block actionButton %}
-    <input type="button" class="btn submit" value="{{ 'Copy'|t('app') }}" data-clipboard-target="#jsonData">
+    <input type="button" class="btn submit" value="{{ 'Copy'|t('app') }}" data-clipboard-target="#importData">
 {% endblock %}
 
 {# The content of the CP SectionProcessor #}
@@ -28,9 +28,9 @@
 
     {{ forms.textareaField({
         label: "JSON Data"|t('architect'),
-        id: 'jsonData',
+        id: 'importData',
         class: 'code',
-        name: 'jsonData',
+        name: 'importData',
         readonly: true,
         value: dump,
         rows: 30
