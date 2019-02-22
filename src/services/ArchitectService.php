@@ -131,6 +131,9 @@ class ArchitectService extends Component
                     try {
                         if ($update) {
                             $itemErrors = Architect::$processors->$parseKey->update($itemObj);
+                            if ($itemErrors) {
+                                continue;
+                            }
                         }
                         if ($parseKey === 'fieldGroups' || $parseKey === 'siteGroups') {
                             list($item, $itemErrors) = Architect::$processors->$parseKey->parse(['name' => $itemObj]);
