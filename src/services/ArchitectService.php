@@ -315,6 +315,33 @@ class ArchitectService extends Component
             }
         }
 
+        if (isset($importObj['buildOrder']) && \is_array($importObj['buildOrder'])) {
+            foreach ($importObj['buildOrder'] as $filename) {
+                $importData = file_get_contents(Architect::$configPath . DIRECTORY_SEPARATOR . $filename);
+                list($fileParseError, $fileNoErrors, $fileBackup, $fileResults) = $this->import($importData, false, $update);
+                if ($fileParseError) {
+                    $results['buildOrder'][] = [
+                        'item' => false,
+                        'success' => false,
+                        'errors' => [
+                            'parse' => [
+                                Architect::t('Parse Error: "{filename}".', ['filename' => $filename ])
+                            ]
+                        ]
+                    ];
+                    $fileNoErrors = false;
+                }
+                $noErrors = $fileNoErrors ? $noErrors : $fileNoErrors;
+                foreach ($parseOrder as $parseKey) {
+                    if (isset($results[$parseKey], $fileResults[$parseKey])) {
+                        array_push($results[$parseKey], ...$fileResults[$parseKey]);
+                    } else if (isset($fileResults[$parseKey])) {
+                        $results[$parseKey] = $fileResults[$parseKey];
+                    }
+                }
+            }
+        }
+
         if ($runBackup) {
             if ($noErrors) {
                 unlink($backup);
