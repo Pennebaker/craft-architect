@@ -10,6 +10,8 @@
 
 namespace pennebaker\architect\controllers;
 
+use pennebaker\architect\Architect;
+
 use Craft;
 use craft\web\Controller;
 use craft\helpers\FileHelper;
@@ -47,7 +49,12 @@ class CpController extends Controller
      */
     public function actionImport()
     {
-        return $this->renderTemplate('architect/import', [ 'invalidJSON' => false ]);
+        $filename = Architect::$configPath . DIRECTORY_SEPARATOR . Craft::$app->request->getQueryParam('file');
+        $fileContents = '';
+        if (is_file($filename)) {
+            $fileContents = file_get_contents($filename);
+        }
+        return $this->renderTemplate('architect/import', [ 'importData' => $fileContents, 'invalidJSON' => false ]);
     }
 
     /**
@@ -71,8 +78,7 @@ class CpController extends Controller
      */
     public function actionBlueprints()
     {
-        $configPath = Craft::$app->getPath()->getConfigPath() . DIRECTORY_SEPARATOR . 'architect';
-        $configFiles = FileHelper::findFiles($configPath, [
+        $configFiles = FileHelper::findFiles(Architect::$configPath, [
             'only' => ['*.json', '*.yaml'],
             'recursive' => false
         ]);

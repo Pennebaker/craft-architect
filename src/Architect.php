@@ -47,6 +47,8 @@ class Architect extends Plugin
 
     public static $processors;
 
+    public static $configPath;
+
     // Public Methods
     // =========================================================================
 
@@ -59,12 +61,15 @@ class Architect extends Plugin
      *
      * If you have a '/vendor/autoload.php' file, it will be loaded for you automatically;
      * you do not need to load it in your init() method.
+     *
+     * @throws \yii\base\Exception
      */
     public function init()
     {
         parent::init();
         self::$plugin = $this;
         self::$processors = new Processors();
+        self::$configPath = Craft::$app->getPath()->getConfigPath() . DIRECTORY_SEPARATOR . 'architect';
 
         // Add in our console commands
         if (Craft::$app instanceof ConsoleApplication) {

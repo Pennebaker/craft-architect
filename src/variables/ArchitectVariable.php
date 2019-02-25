@@ -10,6 +10,8 @@
 
 namespace pennebaker\architect\variables;
 
+use pennebaker\architect\Architect;
+
 use Craft;
 use craft\elements\User;
 use Symfony\Component\Yaml\Yaml;
@@ -29,9 +31,7 @@ class ArchitectVariable
 
     public function getData($file): array
     {
-        $configPath = Craft::$app->getPath()->getConfigPath() . DIRECTORY_SEPARATOR . 'architect';
-
-        $importData = file_get_contents($configPath . DIRECTORY_SEPARATOR . $file);
+        $importData = file_get_contents(Architect::$configPath . DIRECTORY_SEPARATOR . $file);
 
         // Convert json into an array.
         $importObj = json_decode($importData, true);
