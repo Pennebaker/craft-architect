@@ -140,4 +140,16 @@ class SectionProcessor extends Processor
 
         return $this->export($section);
     }
+
+    /**
+     * Gets an object from the passed in UID for export.
+     *
+     * @param $uid
+     *
+     * @return mixed
+     */
+    public function exportByUid($uid)
+    {
+        // TODO: Implement exportByUid() method.
+    }
 }

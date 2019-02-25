@@ -134,4 +134,16 @@ class UserProcessor extends Processor
         $user = Craft::$app->users->getUserById($id);
         return $this->export($user);
     }
+
+    /**
+     * Gets an object from the passed in UID for export.
+     *
+     * @param $uid
+     *
+     * @return mixed
+     */
+    public function exportByUid($uid)
+    {
+        // TODO: Implement exportByUid() method.
+    }
 }

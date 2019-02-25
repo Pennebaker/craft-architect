@@ -52,7 +52,7 @@ class ImportController extends Controller
      * @throws \craft\errors\ShellCommandException
      * @throws \yii\base\Exception
      */
-    public function actionIndex($filename)
+    public function actionIndex($filename): int
     {
         list($parseError, $noErrors, $backup, $results) = Architect::$plugin->architectService->import(file_get_contents($filename), false);
 

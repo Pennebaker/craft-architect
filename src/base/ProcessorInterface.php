@@ -58,4 +58,13 @@ interface ProcessorInterface
      * @return mixed
      */
     public function exportById($id);
+
+    /**
+     * Gets an object from the passed in UID for export.
+     *
+     * @param $uid
+     *
+     * @return mixed
+     */
+    public function exportByUid($uid);
 }

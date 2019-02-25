@@ -131,4 +131,16 @@ class TagGroupProcessor extends Processor
 
         return $this->export($tagGroup);
     }
+
+    /**
+     * Gets an object from the passed in UID for export.
+     *
+     * @param $uid
+     *
+     * @return mixed
+     */
+    public function exportByUid($uid)
+    {
+        // TODO: Implement exportByUid() method.
+    }
 }

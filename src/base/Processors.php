@@ -23,6 +23,7 @@ class Processors
     public $siteGroups;
     public $sites;
     public $sections;
+    public $routes;
     public $entryTypes;
     public $volumes;
     public $transforms;
@@ -39,6 +40,7 @@ class Processors
         $this->siteGroups = new SiteGroupProcessor();
         $this->sites = new SiteProcessor();
         $this->sections = new SectionProcessor();
+        $this->routes = new RouteProcessor();
         $this->entryTypes = new EntryTypeProcessor();
         $this->volumes = new VolumeProcessor();
         $this->transforms = new TransformProcessor();

@@ -71,6 +71,7 @@ class DefaultController extends Controller
         $data = [
             'siteGroups' => [],
             'sites' => [],
+            'routes' => [],
             'fieldGroups' => [],
             'volumes' => [],
             'transforms' => [],
@@ -96,6 +97,9 @@ class DefaultController extends Controller
                 'postProcess' => [
                     'entryTypes' => 'entryTypes'
                 ],
+            ],
+            'routes' => [
+                'bodyParam' => 'routeSelection',
             ],
             'volumes' => [
                 'bodyParam' => 'volumeSelection',
@@ -130,7 +134,11 @@ class DefaultController extends Controller
             $exportIds = Craft::$app->request->getBodyParam($processorInfo['bodyParam']);
             if ($exportIds) {
                 foreach ($exportIds as $exportId) {
-                    $exportObj = Architect::$processors->$processorName->exportById($exportId);
+                    if ($processorName === 'routes') {
+                        $exportObj = Architect::$processors->$processorName->exportByUid($exportId);
+                    } else {
+                        $exportObj = Architect::$processors->$processorName->exportById($exportId);
+                    }
 
                     if (isset($processorInfo['postProcess'])) {
                         foreach ($processorInfo['postProcess'] as $postProcessKey => $postProcessorName) {
