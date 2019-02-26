@@ -17,9 +17,8 @@ use pennebaker\architect\variables\ArchitectVariable;
 use Craft;
 use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
-//use craft\events\PluginEvent;
 use craft\events\RegisterUrlRulesEvent;
-//use craft\services\Plugins;
+use craft\helpers\FileHelper;
 use craft\web\UrlManager;
 use craft\web\twig\variables\CraftVariable;
 
@@ -71,6 +70,11 @@ class Architect extends Plugin
         self::$processors = new Processors();
         self::$configPath = Craft::$app->getPath()->getConfigPath() . DIRECTORY_SEPARATOR . 'architect';
 
+        // Ensure architect config path exists
+        if (!file_exists(self::$configPath)) {
+            FileHelper::createDirectory(self::$configPath);
+        }
+
         // Add in our console commands
         if (Craft::$app instanceof ConsoleApplication) {
             $this->controllerNamespace = 'pennebaker\architect\console\controllers';
@@ -101,19 +105,6 @@ class Architect extends Plugin
                  $event->rules['POST architect/blueprints'] = 'architect/default/blueprints';
              }
          );
-
-        // Do something after we're installed
-        /*
-        Event::on(
-            Plugins::class,
-            Plugins::EVENT_AFTER_INSTALL_PLUGIN,
-            function (PluginEvent $event) {
-                if ($event->plugin === $this) {
-                    // We were just installed
-                }
-            }
-        );
-        */
 
         self::info('{name} plugin loaded', ['name' => $this->name]);
     }
@@ -151,5 +142,4 @@ class Architect extends Plugin
 
     // Protected Methods
     // =========================================================================
-
 }

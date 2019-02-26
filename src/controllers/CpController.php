@@ -73,8 +73,6 @@ class CpController extends Controller
      * e.g.: actions/architect/cp/blueprints
      *
      * @return mixed
-     *
-     * @throws \yii\base\Exception
      */
     public function actionBlueprints()
     {
