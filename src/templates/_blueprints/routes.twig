@@ -1,0 +1,35 @@
+<h1>{{ "Routes"|t('app') }}</h1>
+<table class="data fullwidth collapsible">
+    <thead>
+    <tr>
+        <th class="checkbox-cell">
+            <div class="route checkboxfield">
+                <input type="checkbox" id="allRoutes" class="checkbox" name="allRoutes" value="all"><label for="allRoutes">&zwnj;</label>
+                {{ "URI Parts"|t('app') }}
+            </div>
+        </th>
+        <th>{{ "Templates"|t('app') }}</th>
+        <th>{{ "Site"|t('app') }}</th>
+    </tr>
+    </thead>
+    <tbody class="routes">
+    {% for route in craft.routes.getProjectConfigRoutes() %}
+        <tr class="route" data-id="{{ route.uid }}">
+            <th scope="row" class="checkbox-cell template">
+                <input type="checkbox" id="route{{ route.uid }}" class="checkbox" name="routeSelection[]" value="{{ route.uid }}"> <label for="route{{ route.uid }}"></label>
+                <span class="uri">{{ route.uriDisplayHtml|raw }}</span>
+            </th>
+            <td>
+                <code>{{ route.template }}</code>
+            </td>
+            <td>
+                {% if craft.app.getIsMultiSite() %}
+                    {{ route.siteUid ? craft.app.sites.getSiteByUid(route.siteUid).name|t('site') : "Global"|t('app') }}
+                {% else %}
+                    {{ "Global"|t('app') }}
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
