@@ -122,6 +122,12 @@ class ArchitectService extends Component
             'users',
             'userGroups',
         ];
+        /**
+         * Things with support for updating.
+         */
+        $updateSupport = [
+            'fields',
+        ];
         $addedEntryTypes = [];
         $results = [];
         foreach ($parseOrder as $parseKey) {
@@ -129,7 +135,7 @@ class ArchitectService extends Component
                 $results[$parseKey] = [];
                 foreach ($importObj[$parseKey] as $itemKey => $itemObj) {
                     try {
-                        if ($update && $parseKey === 'fields') {
+                        if ($update && \in_array('fields', $updateSupport)) {
                             $itemErrors = Architect::$processors->$parseKey->update($itemObj);
                             $results[$parseKey][] = [
                                 'item' => false,
