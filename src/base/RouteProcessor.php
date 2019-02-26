@@ -49,7 +49,7 @@ class RouteProcessor extends Processor
      * @param mixed $item The item to save
      * @param bool $update The item to save
      *
-     * @return array
+     * @return mixed
      */
     public function save($item, bool $update)
     {
