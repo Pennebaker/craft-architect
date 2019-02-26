@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - YAML Support
 - Command Line Importing
-- Route field import/export support.
+- Route Importing
+- Route Exporting
 
 ## [2.2.12] - 2019-01-24
 ### Fixed
