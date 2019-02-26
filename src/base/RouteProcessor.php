@@ -32,7 +32,15 @@ class RouteProcessor extends Processor
      */
     public function parse(array $item): array
     {
-        // TODO: Implement parse() method.
+        $siteUid = null;
+        try {
+            $site = Craft::$app->sites->getSiteByHandle($item['siteId']);
+            $siteUid = $site->uid;
+        } catch (\Exception $e) {}
+        return [
+            [ $item['uriParts'], $item['template'], $siteUid ],
+            false
+        ];
     }
 
     /**
@@ -41,11 +49,15 @@ class RouteProcessor extends Processor
      * @param mixed $item The item to save
      * @param bool $update The item to save
      *
-     * @return object
+     * @return array
      */
     public function save($item, bool $update)
     {
-        // TODO: Implement save() method.
+        $routeUid = Craft::$app->routes->saveRoute(...$item);
+        if ($routeUid) {
+            return Architect::getRouteByUid($routeUid);
+        }
+        return false;
     }
 
     /**
@@ -58,7 +70,6 @@ class RouteProcessor extends Processor
      */
     public function export($item, array $extraAttributes = [])
     {
-        // TODO: Implement export() method.
         $attributeObj = [];
         $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes('route'));
         foreach($extraAttributes as $attribute) {
@@ -68,12 +79,11 @@ class RouteProcessor extends Processor
         $routeObj = array_merge([
             'template' => $item['template'],
             'uriParts' => $item['uriParts'],
-            'uriPattern' => $item['uriPattern'],
         ], $attributeObj);
 
         if ($item['siteUid']) {
             try {
-                $routeobj['siteId'] = Craft::$app->sites->getSiteByUid($item['siteUid'])->handle;
+                $routeObj['siteId'] = Craft::$app->sites->getSiteByUid($item['siteUid'])->handle;
             } catch (\craft\errors\SiteNotFoundException $e) {}
         }
 
@@ -101,12 +111,6 @@ class RouteProcessor extends Processor
      */
     public function exportByUid($uid)
     {
-        // TODO: Implement exportByUid() method.
-        foreach (Craft::$app->getProjectConfig()->get('routes') as $routeUid => $route) {
-            if ($routeUid === $uid) {
-                $route['uid'] = $routeUid;
-                return $this->export($route);
-            }
-        }
+        return $this->export(Architect::getRouteByUid($uid));
     }
 }

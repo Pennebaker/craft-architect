@@ -54,7 +54,7 @@ class ImportController extends Controller
      */
     public function actionIndex($filename): int
     {
-        list($parseError, $noErrors, $backup, $results) = Architect::$plugin->architectService->import(file_get_contents($filename), false);
+        list($parseError, , , $results) = Architect::$plugin->architectService->import(file_get_contents($filename), false);
 
         if ($parseError) {
             $this->stdout('JSON: ', Console::FG_RED);

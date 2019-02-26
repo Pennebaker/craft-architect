@@ -47,8 +47,8 @@
                     </tr>
                     {% for result in typeResults %}
                         <tr>
-                            <td>{{ (result.item.name is defined) ? result.item.name : result.item.email }}</td>
-                            <td class="code">{{ ('handle' in result.item|keys) ? result.item.handle : '' }}</td>
+                            <td>{{ (result.item.name is defined) ? result.item.name : (result.item.siteId is defined) ? result.item.siteId : '' }}</td>
+                            <td class="code">{{ ('handle' in result.item|keys) ? result.item.handle : ('uriPattern' in result.item|keys) ? result.item.uriPattern : '' }}</td>
                             <td>
                                 <ul class="error-list code">
                                     {% for type, errors in result.errors %}

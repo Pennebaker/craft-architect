@@ -74,6 +74,7 @@ class ArchitectService extends Component
         $parseOrder = [
             'siteGroups',
             'sites',
+            'routes',
             'sections',
             'volumes',
             'transforms',
@@ -160,7 +161,22 @@ class ArchitectService extends Component
                         }
 
                         if ($item) {
-                            $itemSuccess = Architect::$processors->$parseKey->save($item, $update);
+                            if ($parseKey === 'routes') {
+                                $routeUid = Architect::routeExists(...$item);
+                                if ($routeUid) {
+                                    $item = Architect::getRouteByUid($routeUid);
+                                    $itemSuccess = false;
+                                    $itemErrors = [
+                                        'route' => [
+                                            Architect::t('Route already exists.')
+                                        ]
+                                    ];
+                                } else {
+                                    $itemSuccess = Architect::$processors->$parseKey->save($item, $update);
+                                }
+                            } else {
+                                $itemSuccess = Architect::$processors->$parseKey->save($item, $update);
+                            }
                             if ($parseKey === 'sections') {
                                 $itemErrors = [];
                                 /** @var mixed $item */
@@ -168,7 +184,6 @@ class ArchitectService extends Component
                                     /** @var Section_SiteSettings $settings */
                                     foreach ($settings->getErrors() as $errorKey => $errors) {
                                         if (isset($itemErrors[$errorKey])) {
-//                                            $itemErrors[$errorKey] = array_merge($itemErrors[$errorKey], $errors);
                                             array_push($itemErrors[$errorKey], ...$errors);
                                         } else {
                                             $itemErrors[$errorKey] = $errors;
@@ -177,10 +192,26 @@ class ArchitectService extends Component
                                 }
                                 foreach ($item->getErrors() as $errorKey => $errors) {
                                     if (isset($itemErrors[$errorKey])) {
-//                                            $itemErrors[$errorKey] = array_merge($itemErrors[$errorKey], $errors);
                                         array_push($itemErrors[$errorKey], ...$errors);
                                     } else {
                                         $itemErrors[$errorKey] = $errors;
+                                    }
+                                }
+                            } else if ($parseKey === 'routes') {
+                                if ($itemSuccess) {
+                                    $item = $itemSuccess;
+                                    $item['siteId'] = isset($itemObj['siteId']) ? $itemObj['siteId'] : Craft::t('app', 'Gobal');
+                                    $itemErrors = false;
+                                } else {
+                                    $item = $itemObj;
+                                    $item['uriPattern'] = Architect::createRouteUriPattern($item['uriParts']);
+                                    $item['siteId'] = isset($itemObj['siteId']) ? $itemObj['siteId'] : Craft::t('app', 'Gobal');
+                                    if (!$itemErrors) {
+                                        $itemErrors = [
+                                            'route' => [
+                                                Architect::t('Failed to save Route.')
+                                            ]
+                                        ];
                                     }
                                 }
                             } else {
@@ -223,6 +254,11 @@ class ArchitectService extends Component
                                 'name' => $itemObj,
                                 'id' => $item->id
                             ];
+                        } else if ($parseKey === 'routes') {
+                            $importObj[$parseKey][$itemKey] = [
+                                'name' => 'Route',
+                                'uid' => $item['uid']
+                            ];
                         } else {
                             $importObj[$parseKey][$itemKey]['id'] = $item->id;
                         }
@@ -230,12 +266,10 @@ class ArchitectService extends Component
                             $addedEntryTypes[] =  Craft::$app->sections->getSectionById((int) $item->sectionId)->handle . ':' . $item->handle;
                         }
                         switch ($parseKey) {
-                            case 'fields':
-                                $successful[$parseKey][] = $itemKey;
-                                break;
                             case 'sections':
                                 $successful[$parseKey][] = $item->handle;
                                 break;
+                            case 'fields':
                             case 'volumes':
                             case 'tagGroups':
                             case 'categoryGroups':
@@ -260,7 +294,7 @@ class ArchitectService extends Component
          */
         foreach ($postProcessFieldLayouts as $parseKey) {
             if (isset($importObj[$parseKey]) && \is_array($importObj[$parseKey])) {
-                foreach($successful[$parseKey] as $volumeHandle => $itemKey) {
+                foreach($successful[$parseKey] as $itemKey) {
                     $itemObj = $importObj[$parseKey][$itemKey];
                     Architect::$processors->$parseKey->setFieldLayout($itemObj);
                 }
@@ -318,7 +352,7 @@ class ArchitectService extends Component
         if (isset($importObj['buildOrder']) && \is_array($importObj['buildOrder'])) {
             foreach ($importObj['buildOrder'] as $filename) {
                 $importData = file_get_contents(Architect::$configPath . DIRECTORY_SEPARATOR . $filename);
-                list($fileParseError, $fileNoErrors, $fileBackup, $fileResults) = $this->import($importData, false, $update);
+                list($fileParseError, $fileNoErrors, , $fileResults) = $this->import($importData, false, $update);
                 if ($fileParseError) {
                     $results['buildOrder'][] = [
                         'item' => false,

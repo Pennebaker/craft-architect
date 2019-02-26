@@ -46,5 +46,7 @@ return [
     'Allow updating existing items.' => 'Allow updating existing items.',
     'Import Results' => 'Import Results',
     'Update existing ' => 'Update existing ',
-    'This is the json/yaml data that was submitted.' => 'This is the json/yaml data that was submitted.'
+    'This is the json/yaml data that was submitted.' => 'This is the json/yaml data that was submitted.',
+    'Route already exists.' => 'Route already exists.',
+    'Failed to save Route.' => 'Failed to save Route.',
 ];
