@@ -49,7 +49,11 @@ class ArchitectVariable
         foreach ($importObj as $type => &$obj) {
             foreach ($obj as &$item) {
                 if (is_array($item)) {
-                    $item = $item['name'];
+                    if ($type === 'routes') {
+                        $item = Architect::createRouteUriDisplay($item['uriParts']);
+                    } else {
+                        $item = $item['name'];
+                    }
                 }
             }
             unset($item);

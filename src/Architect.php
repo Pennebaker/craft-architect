@@ -185,6 +185,41 @@ class Architect extends Plugin
         return $uriPattern;
     }
 
+    public static function createRouteUriDisplay($uriParts)
+    {
+        // Compile the URI parts into a regex pattern
+        $uriPattern = '';
+        $uriParts = array_filter($uriParts);
+        $subpatternNameCounts = [];
+
+        foreach ($uriParts as $part) {
+            if (is_string($part)) {
+                $uriPattern .= $part;
+            } else if (is_array($part)) {
+                // Is the name a valid handle?
+                if (preg_match('/^[a-zA-Z]\w*$/', $part[0])) {
+                    $subpatternName = $part[0];
+                } else {
+                    $subpatternName = 'any';
+                }
+
+                // Make sure it's unique
+                if (isset($subpatternNameCounts[$subpatternName])) {
+                    $subpatternNameCounts[$subpatternName]++;
+
+                    // Append the count to the end of the name
+                    $subpatternName .= $subpatternNameCounts[$subpatternName];
+                } else {
+                    $subpatternNameCounts[$subpatternName] = 1;
+                }
+
+                // Add the var as a named subpattern
+                $uriPattern .= "<{$subpatternName}>";
+            }
+        }
+        return $uriPattern;
+    }
+
     public static function routeExists(array $uriParts, string $template, string $siteUid = null)
     {
         foreach (Craft::$app->getProjectConfig()->get('routes') as $routeUid => $route) {

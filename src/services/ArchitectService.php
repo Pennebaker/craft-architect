@@ -129,7 +129,7 @@ class ArchitectService extends Component
                 $results[$parseKey] = [];
                 foreach ($importObj[$parseKey] as $itemKey => $itemObj) {
                     try {
-                        if ($update) {
+                        if ($update && $parseKey === 'fields') {
                             $itemErrors = Architect::$processors->$parseKey->update($itemObj);
                             $results[$parseKey][] = [
                                 'item' => false,
