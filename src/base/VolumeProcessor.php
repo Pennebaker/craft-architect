@@ -48,7 +48,7 @@ class VolumeProcessor extends Processor
             'name' => $item['name'],
             'handle' => $item['handle'],
             'hasUrls' => $item['hasUrls'],
-            'url' => $item['url'],
+            'url' => $item['hasUrls'] ? $item['url'] : null,
             'settings' => $item['settings'],
         ]);
         $fieldLayout = new FieldLayout();
