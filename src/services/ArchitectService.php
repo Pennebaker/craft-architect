@@ -135,14 +135,14 @@ class ArchitectService extends Component
                 $results[$parseKey] = [];
                 foreach ($importObj[$parseKey] as $itemKey => $itemObj) {
                     try {
-                        if ($update && \in_array('fields', $updateSupport)) {
+                        if ($update && \in_array('fields', $updateSupport, true)) {
                             $itemErrors = Architect::$processors->$parseKey->update($itemObj);
-                            $results[$parseKey][] = [
-                                'item' => false,
-                                'success' => false,
-                                'errors' => $itemErrors,
-                            ];
                             if ($itemErrors) {
+                                $results[$parseKey][] = [
+                                    'item' => false,
+                                    'success' => false,
+                                    'errors' => $itemErrors,
+                                ];
                                 continue;
                             }
                         }
@@ -255,7 +255,7 @@ class ArchitectService extends Component
                         $item = $item ?: $itemObj;
                     }
                     if ($itemSuccess) {
-                        if (\in_array($parseKey, $onlyStrings)) {
+                        if (\in_array($parseKey, $onlyStrings, false)) {
                             $importObj[$parseKey][$itemKey] = [
                                 'name' => $itemObj,
                                 'id' => $item->id
@@ -348,7 +348,7 @@ class ArchitectService extends Component
                 $section = Craft::$app->sections->getSectionByHandle($sectionHandle);
                 $entryTypes = $section->getEntryTypes();
                 foreach ($entryTypes as $entryType) {
-                    if (\in_array($section->handle . ':' . $entryType->handle, $addedEntryTypes) === false) {
+                    if (\in_array($section->handle . ':' . $entryType->handle, $addedEntryTypes, true) === false) {
                         Craft::$app->sections->deleteEntryType($entryType);
                     }
                 }
