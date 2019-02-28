@@ -62,4 +62,26 @@ class ArchitectVariable
 
         return $importObj;
     }
+
+    public function getIcon($key): string
+    {
+        $icons = [
+            'siteGroups' => '@app/icons/world.svg',
+            'sites' => '@app/icons/world.svg',
+            'routes' => '@app/icons/routes.svg',
+            'sections' => '@app/icons/newspaper.svg',
+            'volumes' => '@app/icons/photo.svg',
+            'transforms' => '@app/icons/photo.svg',
+            'tagGroups' => '@app/icons/tags.svg',
+            'categoryGroups' => '@app/icons/folder-open.svg',
+            'userGroups' => '@app/icons/users.svg',
+            'fieldGroups' => '@app/icons/field.svg',
+            'fields' => '@app/icons/field.svg',
+            'entryTypes' => '@app/icons/newspaper.svg',
+            'globalSets' => '@app/icons/globe.svg',
+            'users' => '@app/icons/users.svg',
+            'buildOrder' => '@app/icons/file.svg',
+        ];
+        return $icons[$key];
+    }
 }
