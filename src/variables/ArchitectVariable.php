@@ -80,7 +80,7 @@ class ArchitectVariable
             'entryTypes' => '@app/icons/newspaper.svg',
             'globalSets' => '@app/icons/globe.svg',
             'users' => '@app/icons/users.svg',
-            'buildOrder' => '@app/icons/file.svg',
+            'buildOrder' => '@app/icons/wand.svg',
         ];
         return $icons[$key];
     }

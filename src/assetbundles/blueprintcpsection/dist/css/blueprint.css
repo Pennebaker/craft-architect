@@ -31,10 +31,6 @@
 {
     fill: white;
 }
-.icon--buildOrder svg rect
-{
-    fill: transparent;
-}
 .file.active .file__title
 {
     cursor: n-resize;
