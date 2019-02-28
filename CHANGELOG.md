@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - YAML Support
 - Command Line Importing
-- Build order importing
+- Build Order Importing
 - Route Importing
 - Route Exporting
 

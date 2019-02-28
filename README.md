@@ -50,7 +50,7 @@ You can also use YAML if you prefer.
 
 ## Build Order
 
-This is used to process blueprint files in a specific order. The files to use should be placed in `config/architect`. They can be either a json or yaml file.
+This is used to process blueprint files in a specific order. The files path is in relation to `config/architect`. They can be either a json or yaml file.
 
 ```json
 {
