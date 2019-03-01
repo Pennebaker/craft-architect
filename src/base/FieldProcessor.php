@@ -17,12 +17,12 @@ use craft\base\Field;
 use craft\fields\Date;
 use craft\fields\Matrix;
 use craft\models\FieldLayout;
+use craft\models\MatrixBlockType;
 use craft\helpers\Json;
 use verbb\supertable\fields\SuperTableField;
 use benf\neo\Field as Neo;
 use benf\neo\records\BlockType as NeoBlockType;
 use benf\neo\records\BlockTypeGroup as NeoBlockTypeGroup;
-use verbb\supertable\models\SuperTableBlockTypeModel;
 
 /**
  * FieldProcessor
@@ -162,7 +162,21 @@ class FieldProcessor extends Processor
                 'groupId' => $groupId
             ]);
 
+            if ($item['type'] === Neo::class) {
+                $fieldObject['settings'] = [
+                    'blockTypes' => $fieldObject['blockTypes']
+                ];
+                unset($fieldObject['blockTypes']);
+            }
+
             $field = Craft::$app->fields->createField($fieldObject);
+
+
+            $oldField = Craft::$app->fields->getFieldByHandle('neoTest');
+            foreach ($oldField->getBlockTypes() as $blockType) {
+                $blockType->getFieldLayout();
+            }
+
 
             return [$field, $field->getErrors()];
         }
@@ -280,13 +294,17 @@ class FieldProcessor extends Processor
                     /* @var SuperTableField $field */
                     $itemObj['blockTypes'] = $this->mergeSuperTableBlockTypes($field->getBlockTypes(), $itemObj['blockTypes']);
                     break;
+                case Neo::class:
+                    /* @var Neo $field */
+                    $itemObj['blockTypes'] = $this->mergeNeoBlockTypes($field->getBlockTypes(), $itemObj['blockTypes']);
+                    break;
             }
         }
         return null;
     }
 
     /**
-     * @param array $oldBlockTypes
+     * @param MatrixBlockType[] $oldBlockTypes
      * @param array $newBlockTypes
      *
      * @return array
@@ -299,7 +317,6 @@ class FieldProcessor extends Processor
         $oldHandles = array_map(function($a) { return $a['handle']; }, $oldBlockTypes);
         $updatedBlockTypes = [];
         $newCount = 1;
-        /* @var craft\models\MatrixBlockType[] $oldBlockTypes */
         foreach ($newBlockTypes as $newIndex => $blockType) {
             if (isset($blockType['id'])) {
                 $oldIndex = array_search($blockType['id'], $oldIDs, false);
@@ -354,6 +371,12 @@ class FieldProcessor extends Processor
         return $updatedFields;
     }
 
+    /**
+     * @param array $oldBlockTypes
+     * @param array $newFields
+     *
+     * @return array
+     */
     private function mergeSuperTableBlockTypes(array $oldBlockTypes, array $newFields): array
     {
         $updatedBlockTypes = [];
@@ -361,6 +384,39 @@ class FieldProcessor extends Processor
         $updatedBlockTypes[$blockTypeId] = [];
         $updatedBlockTypes[$blockTypeId]['fields'] = $this->mergeFieldLayout($oldBlockTypes[0]->getFieldLayout(), $newFields);
 
+        return $updatedBlockTypes;
+    }
+
+    /**
+     * @param NeoBlockType[] $oldBlockTypes
+     * @param array $newBlockTypes
+     *
+     * @return array
+     */
+    private function mergeNeoBlockTypes(array $oldBlockTypes, array $newBlockTypes): array
+    {
+        $oldIDs = array_map(function($a) { return $a['id']; }, $oldBlockTypes);
+        $oldHandles = array_map(function($a) { return $a['handle']; }, $oldBlockTypes);
+        $updatedBlockTypes = [];
+        $newCount = 1;
+        foreach ($newBlockTypes as $newIndex => $blockType) {
+            if (isset($blockType['id'])) {
+                $oldIndex = array_search($blockType['id'], $oldIDs, false);
+            } else {
+                $oldIndex = array_search($blockType['handle'], $oldHandles, false);
+            }
+            if ($oldIndex !== false) {
+                $oldId = $oldBlockTypes[$oldIndex]['id'];
+                $updatedBlockTypes[$oldId] = $blockType;
+                $updatedBlockTypes[$oldId]['id'] = $oldId;
+                $updatedBlockTypes[$oldId]['fieldId'] = $oldBlockTypes[$oldIndex]['fieldId'];
+                $updatedBlockTypes[$oldId]['fieldLayoutId'] = $oldBlockTypes[$oldIndex]['fieldLayoutId'];
+
+            } else {
+                $updatedBlockTypes['new' . $newCount] = $blockType;
+                $newCount++;
+            }
+        }
         return $updatedBlockTypes;
     }
 
