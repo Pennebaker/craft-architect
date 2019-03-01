@@ -674,6 +674,7 @@ class FieldProcessor extends Processor
                     $fieldObj['blockTypes'][] = $this->export($blockTypeField, [], true);
                 }
             }
+            unset($fieldObj['contentTable']);
         }
 
         $this->unmapSources($fieldObj);
