@@ -22,6 +22,7 @@ use verbb\supertable\fields\SuperTableField;
 use benf\neo\Field as Neo;
 use benf\neo\records\BlockType as NeoBlockType;
 use benf\neo\records\BlockTypeGroup as NeoBlockTypeGroup;
+use verbb\supertable\models\SuperTableBlockTypeModel;
 
 /**
  * FieldProcessor
@@ -135,13 +136,15 @@ class FieldProcessor extends Processor
             }
             unset($blockType);
         } else if ($item['type'] === SuperTableField::class) {
-            $newBlockTypes = [
-                [
-                    'fields' => $blockTypes
-                ]
-            ];
-            $blockTypes = $newBlockTypes;
-            $this->convertBlockTypesToNew($blockTypes);
+            if (!isset(array_values($blockTypes)[0]['fields'])) {
+                $newBlockTypes = [
+                    [
+                        'fields' => $blockTypes
+                    ]
+                ];
+                $blockTypes = $newBlockTypes;
+                $this->convertBlockTypesToNew($blockTypes);
+            }
             foreach ($blockTypes as $blockKey => &$blockType) {
                 foreach ($blockType['fields'] as $fieldKey => &$field) {
                     $this->mapSources($field);
@@ -270,7 +273,12 @@ class FieldProcessor extends Processor
             }
             switch ($itemObj['type']) {
                 case Matrix::class:
+                    /* @var Matrix $field */
                     $itemObj['blockTypes'] = $this->mergeBlockTypes($field->getBlockTypes(), $itemObj['blockTypes']);
+                    break;
+                case SuperTableField::class:
+                    /* @var SuperTableField $field */
+                    $itemObj['blockTypes'] = $this->mergeSuperTableBlockTypes($field->getBlockTypes(), $itemObj['blockTypes']);
                     break;
             }
         }
@@ -303,6 +311,7 @@ class FieldProcessor extends Processor
                 $newFields = $blockType['fields'];
             } else {
                 $oldFieldLayout = new FieldLayout();
+                $newFields = [];
             }
             $blockType['fields'] = $this->mergeFieldLayout($oldFieldLayout, $newFields);
             if ($oldIndex !== false) {
@@ -343,6 +352,16 @@ class FieldProcessor extends Processor
             }
         }
         return $updatedFields;
+    }
+
+    private function mergeSuperTableBlockTypes(array $oldBlockTypes, array $newFields): array
+    {
+        $updatedBlockTypes = [];
+        $blockTypeId = $oldBlockTypes[0]->id;
+        $updatedBlockTypes[$blockTypeId] = [];
+        $updatedBlockTypes[$blockTypeId]['fields'] = $this->mergeFieldLayout($oldBlockTypes[0]->getFieldLayout(), $newFields);
+
+        return $updatedBlockTypes;
     }
 
     /**
@@ -666,15 +685,18 @@ class FieldProcessor extends Processor
             if ($useTypeSettings) {
                 $fieldObj['typesettings']['blockTypes'] = [];
                 foreach ($item->getBlockTypeFields() as $blockTypeField) {
-                    $fieldObj['typesettings']['blockTypes'][] = $this->export($blockTypeField, [], true);
+                    $fieldObj['typesettings']['blockTypes'][] = $this->export($blockTypeField, [ 'required' ], true);
                 }
             } else {
                 $fieldObj['blockTypes'] = [];
                 foreach ($item->getBlockTypeFields() as $blockTypeField) {
-                    $fieldObj['blockTypes'][] = $this->export($blockTypeField, [], true);
+                    $fieldObj['blockTypes'][] = $this->export($blockTypeField, [ 'required' ], true);
                 }
             }
-            unset($fieldObj['contentTable']);
+            unset(
+                $fieldObj['contentTable'], // SuperTable will auto-generate this for us.
+                $fieldObj['columns'] // Cannot be set during first save, so we wont export this for now.
+            );
         }
 
         $this->unmapSources($fieldObj);
