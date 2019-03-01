@@ -171,13 +171,6 @@ class FieldProcessor extends Processor
 
             $field = Craft::$app->fields->createField($fieldObject);
 
-
-            $oldField = Craft::$app->fields->getFieldByHandle('neoTest');
-            foreach ($oldField->getBlockTypes() as $blockType) {
-                $blockType->getFieldLayout();
-            }
-
-
             return [$field, $field->getErrors()];
         }
         if ($subField) {
