@@ -5,12 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.3.0] - 2019-03-04
 ### Added
 - YAML Support
 - Command Line Importing
 - Build Order Importing
 - Route Importing
 - Route Exporting
+- Import and Update Fields
 
 ## [2.2.12] - 2019-01-24
 ### Fixed
@@ -168,7 +171,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.2.12...develop
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.3.0...develop
+[2.3.0]: https://github.com/pennebaker/craft-architect/compare/2.2.12...2.3.0
 [2.2.12]: https://github.com/pennebaker/craft-architect/compare/2.2.11...2.2.12
 [2.2.11]: https://github.com/pennebaker/craft-architect/compare/2.2.10...2.2.11
 [2.2.10]: https://github.com/pennebaker/craft-architect/compare/2.2.9...2.2.10
