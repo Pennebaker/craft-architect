@@ -43,6 +43,7 @@ class ImportController extends Controller
 
     /**
      * Import a json/yaml file structure.
+     * ./craft architect/import
      *
      * @param string $filename
      *
@@ -54,7 +55,39 @@ class ImportController extends Controller
      */
     public function actionIndex($filename): int
     {
-        list($parseError, , , $results) = Architect::$plugin->architectService->import(file_get_contents($filename), false);
+        return $this->import($filename);
+    }
+
+    /**
+     * Import a json/yaml file structure updating any existing elements. (Only fields will update at this time)
+     * ./craft architect/import/update
+     *
+     * @param string $filename
+     *
+     * @return int
+     *
+     * @throws \Throwable
+     * @throws \craft\errors\ShellCommandException
+     * @throws \yii\base\Exception
+     */
+    public function actionUpdate($filename): int
+    {
+        return $this->import($filename, true);
+    }
+
+    /**
+     * @param string $filename
+     * @param bool $update
+     *
+     * @return int
+     *
+     * @throws \Throwable
+     * @throws \craft\errors\ShellCommandException
+     * @throws \yii\base\Exception
+     */
+    private function import($filename, $update = false): int
+    {
+        list($parseError, , , $results) = Architect::$plugin->architectService->import(file_get_contents($filename), false, $update);
 
         if ($parseError) {
             $this->stdout('JSON: ', Console::FG_RED);
