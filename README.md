@@ -68,6 +68,7 @@ Visit architect in the admin CP for importing / exporting just about anything us
 Current Working Imports:
 - Site Groups
 - Sites
+- Routes
 - Sections
 - Entry Types
 - Asset Volumes
@@ -77,6 +78,8 @@ Current Working Imports:
 - Field Groups
 - Fields
 - Global Sets
+- User Groups
+- Users
 
 Current Working Import and Update:
 - Fields
@@ -84,6 +87,7 @@ Current Working Import and Update:
 Current Working Exports:
 - Site Groups
 - Sites
+- Routes
 - Sections
 - Entry Types
 - Asset Volumes
@@ -93,6 +97,8 @@ Current Working Exports:
 - Field Groups
 - Fields
 - Global Sets
+- User Groups
+- Users
 
 ## Architect Roadmap
 
@@ -118,8 +124,9 @@ Some things to do, and ideas for potential features:
 - Build order importing
 - Import and Update Fields
 
-[2.4.0] ***brainstorming***
-- Import and Update
-- Store with field and section layouts?
+[2.4.0 and later] ***brainstorming***
+- Import and Update (Non Fields)
+- Commerce Support
+- Store for sharing blueprints
 
 Brought to you by [Pennebaker](https://pennebaker.com)
