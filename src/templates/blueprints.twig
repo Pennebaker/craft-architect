@@ -1,0 +1,63 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Architect plugin for Craft CMS 3.x
+ *
+ * Architect import.twig
+ *
+ * @author    Pennebaker
+ * @copyright Copyright (c) 2018 Pennebaker
+ * @link      https://pennebaker.com
+ * @package   Architect
+ * @since     2.0.0
+ */
+#}
+
+{% extends "architect/_layouts/base" %}
+
+{% set selectedSubnavItem = 'blueprints' %}
+
+{% do view.registerAssetBundle("pennebaker\\architect\\assetbundles\\blueprintcpsection\\BlueprintCPSectionAsset") %}
+
+{# The content of the CP Section #}
+{% set content %}
+    <h2>{{ "Blueprints"|t('app') }}</h2>
+    {% spaceless %}
+    {% for file in files %}
+        <div class="file">
+            <div class="file__title"><a href="{{ cpUrl('architect/import', { 'file': file }) }}">{{ file }}</a></div>
+            <div class="file__content">
+                {% for group, items in craft.architect.getData(file) %}
+                    <div class="section">
+                        <div class="section__title"><span class="icon icon--{{ group }}">{{ svg(craft.architect.getIcon(group), sanitize=true, namespace=true) }}</span><span>{{ group }}</span></div>
+                        <div class="section__content">
+                            {% for item in items %}
+                                    <div class="section__item">{{ item }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {#
+        <div class="fld-tabs">
+            {% for group, items in craft.architect.getData(file) %}
+                <div class="fld-tab unused">
+                    <div class="tabs">
+                        <div class="tab sel"><span class="icon">{{ svg(craft.architect.getIcon(group), sanitize=true, namespace=true) }}</span><span>{{ group }}</span></div>
+                    </div>
+                    <div class="fld-tabcontent">
+                        {% for item in items %}
+                            <div class="fld-field unused">
+                                <span title="{{ item }}">{{ item }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <br clear="all">
+        #}
+    {% endfor %}
+    {% endspaceless %}
+{% endset %}

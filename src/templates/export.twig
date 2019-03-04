@@ -27,6 +27,10 @@
         label: 'Sections'|t('app')
     },
     {
+        url: '#tab-routes',
+        label: 'Routes'|t('app')
+    },
+    {
         url: '#tab-fields',
         label: 'Fields'|t('app')
     },
@@ -72,6 +76,9 @@
                 <div id="tab-sections" class="hidden">
                     {% include'architect/_blueprints/sections' %}
                 </div>
+                <div id="tab-routes" class="hidden">
+                    {% include'architect/_blueprints/routes' %}
+                </div>
                 <div id="tab-fields" class="hidden">
                     {% include'architect/_blueprints/fields' %}
                 </div>
@@ -98,5 +105,5 @@
                 {% endif %}
             </div>
         </div>
-    </form>
+    </div>
 {% endset %}

@@ -11,16 +11,17 @@
 namespace pennebaker\architect\base;
 
 use Craft;
-use craft\models\UserGroup;
+use craft\records\Route;
+use pennebaker\architect\Architect;
 
 /**
- * SiteProcessor
+ * SectionProcessor
  *
  * @author    Pennebaker
  * @package   Architect
  * @since     2.0.0
  */
-class UserGroupProcessor extends Processor
+class RouteProcessor extends Processor
 {
     /**
      * Returns the object of parsed data.
@@ -31,9 +32,15 @@ class UserGroupProcessor extends Processor
      */
     public function parse(array $item): array
     {
-        unset($item['permissions']);
-        $userGroup = new UserGroup($item);
-        return [$userGroup, $userGroup->getErrors()];
+        $siteUid = null;
+        try {
+            $site = Craft::$app->sites->getSiteByHandle($item['siteId']);
+            $siteUid = $site->uid;
+        } catch (\Exception $e) {}
+        return [
+            [ $item['uriParts'], $item['template'], $siteUid ],
+            false
+        ];
     }
 
     /**
@@ -42,13 +49,15 @@ class UserGroupProcessor extends Processor
      * @param mixed $item The item to save
      * @param bool $update The item to save
      *
-     * @return bool|object
-     *
-     * @throws \craft\errors\WrongEditionException
+     * @return mixed
      */
-    public function save($item, bool $update = false)
+    public function save($item, bool $update)
     {
-        return Craft::$app->userGroups->saveGroup($item);
+        $routeUid = Craft::$app->routes->saveRoute(...$item);
+        if ($routeUid) {
+            return Architect::getRouteByUid($routeUid);
+        }
+        return false;
     }
 
     /**
@@ -61,31 +70,24 @@ class UserGroupProcessor extends Processor
      */
     public function export($item, array $extraAttributes = [])
     {
-        /** @var UserGroup $item */
         $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)));
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes('route'));
         foreach($extraAttributes as $attribute) {
-            if ($attribute === 'propagateEntries') {
-                $attributeObj[$attribute] = (bool) $item->$attribute;
-            } else {
-                $attributeObj[$attribute] = $item->$attribute;
-            }
+            $attributeObj[$attribute] = $item->$attribute;
         }
 
-        $userObj = array_merge([
-            'name' => $item->name,
-            'handle' => $item->handle,
-            'permissions' => [],
+        $routeObj = array_merge([
+            'template' => $item['template'],
+            'uriParts' => $item['uriParts'],
         ], $attributeObj);
 
-        $permissions = Craft::$app->userPermissions->getPermissionsByGroupId($item->id);
-        foreach ($permissions as $permission) {
-            $userObj['permissions'][] = $permission;
+        if ($item['siteUid']) {
+            try {
+                $routeObj['siteId'] = Craft::$app->sites->getSiteByUid($item['siteUid'])->handle;
+            } catch (\craft\errors\SiteNotFoundException $e) {}
         }
 
-        $this->unmapPermissions($userObj['permissions']);
-
-        return $this->stripNulls($userObj);
+        return $this->stripNulls($routeObj);
     }
 
     /**
@@ -97,8 +99,7 @@ class UserGroupProcessor extends Processor
      */
     public function exportById($id)
     {
-        $userGroup = Craft::$app->userGroups->getGroupById($id);
-        return $this->export($userGroup);
+        // TODO: Implement exportById() method.
     }
 
     /**
@@ -110,6 +111,6 @@ class UserGroupProcessor extends Processor
      */
     public function exportByUid($uid)
     {
-        // TODO: Implement exportByUid() method.
+        return $this->export(Architect::getRouteByUid($uid));
     }
 }

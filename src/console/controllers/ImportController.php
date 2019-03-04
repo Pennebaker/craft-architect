@@ -12,12 +12,9 @@ namespace pennebaker\architect\console\controllers;
 
 use pennebaker\architect\Architect;
 
-use Craft;
+use craft\helpers\Console;
 use yii\console\Controller;
-use yii\helpers\Console;
-
-use Symfony\Component\Yaml\Yaml;
-use Symfony\Component\Yaml\Exception\ParseException;
+use yii\console\ExitCode;
 
 /**
  * Default Command
@@ -45,54 +42,76 @@ class ImportController extends Controller
     // =========================================================================
 
     /**
-     * Import a json file structure.
+     * Import a json/yaml file structure.
+     * ./craft architect/import
      *
      * @param string $filename
+     *
+     * @return int
+     *
+     * @throws \Throwable
+     * @throws \craft\errors\ShellCommandException
+     * @throws \yii\base\Exception
      */
-    public function actionIndex($filename)
+    public function actionIndex($filename): int
     {
-        echo "Welcome to the console ImportController actionIndex() method\n";
+        return $this->import($filename);
     }
 
     /**
-     * Import a yaml file structure.
+     * Import a json/yaml file structure updating any existing elements. (Only fields will update at this time)
+     * ./craft architect/import/update
      *
      * @param string $filename
+     *
+     * @return int
+     *
+     * @throws \Throwable
+     * @throws \craft\errors\ShellCommandException
+     * @throws \yii\base\Exception
      */
-    public function actionYaml($filename)
+    public function actionUpdate($filename): int
     {
-		try {
-			$data = Yaml::parse(file_get_contents($filename));
-		} catch (ParseException $exception) {
-			printf("unable to parse the YAML file provided: %s", $exception->getMessage());
-		}
+        return $this->import($filename, true);
+    }
 
-		//remove yaml templates
-	    foreach ($data as $key => $value) {
-			if ($key[0] == ".") {
-				unset($data->{$key});
-			}
-		};
+    /**
+     * @param string $filename
+     * @param bool $update
+     *
+     * @return int
+     *
+     * @throws \Throwable
+     * @throws \craft\errors\ShellCommandException
+     * @throws \yii\base\Exception
+     */
+    private function import($filename, $update = false): int
+    {
+        list($parseError, , , $results) = Architect::$plugin->architectService->import(file_get_contents($filename), false, $update);
 
-		$dataAsJson = json_encode($data);
+        if ($parseError) {
+            $this->stdout('JSON: ', Console::FG_RED);
+            $this->stdout($results[0] . PHP_EOL);
+            $this->stdout('YAML: ', Console::FG_RED);
+            $this->stdout($results[1] . PHP_EOL);
 
-		list($jsonError, $noErrors, $backup, $results) = Architect::$plugin->architectService->import($dataAsJson, false);
+            return ExitCode::DATAERR;
+        }
 
-		if ($jsonError) {
-			printf("invalid json: %s", json_last_error());
-			return;
-		}
+        foreach ($results as $value) {
+            foreach ($value as $item) {
+                if ($item['success'] === true) {
+                    $this->stdout("Success: \n", Console::FG_GREEN);
+                    $this->stdout('- ' . get_class($item['item']) . ' ' . $item['item']['name'] . PHP_EOL);
+                } else {
+                    $this->stdout("Error: \n", Console::FG_RED);
+                    foreach ($item['errors'] as $err) {
+                        $this->stdout('- ' . $err[0] . PHP_EOL);
+                    }
+                }
+            }
+        }
 
-		foreach ($results as $value) {
-			foreach ($value as $item) {
-				if ($item['success'] != true) {
-					foreach ($item['errors'] as $err) {
-						printf("Error: %s\n", $err[0]);
-					}
-				}
-			}
-		}
-
-		return 1;
+        return ExitCode::OK;
     }
 }

@@ -47,8 +47,8 @@
                     </tr>
                     {% for result in typeResults %}
                         <tr>
-                            <td>{{ (result.item.name is defined) ? result.item.name : result.item.email }}</td>
-                            <td class="code">{{ ('handle' in result.item|keys) ? result.item.handle : '' }}</td>
+                            <td>{{ (result.item.name is defined) ? result.item.name : (result.item.siteId is defined) ? result.item.siteId : '' }}</td>
+                            <td class="code">{{ ('handle' in result.item|keys) ? result.item.handle : ('uriPattern' in result.item|keys) ? result.item.uriPattern : '' }}</td>
                             <td>
                                 <ul class="error-list code">
                                     {% for type, errors in result.errors %}
@@ -70,12 +70,12 @@
 
             {{ forms.textareaField({
                 label: "JSON Data"|t('architect'),
-                instructions: "This is the json data that was submitted."|t('architect'),
-                id: 'jsonData',
+                instructions: "This is the json/yaml data that was submitted."|t('architect'),
+                id: 'importData',
                 class: 'code',
-                value: jsonData,
+                value: importData,
                 readonly: true,
-                name: 'jsonData',
+                name: 'importData',
                 rows: 30
             }) }}
         </div>

@@ -2,7 +2,7 @@
 /**
  * Architect plugin for Craft CMS 3.x
  *
- * CraftCMS plugin to generate content models from JSON data.
+ * CraftCMS plugin to generate content models from JSON/YAML data.
  *
  * @link      https://pennebaker.com
  * @copyright Copyright (c) 2018 Pennebaker
@@ -133,5 +133,17 @@ class UserProcessor extends Processor
     {
         $user = Craft::$app->users->getUserById($id);
         return $this->export($user);
+    }
+
+    /**
+     * Gets an object from the passed in UID for export.
+     *
+     * @param $uid
+     *
+     * @return mixed
+     */
+    public function exportByUid($uid)
+    {
+        // TODO: Implement exportByUid() method.
     }
 }

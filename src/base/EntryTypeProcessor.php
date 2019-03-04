@@ -2,7 +2,7 @@
 /**
  * Architect plugin for Craft CMS 3.x
  *
- * CraftCMS plugin to generate content models from JSON data.
+ * CraftCMS plugin to generate content models from JSON/YAML data.
  *
  * @link      https://pennebaker.com
  * @copyright Copyright (c) 2018 Pennebaker
@@ -128,5 +128,17 @@ class EntryTypeProcessor extends Processor
         $entryType = Craft::$app->sections->getEntryTypeById((int) $id);
 
         return $this->export($entryType);
+    }
+
+    /**
+     * Gets an object from the passed in UID for export.
+     *
+     * @param $uid
+     *
+     * @return mixed
+     */
+    public function exportByUid($uid)
+    {
+        // TODO: Implement exportByUid() method.
     }
 }

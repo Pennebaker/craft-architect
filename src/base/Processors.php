@@ -2,7 +2,7 @@
 /**
  * Architect plugin for Craft CMS 3.x
  *
- * CraftCMS plugin to generate content models from JSON data.
+ * CraftCMS plugin to generate content models from JSON/YAML data.
  *
  * @link      https://pennebaker.com
  * @copyright Copyright (c) 2018 Pennebaker
@@ -23,6 +23,7 @@ class Processors
     public $siteGroups;
     public $sites;
     public $sections;
+    public $routes;
     public $entryTypes;
     public $volumes;
     public $transforms;
@@ -39,6 +40,7 @@ class Processors
         $this->siteGroups = new SiteGroupProcessor();
         $this->sites = new SiteProcessor();
         $this->sections = new SectionProcessor();
+        $this->routes = new RouteProcessor();
         $this->entryTypes = new EntryTypeProcessor();
         $this->volumes = new VolumeProcessor();
         $this->transforms = new TransformProcessor();

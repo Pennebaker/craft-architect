@@ -1,8 +1,8 @@
 {
     "name": "pennebaker/craft-architect",
-    "description": "CraftCMS plugin to generate content models from JSON data.",
+    "description": "CraftCMS plugin to generate content models from JSON/YAML data.",
     "type": "craft-plugin",
-    "version": "2.2.12",
+    "version": "2.3.0",
     "keywords": [
         "craft",
         "cms",
@@ -23,7 +23,7 @@
     ],
     "require": {
         "ext-json": "*",
-        "craftcms/cms": "^3.1.0",
+        "craftcms/cms": "^3.1",
         "symfony/yaml": "^4.1"
     },
     "autoload": {

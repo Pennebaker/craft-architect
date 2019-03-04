@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2018 Pennebaker
  */
 
-namespace pennebaker\architect\assetbundles\indexcpsection;
+namespace pennebaker\architect\assetbundles\blueprintcpsection;
 
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
@@ -31,7 +31,7 @@ use craft\web\assets\cp\CpAsset;
  * @package   Architect
  * @since     2.0.0
  */
-class IndexCPSectionAsset extends AssetBundle
+class BlueprintCPSectionAsset extends AssetBundle
 {
     // Public Methods
     // =========================================================================
@@ -42,7 +42,7 @@ class IndexCPSectionAsset extends AssetBundle
     public function init()
     {
         // define the path that your publishable resources live
-        $this->sourcePath = "@pennebaker/architect/assetbundles/indexcpsection/dist";
+        $this->sourcePath = "@pennebaker/architect/assetbundles/blueprintcpsection/dist";
 
         // define the dependencies
         $this->depends = [
@@ -52,13 +52,11 @@ class IndexCPSectionAsset extends AssetBundle
         // define the relative path to CSS/JS files that should be registered with the page
         // when this asset bundle is registered
         $this->js = [
-            'js/Index.js',
-            'js/clipboard.min.js',
-            'js/diff.min.js',
+            'js/Blueprint.js',
         ];
 
         $this->css = [
-            'css/Index.css',
+            'css/blueprint.css',
         ];
 
         parent::init();

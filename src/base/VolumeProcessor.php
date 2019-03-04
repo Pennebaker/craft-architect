@@ -2,7 +2,7 @@
 /**
  * Architect plugin for Craft CMS 3.x
  *
- * CraftCMS plugin to generate content models from JSON data.
+ * CraftCMS plugin to generate content models from JSON/YAML data.
  *
  * @link      https://pennebaker.com
  * @copyright Copyright (c) 2018 Pennebaker
@@ -48,7 +48,7 @@ class VolumeProcessor extends Processor
             'name' => $item['name'],
             'handle' => $item['handle'],
             'hasUrls' => $item['hasUrls'],
-            'url' => $item['url'],
+            'url' => $item['hasUrls'] ? $item['url'] : null,
             'settings' => $item['settings'],
         ]);
         $fieldLayout = new FieldLayout();
@@ -137,5 +137,17 @@ class VolumeProcessor extends Processor
         $volume = Craft::$app->volumes->getVolumeById((int) $id);
 
         return $this->export($volume);
+    }
+
+    /**
+     * Gets an object from the passed in UID for export.
+     *
+     * @param $uid
+     *
+     * @return mixed
+     */
+    public function exportByUid($uid)
+    {
+        // TODO: Implement exportByUid() method.
     }
 }

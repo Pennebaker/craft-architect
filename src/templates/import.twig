@@ -28,13 +28,13 @@
 {% set content %}
     <h2>{{ "Import"|t('architect') }}</h2>
 
-    {#{% if jsonData is not defined %}#}
-        {#{% set jsonData = source('architect/test.json') %}#}
+    {#{% if importData is not defined %}#}
+        {#{% set importData = source('architect/test.json') %}#}
     {#{% endif %}#}
 
-    {% if invalidJson %}
+    {% if invalidJSON %}
         <p class="error">JSON:
-            {% switch invalidJson -%}
+            {% switch invalidJSON -%}
                 {%- case 1 -%}
                     {{ "The maximum stack depth has been exceeded."|t('architect') }}
                 {%- case 2 -%}
@@ -49,6 +49,7 @@
                     {{ "One or more recursive references in the value to be encoded."|t('architect') }}
             {%- endswitch -%}
         </p>
+        <p class="error">YAML: {{ invalidYAML }}</p>
     {% endif %}
 
     {{ forms.checkboxField({
@@ -60,12 +61,12 @@
     }) }}
 
     {{ forms.textareaField({
-        label: "JSON Data"|t('architect'),
-        instructions: "Put your json import data here."|t('architect'),
-        id: 'jsonData',
+        label: "JSON/YAML Data"|t('architect'),
+        instructions: "Put your json/yaml import data here."|t('architect'),
+        id: 'importData',
         class: 'code',
-        name: 'jsonData',
-        value: (jsonData is defined) ? jsonData : '',
+        name: 'importData',
+        value: (importData is defined) ? importData : '',
         rows: 30
     }) }}
 

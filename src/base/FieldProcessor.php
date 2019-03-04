@@ -2,7 +2,7 @@
 /**
  * Architect plugin for Craft CMS 3.x
  *
- * CraftCMS plugin to generate content models from JSON data.
+ * CraftCMS plugin to generate content models from JSON/YAML data.
  *
  * @link      https://pennebaker.com
  * @copyright Copyright (c) 2018 Pennebaker
@@ -17,10 +17,10 @@ use craft\base\Field;
 use craft\fields\Date;
 use craft\fields\Matrix;
 use craft\models\FieldLayout;
+use craft\models\MatrixBlockType;
 use craft\helpers\Json;
 use verbb\supertable\fields\SuperTableField;
 use benf\neo\Field as Neo;
-use benf\neo\elements\Block as NeoBlock;
 use benf\neo\records\BlockType as NeoBlockType;
 use benf\neo\records\BlockTypeGroup as NeoBlockTypeGroup;
 
@@ -136,13 +136,15 @@ class FieldProcessor extends Processor
             }
             unset($blockType);
         } else if ($item['type'] === SuperTableField::class) {
-            $newBlockTypes = [
-                [
-                    'fields' => $blockTypes
-                ]
-            ];
-            $blockTypes = $newBlockTypes;
-            $this->convertBlockTypesToNew($blockTypes);
+            if (!isset(array_values($blockTypes)[0]['fields'])) {
+                $newBlockTypes = [
+                    [
+                        'fields' => $blockTypes
+                    ]
+                ];
+                $blockTypes = $newBlockTypes;
+                $this->convertBlockTypesToNew($blockTypes);
+            }
             foreach ($blockTypes as $blockKey => &$blockType) {
                 foreach ($blockType['fields'] as $fieldKey => &$field) {
                     $this->mapSources($field);
@@ -159,6 +161,13 @@ class FieldProcessor extends Processor
             $fieldObject = array_merge($item, [
                 'groupId' => $groupId
             ]);
+
+            if ($item['type'] === Neo::class) {
+                $fieldObject['settings'] = [
+                    'blockTypes' => $fieldObject['blockTypes']
+                ];
+                unset($fieldObject['blockTypes']);
+            }
 
             $field = Craft::$app->fields->createField($fieldObject);
 
@@ -271,7 +280,16 @@ class FieldProcessor extends Processor
             }
             switch ($itemObj['type']) {
                 case Matrix::class:
+                    /* @var Matrix $field */
                     $itemObj['blockTypes'] = $this->mergeBlockTypes($field->getBlockTypes(), $itemObj['blockTypes']);
+                    break;
+                case SuperTableField::class:
+                    /* @var SuperTableField $field */
+                    $itemObj['blockTypes'] = $this->mergeSuperTableBlockTypes($field->getBlockTypes(), $itemObj['blockTypes']);
+                    break;
+                case Neo::class:
+                    /* @var Neo $field */
+                    $itemObj['blockTypes'] = $this->mergeNeoBlockTypes($field->getBlockTypes(), $itemObj['blockTypes']);
                     break;
             }
         }
@@ -279,7 +297,7 @@ class FieldProcessor extends Processor
     }
 
     /**
-     * @param array $oldBlockTypes
+     * @param MatrixBlockType[] $oldBlockTypes
      * @param array $newBlockTypes
      *
      * @return array
@@ -292,15 +310,19 @@ class FieldProcessor extends Processor
         $oldHandles = array_map(function($a) { return $a['handle']; }, $oldBlockTypes);
         $updatedBlockTypes = [];
         $newCount = 1;
-        /* @var craft\models\MatrixBlockType[] $oldBlockTypes */
         foreach ($newBlockTypes as $newIndex => $blockType) {
             if (isset($blockType['id'])) {
                 $oldIndex = array_search($blockType['id'], $oldIDs, false);
             } else {
                 $oldIndex = array_search($blockType['handle'], $oldHandles, false);
             }
-            $oldFieldLayout = $oldBlockTypes[$oldIndex]->getFieldLayout();
-            $newFields = $blockType['fields'];
+            if ($oldIndex !== false) {
+                $oldFieldLayout = $oldBlockTypes[$oldIndex]->getFieldLayout();
+                $newFields = $blockType['fields'];
+            } else {
+                $oldFieldLayout = new FieldLayout();
+                $newFields = [];
+            }
             $blockType['fields'] = $this->mergeFieldLayout($oldFieldLayout, $newFields);
             if ($oldIndex !== false) {
                 $updatedBlockTypes[$oldBlockTypes[$oldIndex]['id']] = $blockType;
@@ -340,6 +362,55 @@ class FieldProcessor extends Processor
             }
         }
         return $updatedFields;
+    }
+
+    /**
+     * @param array $oldBlockTypes
+     * @param array $newFields
+     *
+     * @return array
+     */
+    private function mergeSuperTableBlockTypes(array $oldBlockTypes, array $newFields): array
+    {
+        $updatedBlockTypes = [];
+        $blockTypeId = $oldBlockTypes[0]->id;
+        $updatedBlockTypes[$blockTypeId] = [];
+        $updatedBlockTypes[$blockTypeId]['fields'] = $this->mergeFieldLayout($oldBlockTypes[0]->getFieldLayout(), $newFields);
+
+        return $updatedBlockTypes;
+    }
+
+    /**
+     * @param NeoBlockType[] $oldBlockTypes
+     * @param array $newBlockTypes
+     *
+     * @return array
+     */
+    private function mergeNeoBlockTypes(array $oldBlockTypes, array $newBlockTypes): array
+    {
+        $oldIDs = array_map(function($a) { return $a['id']; }, $oldBlockTypes);
+        $oldHandles = array_map(function($a) { return $a['handle']; }, $oldBlockTypes);
+        $updatedBlockTypes = [];
+        $newCount = 1;
+        foreach ($newBlockTypes as $newIndex => $blockType) {
+            if (isset($blockType['id'])) {
+                $oldIndex = array_search($blockType['id'], $oldIDs, false);
+            } else {
+                $oldIndex = array_search($blockType['handle'], $oldHandles, false);
+            }
+            if ($oldIndex !== false) {
+                $oldId = $oldBlockTypes[$oldIndex]['id'];
+                $updatedBlockTypes[$oldId] = $blockType;
+                $updatedBlockTypes[$oldId]['id'] = $oldId;
+                $updatedBlockTypes[$oldId]['fieldId'] = $oldBlockTypes[$oldIndex]['fieldId'];
+                $updatedBlockTypes[$oldId]['fieldLayoutId'] = $oldBlockTypes[$oldIndex]['fieldLayoutId'];
+
+            } else {
+                $updatedBlockTypes['new' . $newCount] = $blockType;
+                $newCount++;
+            }
+        }
+        return $updatedBlockTypes;
     }
 
     /**
@@ -663,14 +734,18 @@ class FieldProcessor extends Processor
             if ($useTypeSettings) {
                 $fieldObj['typesettings']['blockTypes'] = [];
                 foreach ($item->getBlockTypeFields() as $blockTypeField) {
-                    $fieldObj['typesettings']['blockTypes'][] = $this->export($blockTypeField, [], true);
+                    $fieldObj['typesettings']['blockTypes'][] = $this->export($blockTypeField, [ 'required' ], true);
                 }
             } else {
                 $fieldObj['blockTypes'] = [];
                 foreach ($item->getBlockTypeFields() as $blockTypeField) {
-                    $fieldObj['blockTypes'][] = $this->export($blockTypeField, [], true);
+                    $fieldObj['blockTypes'][] = $this->export($blockTypeField, [ 'required' ], true);
                 }
             }
+            unset(
+                $fieldObj['contentTable'], // SuperTable will auto-generate this for us.
+                $fieldObj['columns'] // Cannot be set during first save, so we wont export this for now.
+            );
         }
 
         $this->unmapSources($fieldObj);
@@ -699,5 +774,17 @@ class FieldProcessor extends Processor
     {
         $field = Craft::$app->fields->getFieldByHandle($handle);
         return $this->export($field);
+    }
+
+    /**
+     * Gets an object from the passed in UID for export.
+     *
+     * @param $uid
+     *
+     * @return mixed
+     */
+    public function exportByUid($uid)
+    {
+        // TODO: Implement exportByUid() method.
     }
 }

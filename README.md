@@ -41,9 +41,25 @@ The architect can import and export just about anything in craft that needs to b
 There isn't much to configure in Architect right now.
 
 ## JSON Schema
+
 The example / syntax schemas are located on the [Repo's Wiki](https://github.com/Pennebaker/craft-architect/wiki)
 
 If you're using the [Atom text editor](https://atom.io/), you can download a [snippet library](https://github.com/Emkaytoo/craft-json-snippets) to help speed up your writing custom models for the plugin. *(Might not be updated for the Craft 3 version of architect yet)*
+
+You can also use YAML if you prefer.
+
+## Build Order
+
+This is used to process blueprint files in a specific order. The files path is in relation to `config/architect`. They can be either a json or yaml file.
+
+```json
+{
+  "buildOrder": [
+    "assets.json",
+    "blog.yaml"
+  ]
+}
+```
 
 ## Using Architect
 
@@ -52,6 +68,7 @@ Visit architect in the admin CP for importing / exporting just about anything us
 Current Working Imports:
 - Site Groups
 - Sites
+- Routes
 - Sections
 - Entry Types
 - Asset Volumes
@@ -61,10 +78,16 @@ Current Working Imports:
 - Field Groups
 - Fields
 - Global Sets
+- User Groups
+- Users
+
+Current Working Import and Update:
+- Fields
 
 Current Working Exports:
 - Site Groups
 - Sites
+- Routes
 - Sections
 - Entry Types
 - Asset Volumes
@@ -74,6 +97,8 @@ Current Working Exports:
 - Field Groups
 - Fields
 - Global Sets
+- User Groups
+- Users
 
 ## Architect Roadmap
 
@@ -92,10 +117,16 @@ Some things to do, and ideas for potential features:
 - Exporting Users
 
 [2.3.0] ***in-progress***
-- Command Line
-- Import and Update
+- Importing Routes
+- Exporting Routes
+- YAML Support
+- Command Line Importing
+- Build order importing
+- Import and Update Fields
 
-[2.4.0] ***brainstorming***
-- Migrations
+[2.4.0 and later] ***brainstorming***
+- Import and Update (Non Fields)
+- Commerce Support
+- Store for sharing blueprints
 
 Brought to you by [Pennebaker](https://pennebaker.com)

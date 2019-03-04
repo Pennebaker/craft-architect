@@ -2,7 +2,7 @@
 /**
  * Architect plugin for Craft CMS 3.x
  *
- * CraftCMS plugin to generate content models from JSON data.
+ * CraftCMS plugin to generate content models from JSON/YAML data.
  *
  * @link      https://pennebaker.com
  * @copyright Copyright (c) 2018 Pennebaker
@@ -25,8 +25,8 @@ return [
     'Import' => 'Import',
     'Export' => 'Export',
     'Import CP Section body goes here' => 'Import CP Section body goes here',
-    'JSON Data' => 'JSON Data',
-    'Put your json import data here.' => 'Put your json import data here.',
+    'JSON/YAML Data' => 'JSON/YAML Data',
+    'Put your json/yaml import data here.' => 'Put your json/yaml import data here.',
     'Section parent "{sectionHandle}" was not imported successfully.' => 'Section parent "{sectionHandle}" was not imported successfully.',
     'Architect encountered errors performing an import, there is a database backup located at: {backup}' => 'Architect encountered errors performing an import, there is a database backup located at: {backup}',
     'Too many field types matching "{fieldType}"' => 'Too many field types matching "{fieldType}"',
@@ -46,5 +46,7 @@ return [
     'Allow updating existing items.' => 'Allow updating existing items.',
     'Import Results' => 'Import Results',
     'Update existing ' => 'Update existing ',
-    'This is the json data that was submitted.' => 'This is the json data that was submitted.'
+    'This is the json/yaml data that was submitted.' => 'This is the json/yaml data that was submitted.',
+    'Route already exists.' => 'Route already exists.',
+    'Failed to save Route.' => 'Failed to save Route.',
 ];

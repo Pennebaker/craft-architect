@@ -2,7 +2,7 @@
 /**
  * Architect plugin for Craft CMS 3.x
  *
- * CraftCMS plugin to generate content models from JSON data.
+ * CraftCMS plugin to generate content models from JSON/YAML data.
  *
  * @link      https://pennebaker.com
  * @copyright Copyright (c) 2018 Pennebaker
@@ -17,9 +17,8 @@ use pennebaker\architect\variables\ArchitectVariable;
 use Craft;
 use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
-//use craft\events\PluginEvent;
 use craft\events\RegisterUrlRulesEvent;
-//use craft\services\Plugins;
+use craft\helpers\FileHelper;
 use craft\web\UrlManager;
 use craft\web\twig\variables\CraftVariable;
 
@@ -47,6 +46,8 @@ class Architect extends Plugin
 
     public static $processors;
 
+    public static $configPath;
+
     // Public Methods
     // =========================================================================
 
@@ -59,12 +60,20 @@ class Architect extends Plugin
      *
      * If you have a '/vendor/autoload.php' file, it will be loaded for you automatically;
      * you do not need to load it in your init() method.
+     *
+     * @throws \yii\base\Exception
      */
     public function init()
     {
         parent::init();
         self::$plugin = $this;
         self::$processors = new Processors();
+        self::$configPath = Craft::$app->getPath()->getConfigPath() . DIRECTORY_SEPARATOR . 'architect';
+
+        // Ensure architect config path exists
+        if (!file_exists(self::$configPath)) {
+            FileHelper::createDirectory(self::$configPath);
+        }
 
         // Add in our console commands
         if (Craft::$app instanceof ConsoleApplication) {
@@ -90,25 +99,12 @@ class Architect extends Plugin
                  $event->rules['architect/'] = 'architect/cp';
                  $event->rules['GET architect/import'] = 'architect/cp/import';
                  $event->rules['GET architect/export'] = 'architect/cp/export';
-                 $event->rules['GET architect/migrations'] = 'architect/cp/migrations';
+                 $event->rules['GET architect/blueprints'] = 'architect/cp/blueprints';
                  $event->rules['POST architect/import'] = 'architect/default/import';
                  $event->rules['POST architect/export'] = 'architect/default/export';
-                 $event->rules['POST architect/migrations'] = 'architect/default/migrations';
+                 $event->rules['POST architect/blueprints'] = 'architect/default/blueprints';
              }
          );
-
-        // Do something after we're installed
-        /*
-        Event::on(
-            Plugins::class,
-            Plugins::EVENT_AFTER_INSTALL_PLUGIN,
-            function (PluginEvent $event) {
-                if ($event->plugin === $this) {
-                    // We were just installed
-                }
-            }
-        );
-        */
 
         self::info('{name} plugin loaded', ['name' => $this->name]);
     }
@@ -144,7 +140,96 @@ class Architect extends Plugin
         Craft::error(self::t($message, $params), __METHOD__);
     }
 
+    public static function getRouteByUid($uid)
+    {
+        foreach (Craft::$app->getProjectConfig()->get('routes') as $routeUid => $route) {
+            if ($routeUid === $uid) {
+                $route['uid'] = $routeUid;
+                return $route;
+            }
+        }
+    }
+
+    public static function createRouteUriPattern($uriParts)
+    {
+        // Compile the URI parts into a regex pattern
+        $uriPattern = '';
+        $uriParts = array_filter($uriParts);
+        $subpatternNameCounts = [];
+
+        foreach ($uriParts as $part) {
+            if (is_string($part)) {
+                $uriPattern .= $part;
+            } else if (is_array($part)) {
+                // Is the name a valid handle?
+                if (preg_match('/^[a-zA-Z]\w*$/', $part[0])) {
+                    $subpatternName = $part[0];
+                } else {
+                    $subpatternName = 'any';
+                }
+
+                // Make sure it's unique
+                if (isset($subpatternNameCounts[$subpatternName])) {
+                    $subpatternNameCounts[$subpatternName]++;
+
+                    // Append the count to the end of the name
+                    $subpatternName .= $subpatternNameCounts[$subpatternName];
+                } else {
+                    $subpatternNameCounts[$subpatternName] = 1;
+                }
+
+                // Add the var as a named subpattern
+                $uriPattern .= "<{$subpatternName}:{$part[1]}>";
+            }
+        }
+        return $uriPattern;
+    }
+
+    public static function createRouteUriDisplay($uriParts)
+    {
+        // Compile the URI parts into a regex pattern
+        $uriPattern = '';
+        $uriParts = array_filter($uriParts);
+        $subpatternNameCounts = [];
+
+        foreach ($uriParts as $part) {
+            if (is_string($part)) {
+                $uriPattern .= $part;
+            } else if (is_array($part)) {
+                // Is the name a valid handle?
+                if (preg_match('/^[a-zA-Z]\w*$/', $part[0])) {
+                    $subpatternName = $part[0];
+                } else {
+                    $subpatternName = 'any';
+                }
+
+                // Make sure it's unique
+                if (isset($subpatternNameCounts[$subpatternName])) {
+                    $subpatternNameCounts[$subpatternName]++;
+
+                    // Append the count to the end of the name
+                    $subpatternName .= $subpatternNameCounts[$subpatternName];
+                } else {
+                    $subpatternNameCounts[$subpatternName] = 1;
+                }
+
+                // Add the var as a named subpattern
+                $uriPattern .= "<{$subpatternName}>";
+            }
+        }
+        return $uriPattern;
+    }
+
+    public static function routeExists(array $uriParts, string $template, string $siteUid = null)
+    {
+        foreach (Craft::$app->getProjectConfig()->get('routes') as $routeUid => $route) {
+            if ($route['siteUid'] === $siteUid && $route['template'] === $template && $route['uriPattern'] === self::createRouteUriPattern($uriParts)) {
+                return $routeUid;
+            }
+        }
+        return false;
+    }
+
     // Protected Methods
     // =========================================================================
-
 }

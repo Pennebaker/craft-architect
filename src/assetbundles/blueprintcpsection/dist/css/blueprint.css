@@ -1,0 +1,109 @@
+#main-container #main #main-content #content-container #content
+{
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+
+    padding: 32px;
+
+    color: #fff;
+    background-color: rgba(56, 82, 168, .75);
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH0AAAB9AgMAAADy7oS2AAAACVBMVEUAAAD///////9zeKVjAAAAA3RSTlMAQHBaCvrnAAAAR0lEQVRYw2NYhR80EFawgAECHCAUI5TLwgAFowpGFYwqGKoKlobiBQ6DwpGjCkYVjCoYzf6jCkYVjCoYzf6jCkYVjCqgWAEAMQS2FtDNc88AAAAASUVORK5CYII=');
+    background-attachment: local;
+    background-size: 32px 32px;
+}
+#content h2
+{
+    font-weight: normal;
+    line-height: 35px;
+
+    height: 32px;
+    margin-bottom: 0;
+}
+.icon
+{
+    display: inline-block;
+}
+.icon svg
+{
+    width: 16px;
+    height: auto;
+}
+.icon svg path
+{
+    fill: white;
+}
+.file.active .file__title
+{
+    cursor: n-resize;
+}
+.file.active .file__content
+{
+    height: auto;
+}
+.file__title
+{
+    font-weight: normal;
+    line-height: 32px;
+
+    box-sizing: border-box;
+    height: 32px;
+    margin-top: 32px;
+    margin-bottom: 0;
+    padding-left: 12px;
+
+    cursor: s-resize;
+
+    border: 1px dashed white;
+}
+.file__content
+{
+    overflow: hidden;
+
+    height: 0;
+
+    transition: 250ms;
+}
+.file__title a
+{
+    color: #fff;
+}
+.section + .section
+{
+    margin-top: 16px;
+}
+.section__title
+{
+    font-size: 12px;
+    line-height: 32px;
+
+    height: 32px;
+}
+.section__title svg,
+.section__title span
+{
+    vertical-align: middle;
+}
+.section__title svg
+{
+    margin-right: 4px;
+    margin-left: 8px;
+}
+.section__content
+{
+    padding-left: 16px;
+}
+.section__item
+{
+    font-size: 10px;
+    line-height: 32px;
+
+    display: inline-block;
+
+    box-sizing: border-box;
+    height: 32px;
+    margin-right: 16px;
+    margin-bottom: 16px;
+    padding-right: 8px;
+    padding-left: 8px;
+
+    border: 1px dotted white;
+}

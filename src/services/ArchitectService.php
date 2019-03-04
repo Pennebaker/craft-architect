@@ -2,7 +2,7 @@
 /**
  * Architect plugin for Craft CMS 3.x
  *
- * CraftCMS plugin to generate content models from JSON data.
+ * CraftCMS plugin to generate content models from JSON/YAML data.
  *
  * @link      https://pennebaker.com
  * @copyright Copyright (c) 2018 Pennebaker
@@ -11,10 +11,13 @@
 namespace pennebaker\architect\services;
 
 use pennebaker\architect\Architect;
-use craft\models\Section_SiteSettings;
 
 use Craft;
 use craft\base\Component;
+use craft\models\Section_SiteSettings;
+use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Exception\ParseException;
+
 
 /**
  * ArchitectService Service
@@ -35,7 +38,7 @@ class ArchitectService extends Component
      *
      *     Architect::$plugin->architectService->import()
      *
-     * @param string $jsonData
+     * @param string $importData
      * @param bool $runBackup
      *
      * @return mixed
@@ -44,14 +47,17 @@ class ArchitectService extends Component
      * @throws \craft\errors\ShellCommandException
      * @throws \yii\base\Exception
      */
-    public function import($jsonData, $runBackup = false, $update = false)
+    public function import($importData, $runBackup = false, $update = false)
     {
-        \Craft::Client;
         // Convert json into an array.
-        $jsonObj = json_decode($jsonData, true);
-        // Return if json is not properly decoded.
-        if ($jsonObj === null) {
-            return [true, null, null, null];
+        $importObj = json_decode($importData, true);
+        // Attempt yaml parsing if json_decode failed.
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            try {
+                $importObj = Yaml::parse($importData);
+            } catch (ParseException $exception) {
+                return [true, null, null, [json_last_error(), $exception->getMessage()]];
+            }
         }
 
         if ($runBackup) {
@@ -68,6 +74,7 @@ class ArchitectService extends Component
         $parseOrder = [
             'siteGroups',
             'sites',
+            'routes',
             'sections',
             'volumes',
             'transforms',
@@ -115,15 +122,29 @@ class ArchitectService extends Component
             'users',
             'userGroups',
         ];
+        /**
+         * Things with support for updating.
+         */
+        $updateSupport = [
+            'fields',
+        ];
         $addedEntryTypes = [];
         $results = [];
         foreach ($parseOrder as $parseKey) {
-            if (isset($jsonObj[$parseKey]) && \is_array($jsonObj[$parseKey])) {
+            if (isset($importObj[$parseKey]) && \is_array($importObj[$parseKey])) {
                 $results[$parseKey] = [];
-                foreach ($jsonObj[$parseKey] as $itemKey => $itemObj) {
+                foreach ($importObj[$parseKey] as $itemKey => $itemObj) {
                     try {
-                        if ($update) {
+                        if ($update && \in_array('fields', $updateSupport, true)) {
                             $itemErrors = Architect::$processors->$parseKey->update($itemObj);
+                            if ($itemErrors) {
+                                $results[$parseKey][] = [
+                                    'item' => false,
+                                    'success' => false,
+                                    'errors' => $itemErrors,
+                                ];
+                                continue;
+                            }
                         }
                         if ($parseKey === 'fieldGroups' || $parseKey === 'siteGroups') {
                             list($item, $itemErrors) = Architect::$processors->$parseKey->parse(['name' => $itemObj]);
@@ -146,7 +167,22 @@ class ArchitectService extends Component
                         }
 
                         if ($item) {
-                            $itemSuccess = Architect::$processors->$parseKey->save($item, $update);
+                            if ($parseKey === 'routes') {
+                                $routeUid = Architect::routeExists(...$item);
+                                if ($routeUid) {
+                                    $item = Architect::getRouteByUid($routeUid);
+                                    $itemSuccess = false;
+                                    $itemErrors = [
+                                        'route' => [
+                                            Architect::t('Route already exists.')
+                                        ]
+                                    ];
+                                } else {
+                                    $itemSuccess = Architect::$processors->$parseKey->save($item, $update);
+                                }
+                            } else {
+                                $itemSuccess = Architect::$processors->$parseKey->save($item, $update);
+                            }
                             if ($parseKey === 'sections') {
                                 $itemErrors = [];
                                 /** @var mixed $item */
@@ -154,7 +190,6 @@ class ArchitectService extends Component
                                     /** @var Section_SiteSettings $settings */
                                     foreach ($settings->getErrors() as $errorKey => $errors) {
                                         if (isset($itemErrors[$errorKey])) {
-//                                            $itemErrors[$errorKey] = array_merge($itemErrors[$errorKey], $errors);
                                             array_push($itemErrors[$errorKey], ...$errors);
                                         } else {
                                             $itemErrors[$errorKey] = $errors;
@@ -163,10 +198,26 @@ class ArchitectService extends Component
                                 }
                                 foreach ($item->getErrors() as $errorKey => $errors) {
                                     if (isset($itemErrors[$errorKey])) {
-//                                            $itemErrors[$errorKey] = array_merge($itemErrors[$errorKey], $errors);
                                         array_push($itemErrors[$errorKey], ...$errors);
                                     } else {
                                         $itemErrors[$errorKey] = $errors;
+                                    }
+                                }
+                            } else if ($parseKey === 'routes') {
+                                if ($itemSuccess) {
+                                    $item = $itemSuccess;
+                                    $item['siteId'] = isset($itemObj['siteId']) ? $itemObj['siteId'] : Craft::t('app', 'Gobal');
+                                    $itemErrors = false;
+                                } else {
+                                    $item = $itemObj;
+                                    $item['uriPattern'] = Architect::createRouteUriPattern($item['uriParts']);
+                                    $item['siteId'] = isset($itemObj['siteId']) ? $itemObj['siteId'] : Craft::t('app', 'Gobal');
+                                    if (!$itemErrors) {
+                                        $itemErrors = [
+                                            'route' => [
+                                                Architect::t('Failed to save Route.')
+                                            ]
+                                        ];
                                     }
                                 }
                             } else {
@@ -204,24 +255,27 @@ class ArchitectService extends Component
                         $item = $item ?: $itemObj;
                     }
                     if ($itemSuccess) {
-                        if (\in_array($parseKey, $onlyStrings)) {
-                            $jsonObj[$parseKey][$itemKey] = [
+                        if (\in_array($parseKey, $onlyStrings, false)) {
+                            $importObj[$parseKey][$itemKey] = [
                                 'name' => $itemObj,
                                 'id' => $item->id
                             ];
+                        } else if ($parseKey === 'routes') {
+                            $importObj[$parseKey][$itemKey] = [
+                                'name' => 'Route',
+                                'uid' => $item['uid']
+                            ];
                         } else {
-                            $jsonObj[$parseKey][$itemKey]['id'] = $item->id;
+                            $importObj[$parseKey][$itemKey]['id'] = $item->id;
                         }
                         if ($parseKey === 'entryTypes') {
                             $addedEntryTypes[] =  Craft::$app->sections->getSectionById((int) $item->sectionId)->handle . ':' . $item->handle;
                         }
                         switch ($parseKey) {
-                            case 'fields':
-                                $successful[$parseKey][] = $itemKey;
-                                break;
                             case 'sections':
                                 $successful[$parseKey][] = $item->handle;
                                 break;
+                            case 'fields':
                             case 'volumes':
                             case 'tagGroups':
                             case 'categoryGroups':
@@ -245,9 +299,9 @@ class ArchitectService extends Component
          * Post Processing to set Field Layouts
          */
         foreach ($postProcessFieldLayouts as $parseKey) {
-            if (isset($jsonObj[$parseKey]) && \is_array($jsonObj[$parseKey])) {
-                foreach($successful[$parseKey] as $volumeHandle => $itemKey) {
-                    $itemObj = $jsonObj[$parseKey][$itemKey];
+            if (isset($importObj[$parseKey]) && \is_array($importObj[$parseKey])) {
+                foreach($successful[$parseKey] as $itemKey) {
+                    $itemObj = $importObj[$parseKey][$itemKey];
                     Architect::$processors->$parseKey->setFieldLayout($itemObj);
                 }
             }
@@ -256,9 +310,9 @@ class ArchitectService extends Component
         /**
          * Post Processing on Users to assign User Groups
          */
-        if (isset($jsonObj['users']) && \is_array($jsonObj['users'])) {
+        if (isset($importObj['users']) && \is_array($importObj['users'])) {
             foreach ($successful['users'] as $itemKey) {
-                $itemObj = $jsonObj['users'][$itemKey];
+                $itemObj = $importObj['users'][$itemKey];
                 if (isset($itemObj['groups']) && \is_array($itemObj['groups'])) {
                     $groupIds = [];
                     foreach ($itemObj['groups'] as $groupHandle) {
@@ -278,7 +332,7 @@ class ArchitectService extends Component
         foreach ($postProcessPermissions as $parseKey) {
             if (isset($successful[$parseKey]) && \is_array($successful[$parseKey])) {
                 foreach($successful[$parseKey] as $itemKey) {
-                    $itemObj = $jsonObj[$parseKey][$itemKey];
+                    $itemObj = $importObj[$parseKey][$itemKey];
                     Architect::$processors->$parseKey->setPermissions($parseKey, $itemObj);
                 }
             }
@@ -289,13 +343,40 @@ class ArchitectService extends Component
          * This is to loop over all entry types in a section and remove entry types that do not match one that was meant to be created.
          * ex. A section was created for Employees but there is only entry types defined for Board Members & Management
          */
-        if (isset($jsonObj['sections'], $jsonObj['entryTypes']) && \is_array($jsonObj['sections']) && \is_array($jsonObj['entryTypes'])) {
+        if (isset($importObj['sections'], $importObj['entryTypes']) && \is_array($importObj['sections']) && \is_array($importObj['entryTypes'])) {
             forEach ($successful['sections'] as $sectionHandle) {
                 $section = Craft::$app->sections->getSectionByHandle($sectionHandle);
                 $entryTypes = $section->getEntryTypes();
                 foreach ($entryTypes as $entryType) {
-                    if (\in_array($section->handle . ':' . $entryType->handle, $addedEntryTypes) === false) {
+                    if (\in_array($section->handle . ':' . $entryType->handle, $addedEntryTypes, true) === false) {
                         Craft::$app->sections->deleteEntryType($entryType);
+                    }
+                }
+            }
+        }
+
+        if (isset($importObj['buildOrder']) && \is_array($importObj['buildOrder'])) {
+            foreach ($importObj['buildOrder'] as $filename) {
+                $importData = file_get_contents(Architect::$configPath . DIRECTORY_SEPARATOR . $filename);
+                list($fileParseError, $fileNoErrors, , $fileResults) = $this->import($importData, false, $update);
+                if ($fileParseError) {
+                    $results['buildOrder'][] = [
+                        'item' => false,
+                        'success' => false,
+                        'errors' => [
+                            'parse' => [
+                                Architect::t('Parse Error: "{filename}".', ['filename' => $filename ])
+                            ]
+                        ]
+                    ];
+                    $fileNoErrors = false;
+                }
+                $noErrors = $fileNoErrors ? $noErrors : $fileNoErrors;
+                foreach ($parseOrder as $parseKey) {
+                    if (isset($results[$parseKey], $fileResults[$parseKey])) {
+                        array_push($results[$parseKey], ...$fileResults[$parseKey]);
+                    } else if (isset($fileResults[$parseKey])) {
+                        $results[$parseKey] = $fileResults[$parseKey];
                     }
                 }
             }
