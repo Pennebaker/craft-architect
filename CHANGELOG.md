@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.3.1] - 2019-04-22
+### Fixed
+- Fix symfony/yaml version conflicts with CraftCMS
+
 ## [2.3.0] - 2019-03-04
 ### Added
 - YAML Support
