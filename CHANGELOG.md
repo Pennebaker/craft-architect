@@ -175,7 +175,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.3.0...develop
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.3.1...develop
+[2.3.1]: https://github.com/pennebaker/craft-architect/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/pennebaker/craft-architect/compare/2.2.12...2.3.0
 [2.2.12]: https://github.com/pennebaker/craft-architect/compare/2.2.11...2.2.12
 [2.2.11]: https://github.com/pennebaker/craft-architect/compare/2.2.10...2.2.11
