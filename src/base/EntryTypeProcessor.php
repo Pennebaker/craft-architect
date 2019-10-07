@@ -108,7 +108,7 @@ class EntryTypeProcessor extends Processor
             'fieldLayout' => $this->exportFieldLayout($item->getFieldLayout()),
             'requiredFields' => $this->exportRequiredFields($item->getFieldLayout()),
         ], $attributeObj);
-        
+
         if (\count($entryTypeObj['requiredFields']) <= 0) {
             unset($entryTypeObj['requiredFields']);
         }
@@ -140,5 +140,31 @@ class EntryTypeProcessor extends Processor
     public function exportByUid($uid)
     {
         // TODO: Implement exportByUid() method.
+    }
+
+    /**
+     * @param array $itemObj
+     */
+    public function update(array &$itemObj)
+    {
+        $section = Craft::$app->sections->getSectionByHandle($itemObj['sectionHandle']);
+        $sectionEntryTypes = $section->getEntryTypes();
+        if ($section->type === 'single') {
+            if($sectionEntryTypes[0]->handle === $itemObj['handle']) {
+                $parsedItem = $this->parse($itemObj);
+                // get entry type
+                // set entry type
+            }
+        } else {
+            // deal with sections that can have multiple entry types
+//            foreach ($sectionEntryTypes as $sectionEntryType) {
+//                if ($sectionEntryType->handle !== $itemObj['handle']) {
+//                    continue;
+//                }
+//                $parsedItem = $this->parse($itemObj);
+//            }
+        }
+        $save = Craft::$app->sections->saveEntryType($parsedItem);
+        return $save;
     }
 }

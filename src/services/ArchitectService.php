@@ -127,6 +127,7 @@ class ArchitectService extends Component
          */
         $updateSupport = [
             'fields',
+            'sections',
         ];
         $addedEntryTypes = [];
         $results = [];
