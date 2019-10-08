@@ -156,7 +156,7 @@ class SectionProcessor extends Processor
         // Check section exists
         try {
             $section = Craft::$app->sections->getSectionByHandle($itemObj['handle']);
-            var_dump($section);
+//            var_dump($section);
         } catch (\Exception $e) {
             $errors = [
                 'type' => [
@@ -173,7 +173,8 @@ class SectionProcessor extends Processor
         }
         $siteSettings = $this->_getParsedSiteSettings($itemObj)['siteSettings'];
         $section->setSiteSettings($siteSettings);
-        var_dump($section);
+//        @TOOD site settings may not be set correctly, review
+//        var_dump($section);
         try {
             Craft::$app->sections->saveSection($section, false);
         } catch (\Exception $e) {
