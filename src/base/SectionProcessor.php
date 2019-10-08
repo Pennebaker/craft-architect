@@ -154,17 +154,36 @@ class SectionProcessor extends Processor
     public function update(array &$itemObj)
     {
         // Check section exists
-        $section = Craft::$app->sections->getSectionByHandle($itemObj['handle']);
-        if(!$section){
-            throw Error('Section does not exist - ' . $itemObj['name']);
+        try {
+            $section = Craft::$app->sections->getSectionByHandle($itemObj['handle']);
+            var_dump($section);
+        } catch (\Exception $e) {
+            $errors = [
+                'type' => [
+                    Architect::t('Could not retreive section: ' . $e)
+                ]
+            ];
+            return [null, $errors];
         }
         foreach($itemObj as $key => $value) {
-            $section[$key] = $value;
+            // Ignore uid, id, structureId fields
+            if ($key !== 'id' && $key !== 'uid' && $key !== 'structureId') {
+                $section[$key] = $value;
+            }
         }
         $siteSettings = $this->_getParsedSiteSettings($itemObj)['siteSettings'];
         $section->setSiteSettings($siteSettings);
-        $save = Craft::$app->sections->saveSection($section);
-        return $save;
+        var_dump($section);
+        try {
+            Craft::$app->sections->saveSection($section, false);
+        } catch (\Exception $e) {
+            $errors = [
+                'type' => [
+                    Architect::t('Could not save section: ' . $e)
+                ]
+            ];
+            return [null, $errors];
+        }
     }
 
     /**
