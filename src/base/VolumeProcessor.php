@@ -135,7 +135,6 @@ class VolumeProcessor extends Processor
     public function exportById($id): array
     {
         $volume = Craft::$app->volumes->getVolumeById((int) $id);
-
         return $this->export($volume);
     }
 
@@ -149,5 +148,46 @@ class VolumeProcessor extends Processor
     public function exportByUid($uid)
     {
         // TODO: Implement exportByUid() method.
+    }
+
+    public function update(array $item)
+    {
+        $volume = Craft::$app->volumes->getVolumeByHandle($item['handle']);
+        if($volume) {
+            // Check if class matches volume type
+            if (get_class($volume) !== $item['type']) {
+                // @TODO Deal with scenario where volume type changes, new class required.
+                $errors = [
+                    'type' => [
+                        Architect::t('Does not support updated volume types yet')
+                    ]
+                ];
+                return [null, $errors];
+            }
+            $this->setFieldLayout($item);
+            $keyBlacklist = [
+                'id',
+                'uid',
+                'settings',
+                'type',
+                'fieldLayout',
+                'fieldLayoutId',
+            ];
+            foreach($item as $key => $value) {
+                // Ignore uid, id, structureId fields
+                if (!in_array($key, $keyBlacklist)) {
+                    $volume[$key] = $value;
+                }
+            }
+            $settings = $item['settings'];
+            foreach($settings as $key => $value) {
+                // Ignore uid, id, structureId fields
+                if (!in_array($key, $keyBlacklist)) {
+                    $volume[$key] = $value;
+                }
+            }
+            Craft::$app->volumes->saveVolume($volume, false);
+        }
+        return null;
     }
 }
