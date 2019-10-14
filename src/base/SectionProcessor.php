@@ -33,7 +33,15 @@ class SectionProcessor extends Processor
      */
     public function parse(array $item): array
     {
-        $item = $this->_getParsedSiteSettings($item);
+        foreach ($item['siteSettings'] as $settingKey => $settings) {
+            $siteSettings = new Section_SiteSettings(array_merge($settings, [
+                'siteId' => isset($settings['siteId']) ? Craft::$app->sites->getSiteByHandle($settings['siteId'])->id : Craft::$app->sites->getPrimarySite()->id,
+            ]));
+            if (isset($siteSettings['hasUrls']) && (bool) $siteSettings['hasUrls'] === false) {
+                $siteSettings['uriFormat'] = null;
+            }
+            $item['siteSettings'][$settingKey] = $siteSettings;
+        }
         $section = new Section($item);
 
         return [$section, null];
@@ -143,46 +151,5 @@ class SectionProcessor extends Processor
     public function exportByUid($uid)
     {
         // TODO: Implement exportByUid() method.
-    }
-
-    /**
-     * @param array $itemObj
-     * @return bool
-     * @throws \Throwable
-     * @throws \craft\errors\SectionNotFoundException
-     */
-    public function update(array &$itemObj)
-    {
-        // Check section exists
-        $section = Craft::$app->sections->getSectionByHandle($itemObj['handle']);
-        if(!$section){
-            throw Error('Section does not exist - ' . $itemObj['name']);
-        }
-        foreach($itemObj as $key => $value) {
-            $section[$key] = $value;
-        }
-        $siteSettings = $this->_getParsedSiteSettings($itemObj)['siteSettings'];
-        $section->setSiteSettings($siteSettings);
-        $save = Craft::$app->sections->saveSection($section);
-        return $save;
-    }
-
-    /**
-     * @param $item
-     * @return mixed
-     * @throws \craft\errors\SiteNotFoundException
-     */
-    private function _getParsedSiteSettings($item)
-    {
-        foreach ($item['siteSettings'] as $settingKey => $settings) {
-            $siteSettings = new Section_SiteSettings(array_merge($settings, [
-                'siteId' => isset($settings['siteId']) ? Craft::$app->sites->getSiteByHandle($settings['siteId'])->id : Craft::$app->sites->getPrimarySite()->id,
-            ]));
-            if (isset($siteSettings['hasUrls']) && (bool) $siteSettings['hasUrls'] === false) {
-                $siteSettings['uriFormat'] = null;
-            }
-            $item['siteSettings'][$settingKey] = $siteSettings;
-        }
-        return $item;
     }
 }
