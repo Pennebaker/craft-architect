@@ -167,9 +167,6 @@ class EntryTypeProcessor extends Processor
         } else {
             // deal with sections that can have multiple entry types
             foreach ($sectionEntryTypes as $sectionEntryType) {
-                if ($sectionEntryType->handle !== $itemObj['handle']) {
-                    continue;
-                }
                 $parsedItem = $this->parse($itemObj)[0];
                 try {
                     Craft::$app->sections->saveEntryType($parsedItem, false);
