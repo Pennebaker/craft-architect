@@ -12,6 +12,7 @@ namespace pennebaker\architect\base;
 
 use Craft;
 use craft\elements\GlobalSet;
+use pennebaker\architect\Architect;
 
 /**
  * GlobalSetProcessor
@@ -120,5 +121,30 @@ class GlobalSetProcessor extends Processor
     public function exportByUid($uid)
     {
         // TODO: Implement exportByUid() method.
+    }
+
+    /**
+     * @param $item
+     * @return array|null
+     * @throws \Throwable
+     */
+    public function update($item)
+    {
+        $globalSet = Craft::$app->globals->getSetByHandle($item['handle']);
+        if ($globalSet) {
+            $globalSet['name'] = $item['name'];
+            $this->setFieldLayout($item);
+            try {
+                Craft::$app->globals->saveSet($globalSet, false);
+            } catch (craft\errors\GlobalSetNotFoundException $e) {
+                $errors = [
+                    'globalSet' => [
+                        Architect::t('Could not save GlobalSet: '. $e)
+                    ]
+                ];
+                return [null, $errors];
+            }
+        }
+        return null;
     }
 }
