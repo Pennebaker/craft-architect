@@ -13,6 +13,7 @@ namespace pennebaker\architect\base;
 use Craft;
 use craft\elements\Entry;
 use craft\models\EntryType;
+use pennebaker\architect\Architect;
 
 /**
  * EntryTypeProcessor
@@ -151,20 +152,37 @@ class EntryTypeProcessor extends Processor
         $sectionEntryTypes = $section->getEntryTypes();
         if ($section->type === 'single') {
             if($sectionEntryTypes[0]->handle === $itemObj['handle']) {
-                $parsedItem = $this->parse($itemObj);
-                // get entry type
-                // set entry type
+                $parsedItem = $this->parse($itemObj)[0];
+                try {
+                    Craft::$app->sections->saveEntryType($parsedItem, false);
+                } catch (\Exception $e) {
+                    $errors = [
+                        'type' => [
+                            Architect::t('Could not save entry type: '. $e)
+                        ]
+                    ];
+                    return [null, $errors];
+                }
             }
         } else {
             // deal with sections that can have multiple entry types
-//            foreach ($sectionEntryTypes as $sectionEntryType) {
-//                if ($sectionEntryType->handle !== $itemObj['handle']) {
-//                    continue;
-//                }
-//                $parsedItem = $this->parse($itemObj);
-//            }
+            foreach ($sectionEntryTypes as $sectionEntryType) {
+                if ($sectionEntryType->handle !== $itemObj['handle']) {
+                    continue;
+                }
+                $parsedItem = $this->parse($itemObj)[0];
+                try {
+                    Craft::$app->sections->saveEntryType($parsedItem, false);
+                } catch (\Exception $e) {
+                    $errors = [
+                        'type' => [
+                            Architect::t('Could not save entry type: ' . $e)
+                        ]
+                    ];
+                    return [null, $errors];
+                }
+            }
         }
-        $save = Craft::$app->sections->saveEntryType($parsedItem);
-        return $save;
+        return null;
     }
 }
