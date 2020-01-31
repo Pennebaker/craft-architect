@@ -281,7 +281,7 @@ abstract class Processor implements ProcessorInterface
                     $site = Craft::$app->sites->getSiteByUid($siteRef);
                     $sites[$k] = $site->handle;
                 } catch (SiteNotFoundException $e) {
-                    $site = Craft::$app->sites->getSiteById($siteRef);
+                    $site = Craft::$app->sites->getSiteById((int) $siteRef);
                     if ($site) {
                         $sites[$k] = $site->handle;
                     } else {
@@ -294,7 +294,7 @@ abstract class Processor implements ProcessorInterface
                 $site = Craft::$app->sites->getSiteByUid($sites);
                 $sites = $site->handle;
             } catch (SiteNotFoundException $e) {
-                $site = Craft::$app->sites->getSiteById($sites);
+                $site = Craft::$app->sites->getSiteById((int) $sites);
                 if ($site) {
                     $sites = $site->handle;
                 } else {
