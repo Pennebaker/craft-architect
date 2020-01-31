@@ -2,7 +2,7 @@
 <table class="data fullwidth collapsible">
     <thead>
     <tr>
-        <th class="checkbox-cell">
+        <th>
             <div class="field checkboxtag">
                 <input type="checkbox" id="allTags" class="checkbox" name="allTags" value="all"><label for="allTags">&zwnj;</label>
                 {{ "Name"|t('app') }}
@@ -20,7 +20,7 @@
             {% endfor %}
         {% endfor %}
         <tr class="tag" data-id="{{ tag.id }}" data-name="{{ tag }}" data-fields="{% for id in utilizedFields %}{{ id }} {% endfor %}">
-            <th scope="row" class="checkbox-cell">
+            <th scope="row">
                 <input type="checkbox" id="tag{{ tag.id }}" class="checkbox" name="tagSelection[]" value="{{ tag.id }}"> <label for="tag{{ tag.id }}">{{ tag.name | raw }}</label>
             </th>
             <td>

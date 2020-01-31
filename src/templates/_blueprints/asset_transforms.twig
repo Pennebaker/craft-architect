@@ -2,7 +2,7 @@
 <table class="data fullwidth collapsible">
     <thead>
     <tr>
-        <th class="checkbox-cell">
+        <th>
             <div class="field checkboxassettransform">
                 <input type="checkbox" id="allAssetTransforms" class="checkbox" name="allAssetTransforms" value="all"><label for="allAssetTransforms">&zwnj;</label>
                 {{ "Name"|t('app') }}
@@ -17,7 +17,7 @@
     <tbody class="assetTransforms">
     {% for assetTransform in craft.app.assetTransforms.getAllTransforms() %}
         <tr>
-            <th scope="row" class="checkbox-cell">
+            <th scope="row">
                 <input type="checkbox" id="assetTransform{{ assetTransform.id }}" class="checkbox" name="assetTransformSelection[]" value="{{ assetTransform.id }}"> <label for="assetTransform{{ assetTransform.id }}">{{ assetTransform }}</label>
             </th>
             <td>

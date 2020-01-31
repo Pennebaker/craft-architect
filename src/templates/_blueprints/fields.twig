@@ -2,7 +2,7 @@
 <table class="data fullwidth collapsible">
     <thead>
     <tr>
-        <th class="checkbox-cell">
+        <th>
             <div class="field checkboxfield">
                 <input type="checkbox" id="allFields" class="checkbox" name="allFields" value="all"><label for="allFields">&zwnj;</label>
                 {{ "Name"|t('app') }}
@@ -17,7 +17,7 @@
     {% for field in craft.app.fields.getAllFields() %}
         {% set utilizedFields = {} %}
         <tr class="field" data-id="{{ field.id }}" data-groupid="{{ field.group.id }}" data-name="{{ field }}" data-fields="{% for id in utilizedFields %}{{ id }} {% endfor %}">
-            <th scope="row" class="checkbox-cell">
+            <th scope="row">
                 <input type="checkbox" id="field{{ field.id }}" class="checkbox" name="fieldSelection[]" value="{{ field.id }}"> <label for="field{{ field.id }}">{{ field }}</label>
             </th>
             <td>

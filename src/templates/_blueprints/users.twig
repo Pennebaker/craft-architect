@@ -2,7 +2,7 @@
 <table class="data fullwidth collapsible">
     <thead>
     <tr>
-        <th class="checkbox-cell">
+        <th>
             <div class="field checkboxuser">
                 <input type="checkbox" id="allUsers" class="checkbox" name="allUsers" value="all"><label for="allUsers">&zwnj;</label>
                 {{ "Name"|t('app') }}
@@ -18,7 +18,7 @@
             {% set utilizedGroups = utilizedGroups | merge([group.id]) %}
         {% endfor %}
         <tr class="user" data-id="{{ user.id }}" data-name="{{ user }}" data-groups="{% for id in utilizedGroups %}{{ id }} {% endfor %}">
-            <th scope="row" class="checkbox-cell">
+            <th scope="row">
                 <input type="checkbox" id="user{{ user.id }}" class="checkbox" name="userSelection[]" value="{{ user.id }}"> <label for="user{{ user.id }}">{{ user.firstName }} {{ user.lastName }}</label>
             </th>
             <td>
