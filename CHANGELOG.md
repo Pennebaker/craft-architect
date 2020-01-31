@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.3.2] - 2020-01-31
+### Fixed
+- Fix getSiteById() error when exporting
+- Fix lost data in SuperTables when updating a Matrix containing SuperTables
+- Fix invalid argument supplied for foreach() when importing routes on a site with no routes.
+
 ## [2.3.1] - 2019-04-22
 ### Fixed
 - Fix symfony/yaml version conflicts with CraftCMS
@@ -175,7 +181,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.3.1...develop
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.3.2...develop
+[2.3.2]: https://github.com/pennebaker/craft-architect/compare/2.3.1...2.3.2
 [2.3.1]: https://github.com/pennebaker/craft-architect/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/pennebaker/craft-architect/compare/2.2.12...2.3.0
 [2.2.12]: https://github.com/pennebaker/craft-architect/compare/2.2.11...2.2.12
