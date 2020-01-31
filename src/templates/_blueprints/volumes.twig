@@ -2,7 +2,7 @@
 <table class="data fullwidth collapsible">
     <thead>
     <tr>
-        <th class="checkbox-cell">
+        <th>
             <div class="field checkboxvolume">
                 <input type="checkbox" id="allVolumes" class="checkbox" name="allVolumes" value="all"><label for="allVolumes">&zwnj;</label>
                 {{ "Name"|t('app') }}
@@ -21,7 +21,7 @@
             {% endfor %}
         {% endfor %}
         <tr class="volume" data-id="{{ volume.id }}" data-name="{{ volume.name }}" data-fields="{% for id in utilizedFields %}{{ id }} {% endfor %}">
-            <th scope="row" class="checkbox-cell">
+            <th scope="row">
                 <input type="checkbox" id="volume{{ volume.id }}" class="checkbox" name="volumeSelection[]" value="{{ volume.id }}"> <label for="volume{{ volume.id }}">{{ volume.name }}</label>
             </th>
             <td>

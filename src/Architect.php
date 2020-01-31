@@ -142,10 +142,13 @@ class Architect extends Plugin
 
     public static function getRouteByUid($uid)
     {
-        foreach (Craft::$app->getProjectConfig()->get('routes') as $routeUid => $route) {
-            if ($routeUid === $uid) {
-                $route['uid'] = $routeUid;
-                return $route;
+        $routes = Craft::$app->getProjectConfig()->get('routes');
+        if (is_array($routes)) {
+            foreach ($routes as $routeUid => $route) {
+                if ($routeUid === $uid) {
+                    $route['uid'] = $routeUid;
+                    return $route;
+                }
             }
         }
     }
@@ -222,9 +225,12 @@ class Architect extends Plugin
 
     public static function routeExists(array $uriParts, string $template, string $siteUid = null)
     {
-        foreach (Craft::$app->getProjectConfig()->get('routes') as $routeUid => $route) {
-            if ($route['siteUid'] === $siteUid && $route['template'] === $template && $route['uriPattern'] === self::createRouteUriPattern($uriParts)) {
-                return $routeUid;
+        $routes = Craft::$app->getProjectConfig()->get('routes');
+        if (is_array($routes)) {
+            foreach ($routes as $routeUid => $route) {
+                if ($route['siteUid'] === $siteUid && $route['template'] === $template && $route['uriPattern'] === self::createRouteUriPattern($uriParts)) {
+                    return $routeUid;
+                }
             }
         }
         return false;

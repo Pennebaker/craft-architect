@@ -339,6 +339,8 @@ class FieldProcessor extends Processor
      * @param array $newFields
      *
      * @return array
+     *
+     * @throws \yii\base\InvalidConfigException
      */
     private function mergeFieldLayout(FieldLayout $oldFieldLayout, array $newFields): array
     {
@@ -352,6 +354,20 @@ class FieldProcessor extends Processor
                 $oldIndex = array_search($field['id'], $oldIDs, false);
             } else {
                 $oldIndex = array_search($field['handle'], $oldHandles, false);
+            }
+            switch ($field['type']) {
+                case Matrix::class:
+                    /* @var Matrix $field */
+                    $field['typesettings']['blockTypes'] = $this->mergeBlockTypes($oldFields[$oldIndex]->getBlockTypes(), $field['typesettings']['blockTypes']);
+                    break;
+                case SuperTableField::class:
+                    /* @var SuperTableField $field */
+                    $field['typesettings']['blockTypes'] = $this->mergeSuperTableBlockTypes($oldFields[$oldIndex]->getBlockTypes(), $field['typesettings']['blockTypes']);
+                    break;
+                case Neo::class:
+                    /* @var Neo $field */
+                    $field['typesettings']['blockTypes'] = $this->mergeNeoBlockTypes($oldFields[$oldIndex]->getBlockTypes(), $field['typesettings']['blockTypes']);
+                    break;
             }
             if ($oldIndex !== false) {
                 $field['id'] = $oldFields[$oldIndex]['id'];
