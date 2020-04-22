@@ -257,6 +257,9 @@ abstract class Processor implements ProcessorInterface
                 }
             }
         } else {
+            if ($sites === '*') {
+                return;
+            }
             $site = Craft::$app->sites->getSiteByHandle($sites);
             if ($site) {
                 if ($useIds) {
@@ -290,6 +293,9 @@ abstract class Processor implements ProcessorInterface
                 }
             }
         } else if (is_string($sites)) {
+            if ($sites === '*') {
+                return;
+            }
             try {
                 $site = Craft::$app->sites->getSiteByUid($sites);
                 $sites = $site->handle;

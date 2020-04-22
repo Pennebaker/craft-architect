@@ -555,6 +555,12 @@ class FieldProcessor extends Processor
                 $this->map($item['typeSettings']['category']['sources'], 'group');
                 $this->map($item['typeSettings']['entry']['sources'], 'section');
                 $this->map($item['typeSettings']['user']['sources'], 'group');
+                /* Fix old export problem with unmap/map sites. */
+                if ($item['typeSettings']['site'] === []) {
+                    $item['typeSettings']['site'] = [
+                        'sites' => '*'
+                    ];
+                }
                 $this->mapSites($item['typeSettings']['site']['sites'], '', true);
                 break;
         }
