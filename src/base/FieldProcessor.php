@@ -582,26 +582,17 @@ class FieldProcessor extends Processor
                 $this->unmap($item['singleUploadLocationSource']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
+            case \craft\fields\Users::class:
             case \craft\fields\Entries::class:
                 $this->unmap($item['sources']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
+            case \craft\fields\Tags::class:
             case \craft\fields\Categories::class:
                 if (\is_array($item['source'])) {
                     $item['source'] = $item['source'][0];
                 }
                 $this->unmap($item['source']);
-                $this->unmapSites($item['targetSiteId']);
-                break;
-            case \craft\fields\Tags::class:
-                if (\is_array($item['source'])) {
-                    $item['source'] = $item['source'][0];
-                }
-                $this->unmap($item['source']);
-                $this->unmapSites($item['targetSiteId']);
-                break;
-            case \craft\fields\Users::class:
-                $this->unmap($item['sources']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
             case 'craft\\redactor\\Field':
