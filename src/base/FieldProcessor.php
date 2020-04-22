@@ -555,6 +555,12 @@ class FieldProcessor extends Processor
                 $this->map($item['typeSettings']['category']['sources'], 'group');
                 $this->map($item['typeSettings']['entry']['sources'], 'section');
                 $this->map($item['typeSettings']['user']['sources'], 'group');
+                /* Fix old export problem with unmap/map sites. */
+                if ($item['typeSettings']['site'] === []) {
+                    $item['typeSettings']['site'] = [
+                        'sites' => '*'
+                    ];
+                }
                 $this->mapSites($item['typeSettings']['site']['sites'], '', true);
                 break;
         }
@@ -576,26 +582,17 @@ class FieldProcessor extends Processor
                 $this->unmap($item['singleUploadLocationSource']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
+            case \craft\fields\Users::class:
             case \craft\fields\Entries::class:
                 $this->unmap($item['sources']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
+            case \craft\fields\Tags::class:
             case \craft\fields\Categories::class:
                 if (\is_array($item['source'])) {
                     $item['source'] = $item['source'][0];
                 }
                 $this->unmap($item['source']);
-                $this->unmapSites($item['targetSiteId']);
-                break;
-            case \craft\fields\Tags::class:
-                if (\is_array($item['source'])) {
-                    $item['source'] = $item['source'][0];
-                }
-                $this->unmap($item['source']);
-                $this->unmapSites($item['targetSiteId']);
-                break;
-            case \craft\fields\Users::class:
-                $this->unmap($item['sources']);
                 $this->unmapSites($item['targetSiteId']);
                 break;
             case 'craft\\redactor\\Field':
