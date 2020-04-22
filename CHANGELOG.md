@@ -5,14 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- Fix support for Type Link Field
-- Fix Update support check
 
 ## [2.3.3] - 2020-04-22
 ### Fixed
-- Fix getSiteById() error when exporting
-- Fix lost data in SuperTables when updating a Matrix containing SuperTables
-- Fix invalid argument supplied for foreach() when importing routes on a site with no routes.
+- Fix support for Type Link Field
+- Fix Update support check
 
 ## [2.3.2] - 2020-01-31
 ### Fixed
