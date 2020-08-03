@@ -13,6 +13,7 @@ namespace pennebaker\architect\base;
 use Craft;
 use craft\elements\Entry;
 use craft\models\EntryType;
+use pennebaker\architect\Architect;
 
 /**
  * EntryTypeProcessor
@@ -108,7 +109,7 @@ class EntryTypeProcessor extends Processor
             'fieldLayout' => $this->exportFieldLayout($item->getFieldLayout()),
             'requiredFields' => $this->exportRequiredFields($item->getFieldLayout()),
         ], $attributeObj);
-        
+
         if (\count($entryTypeObj['requiredFields']) <= 0) {
             unset($entryTypeObj['requiredFields']);
         }
@@ -140,5 +141,45 @@ class EntryTypeProcessor extends Processor
     public function exportByUid($uid)
     {
         // TODO: Implement exportByUid() method.
+    }
+
+    /**
+     * @param array $itemObj
+     */
+    public function update(array &$itemObj)
+    {
+        $section = Craft::$app->sections->getSectionByHandle($itemObj['sectionHandle']);
+        $sectionEntryTypes = $section->getEntryTypes();
+        if ($section->type === 'single') {
+            if($sectionEntryTypes[0]->handle === $itemObj['handle']) {
+                $parsedItem = $this->parse($itemObj)[0];
+                try {
+                    Craft::$app->sections->saveEntryType($parsedItem, false);
+                } catch (\Exception $e) {
+                    $errors = [
+                        'type' => [
+                            Architect::t('Could not save entry type: '. $e)
+                        ]
+                    ];
+                    return [null, $errors];
+                }
+            }
+        } else {
+            // deal with sections that can have multiple entry types
+            foreach ($sectionEntryTypes as $sectionEntryType) {
+                $parsedItem = $this->parse($itemObj)[0];
+                try {
+                    Craft::$app->sections->saveEntryType($parsedItem, false);
+                } catch (\Exception $e) {
+                    $errors = [
+                        'type' => [
+                            Architect::t('Could not save entry type: ' . $e)
+                        ]
+                    ];
+                    return [null, $errors];
+                }
+            }
+        }
+        return null;
     }
 }
