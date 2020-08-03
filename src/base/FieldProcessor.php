@@ -714,7 +714,7 @@ class FieldProcessor extends Processor
                     'sortOrder' => (int) $blockType->sortOrder,
                     'maxBlocks' => (int) $blockType->maxBlocks,
                     'childBlocks' => Json::decodeIfJson((string) $blockType->childBlocks),
-                    'maxChildBlocks' => (int) $blockType->maxBlocks,
+                    'maxChildBlocks' => (int) $blockType->maxChildBlocks,
                     'topLevel' => (bool) $blockType->topLevel,
                     'fieldLayout' => $this->exportFieldLayout($blockType->getFieldLayout()),
                     'requiredFields' => $this->exportRequiredFields($blockType->getFieldLayout()),
