@@ -33,15 +33,7 @@ class SectionProcessor extends Processor
      */
     public function parse(array $item): array
     {
-        foreach ($item['siteSettings'] as $settingKey => $settings) {
-            $siteSettings = new Section_SiteSettings(array_merge($settings, [
-                'siteId' => isset($settings['siteId']) ? Craft::$app->sites->getSiteByHandle($settings['siteId'])->id : Craft::$app->sites->getPrimarySite()->id,
-            ]));
-            if (isset($siteSettings['hasUrls']) && (bool) $siteSettings['hasUrls'] === false) {
-                $siteSettings['uriFormat'] = null;
-            }
-            $item['siteSettings'][$settingKey] = $siteSettings;
-        }
+        $item = $this->_getParsedSiteSettings($item);
         $section = new Section($item);
 
         return [$section, null];
@@ -151,5 +143,63 @@ class SectionProcessor extends Processor
     public function exportByUid($uid)
     {
         // TODO: Implement exportByUid() method.
+    }
+
+    /**
+     * @param array $itemObj
+     * @return bool
+     * @throws \Throwable
+     * @throws \craft\errors\SectionNotFoundException
+     */
+    public function update(array &$itemObj)
+    {
+        // Check section exists
+        try {
+            $section = Craft::$app->sections->getSectionByHandle($itemObj['handle']);
+        } catch (\Exception $e) {
+            $errors = [
+                'type' => [
+                    Architect::t('Could not retreive section: ' . $e)
+                ]
+            ];
+            return [null, $errors];
+        }
+        foreach($itemObj as $key => $value) {
+            // Ignore uid, id, structureId fields
+            if ($key !== 'id' && $key !== 'uid' && $key !== 'structureId') {
+                $section[$key] = $value;
+            }
+        }
+        $siteSettings = $this->_getParsedSiteSettings($itemObj)['siteSettings'];
+        $section->setSiteSettings($siteSettings);
+        try {
+            Craft::$app->sections->saveSection($section, false);
+        } catch (\Exception $e) {
+            $errors = [
+                'type' => [
+                    Architect::t('Could not save section: ' . $e)
+                ]
+            ];
+            return [null, $errors];
+        }
+    }
+
+    /**
+     * @param $item
+     * @return mixed
+     * @throws \craft\errors\SiteNotFoundException
+     */
+    private function _getParsedSiteSettings($item)
+    {
+        foreach ($item['siteSettings'] as $settingKey => $settings) {
+            $siteSettings = new Section_SiteSettings(array_merge($settings, [
+                'siteId' => isset($settings['siteId']) ? Craft::$app->sites->getSiteByHandle($settings['siteId'])->id : Craft::$app->sites->getPrimarySite()->id,
+            ]));
+            if (isset($siteSettings['hasUrls']) && (bool) $siteSettings['hasUrls'] === false) {
+                $siteSettings['uriFormat'] = null;
+            }
+            $item['siteSettings'][$settingKey] = $siteSettings;
+        }
+        return $item;
     }
 }

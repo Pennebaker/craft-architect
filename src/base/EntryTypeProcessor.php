@@ -108,7 +108,7 @@ class EntryTypeProcessor extends Processor
             'fieldLayout' => $this->exportFieldLayout($item->getFieldLayout()),
             'requiredFields' => $this->exportRequiredFields($item->getFieldLayout()),
         ], $attributeObj);
-        
+
         if (\count($entryTypeObj['requiredFields']) <= 0) {
             unset($entryTypeObj['requiredFields']);
         }
