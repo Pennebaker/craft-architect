@@ -103,14 +103,13 @@ class EntryTypeProcessor extends Processor
             'name' => $item->name,
             'handle' => $item->handle,
             'hasTitleField' => $hasTitleField,
-            'titleLabel' => $hasTitleField ? $item->titleLabel : '',
             'titleFormat' => (!$hasTitleField) ? $item->titleFormat : '',
             'fieldLayout' => $this->exportFieldLayout($item->getFieldLayout()),
             'requiredFields' => $this->exportRequiredFields($item->getFieldLayout()),
         ], $attributeObj);
-        
-        if (\count($entryTypeObj['requiredFields']) <= 0) {
-            unset($entryTypeObj['requiredFields']);
+
+        if ($hasTitleField && isset($item->titleLabel)) {
+            $entryTypeObj['titleLabel'] = $item->titleLabel ?: '';
         }
 
         return $this->stripNulls($entryTypeObj);
