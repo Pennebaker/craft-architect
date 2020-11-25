@@ -52,9 +52,7 @@ class EntryTypeProcessor extends Processor
         $entryType->name = $item['name'];
         $entryType->handle = $item['handle'];
         $entryType->hasTitleField = $item['hasTitleField'];
-        if ((bool) $item['hasTitleField']) {
-            $entryType->titleLabel = $item['titleLabel'];
-        } else {
+        if (!(bool) $item['hasTitleField']) {
             $entryType->titleFormat = $item['titleFormat'];
         }
 
@@ -98,19 +96,17 @@ class EntryTypeProcessor extends Processor
             $attributeObj[$attribute] = $item->$attribute;
         }
         $hasTitleField = (bool) $item->hasTitleField;
+
+        list ($fieldLayout, $fieldConfigs) = $this->exportFieldLayout($item->getFieldLayout());
         $entryTypeObj = array_merge([
             'sectionHandle' => $item->getSection()->handle,
             'name' => $item->name,
             'handle' => $item->handle,
             'hasTitleField' => $hasTitleField,
             'titleFormat' => (!$hasTitleField) ? $item->titleFormat : '',
-            'fieldLayout' => $this->exportFieldLayout($item->getFieldLayout()),
-            'requiredFields' => $this->exportRequiredFields($item->getFieldLayout()),
+            'fieldLayout' => $fieldLayout,
+            'fieldConfigs' => $fieldConfigs,
         ], $attributeObj);
-
-        if ($hasTitleField && isset($item->titleLabel)) {
-            $entryTypeObj['titleLabel'] = $item->titleLabel ?: '';
-        }
 
         return $this->stripNulls($entryTypeObj);
     }
