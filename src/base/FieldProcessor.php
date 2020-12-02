@@ -318,11 +318,10 @@ class FieldProcessor extends Processor
             }
             if ($oldIndex !== false) {
                 $oldFieldLayout = $oldBlockTypes[$oldIndex]->getFieldLayout();
-                $newFields = $blockType['fields'];
             } else {
                 $oldFieldLayout = new FieldLayout();
-                $newFields = [];
             }
+            $newFields = $blockType['fields'];
             $blockType['fields'] = $this->mergeFieldLayout($oldFieldLayout, $newFields);
             if ($oldIndex !== false) {
                 $updatedBlockTypes[$oldBlockTypes[$oldIndex]['id']] = $blockType;

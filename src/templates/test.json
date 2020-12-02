@@ -819,7 +819,6 @@
     {
       "sectionHandle": "homePage",
       "hasTitleField": false,
-      "titleLabel": "Title",
       "titleFormat": "{section.name|raw}",
       "fieldLayout": {
         "Blog Content": [
@@ -839,7 +838,6 @@
     {
       "sectionHandle": "blog",
       "hasTitleField": true,
-      "titleLabel": "Title",
       "titleFormat": "{section.name|raw}",
       "name": "Blog Alt",
       "handle": "blogAlt",
@@ -863,7 +861,6 @@
     {
       "sectionHandle": "blog",
       "hasTitleField": true,
-      "titleLabel": "Title",
       "titleFormat": "{section.name|raw}",
       "name": "Article",
       "handle": "article",
