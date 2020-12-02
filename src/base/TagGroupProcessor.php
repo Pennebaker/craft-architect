@@ -104,11 +104,12 @@ class TagGroupProcessor extends Processor
             $attributeObj[$attribute] = $item->$attribute;
         }
 
+        list ($fieldLayout, $fieldConfigs) = $this->exportFieldLayout($item->getFieldLayout());
         $tagGroupObj = array_merge([
             'name' => $item->name,
             'handle' => $item->handle,
-            'fieldLayout' => $this->exportFieldLayout($item->getFieldLayout()),
-            'requiredFields' => $this->exportRequiredFields($item->getFieldLayout()),
+            'fieldLayout' => $fieldLayout,
+            'fieldConfigs' => $fieldConfigs,
         ], $attributeObj);
 
         if (\count($tagGroupObj['requiredFields']) <= 0) {

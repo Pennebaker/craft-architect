@@ -84,11 +84,12 @@ class GlobalSetProcessor extends Processor
             $attributeObj[$attribute] = $item->$attribute;
         }
 
+        list ($fieldLayout, $fieldConfigs) = $this->exportFieldLayout($item->getFieldLayout());
         $globalSetObj = array_merge([
             'name' => $item->name,
             'handle' => $item->handle,
-            'fieldLayout' => $this->exportFieldLayout($item->getFieldLayout()),
-            'requiredFields' => $this->exportRequiredFields($item->getFieldLayout()),
+            'fieldLayout' => $fieldLayout,
+            'fieldConfigs' => $fieldConfigs,
         ], $attributeObj);
 
         if (\count($globalSetObj['requiredFields']) <= 0) {

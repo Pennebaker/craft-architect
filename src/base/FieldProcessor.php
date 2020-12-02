@@ -707,6 +707,7 @@ class FieldProcessor extends Processor
             $fieldObj['groups'] = $blockTypeGroupsObj;
             foreach ($item->getBlockTypes() as $blockType) {
                 /* @var NeoBlockType $blockType */
+                list ($fieldLayout, $fieldConfigs) = $this->exportFieldLayout($blockType->getFieldLayout());
                 $blockTypesObj[] = [
                     'name' => $blockType->name,
                     'handle' => $blockType->handle,
@@ -715,8 +716,8 @@ class FieldProcessor extends Processor
                     'childBlocks' => Json::decodeIfJson((string) $blockType->childBlocks),
                     'maxChildBlocks' => (int) $blockType->maxChildBlocks,
                     'topLevel' => (bool) $blockType->topLevel,
-                    'fieldLayout' => $this->exportFieldLayout($blockType->getFieldLayout()),
-                    'requiredFields' => $this->exportRequiredFields($blockType->getFieldLayout()),
+                    'fieldLayout' => $fieldLayout,
+                    'fieldConfigs' => $fieldConfigs,
                 ];
             }
             $fieldObj['blockTypes'] = $blockTypesObj;

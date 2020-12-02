@@ -107,6 +107,7 @@ class VolumeProcessor extends Processor
         }
 
         $hasUrls = (bool) $item->hasUrls;
+        list ($fieldLayout, $fieldConfigs) = $this->exportFieldLayout($blockType->getFieldLayout());
         $volumeObj = array_merge([
             'name' => $item->name,
             'handle' => $item->handle,
@@ -114,8 +115,8 @@ class VolumeProcessor extends Processor
             'hasUrls' => $hasUrls,
             'url' => $hasUrls ? $item->url : null,
             'settings' => $item->settings,
-            'fieldLayout' => $this->exportFieldLayout($item->getFieldLayout()),
-            'requiredFields' => $this->exportRequiredFields($item->getFieldLayout()),
+            'fieldLayout' => $fieldLayout,
+            'fieldConfigs' => $fieldConfigs,
         ], $attributeObj);
 
         if (\count($volumeObj['requiredFields']) <= 0) {
