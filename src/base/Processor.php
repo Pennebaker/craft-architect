@@ -26,24 +26,20 @@ use craft\models\FieldLayout;
  */
 abstract class Processor implements ProcessorInterface
 {
-    /**
-     * @param $item
-     * @param $type
-     *
-     * @return FieldLayout
-     */
-    public function createFieldLayout($item, $type): FieldLayout
+    public function createFieldLayoutConfig($item, $type)
     {
         $tmpFieldLayout = new FieldLayout();
         $tmpFieldLayout->type = $type;
         $standardElementConfigs = [];
         $tmpFieldLayoutConfig = $tmpFieldLayout->getConfig();
-        foreach ($tmpFieldLayoutConfig['tabs'] as $tabConfig) {
-            $fieldLayoutObj[$tabConfig['name']] = [];
-            foreach ($tabConfig['elements'] as $elementConfig) {
-                $tmpClass = new $elementConfig['type'];
-                $attribute = $tmpClass->attribute();
-                $standardElementConfigs[$attribute] = $elementConfig;
+        if ($tmpFieldLayoutConfig) {
+            foreach ($tmpFieldLayoutConfig['tabs'] as $tabConfig) {
+                $fieldLayoutObj[$tabConfig['name']] = [];
+                foreach ($tabConfig['elements'] as $elementConfig) {
+                    $tmpClass = new $elementConfig['type'];
+                    $attribute = $tmpClass->attribute();
+                    $standardElementConfigs[$attribute] = $elementConfig;
+                }
             }
         }
         $fieldLayoutConfig = [ 'tabs' => [] ];
@@ -98,6 +94,18 @@ abstract class Processor implements ProcessorInterface
                 $fieldLayoutConfig['tabs'][] = $tabConfig;
             }
         }
+        return $fieldLayoutConfig;
+    }
+
+    /**
+     * @param $item
+     * @param $type
+     *
+     * @return FieldLayout
+     */
+    public function createFieldLayout($item, $type): FieldLayout
+    {
+        $fieldLayoutConfig = $this->createFieldLayoutConfig($item, $type);
         $fieldLayout = FieldLayout::createFromConfig($fieldLayoutConfig);
         $fieldLayout->type = $type;
 
