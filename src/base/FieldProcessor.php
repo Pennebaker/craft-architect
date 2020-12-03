@@ -139,7 +139,7 @@ class FieldProcessor extends Processor
                         foreach ($fieldConfigs as $fieldConfig) {
                             $rndKey = substr(base64_encode(mt_rand()), 2, 12);
                             $blockType['elementPlacements'][$tabName][] = $rndKey;
-                            $blockType['elementConfigs'][$rndKey] = $fieldConfig;
+                            $blockType['elementConfigs'][$rndKey] = json_encode($fieldConfig);
 
                         }
                     }
@@ -177,11 +177,19 @@ class FieldProcessor extends Processor
                 'groupId' => $groupId
             ]);
 
+            $moveToSettings = [];
             if ($item['type'] === Neo::class) {
-                $fieldObject['settings'] = [
-                    'blockTypes' => $fieldObject['blockTypes']
-                ];
-                unset($fieldObject['blockTypes']);
+                $moveToSettings = ['blockTypes', 'propagationMethod', 'minBlocks', 'maxBlocks', 'maxTopBlocks'];
+            }
+
+            if (\count($moveToSettings)) {
+                $fieldObject['settings'] = [];
+            }
+            foreach ($moveToSettings as $moveKey) {
+                if (isset($fieldObject[$moveKey])) {
+                    $fieldObject['settings'][$moveKey] = $fieldObject[$moveKey];
+                    unset($fieldObject[$moveKey]);
+                }
             }
 
             $field = Craft::$app->fields->createField($fieldObject);
@@ -259,35 +267,19 @@ class FieldProcessor extends Processor
             if ($item['type'] === Neo::class) {
                 /* @var Neo $field */
                 list($field) = $this->parse($item); // This shouldn't fail because it only got to this point by succeeding the first time.
-                foreach ($item['blockTypes'] as &$blockType) {
-                    $fieldLayoutConfig = $this->createFieldLayoutConfig($blockType, NeoBlock::class);
-                    foreach ($fieldLayoutConfig['tabs'] as $tabConfig) {
-                        $tabName = $tabConfig['name'];
-                        $fieldConfigs = $tabConfig['elements'];
-                        $blockType['elementPlacements'][$tabName] = [];
-                        if (is_array($fieldConfigs)) {
-                            foreach ($fieldConfigs as $fieldConfig) {
-                                $rndKey = substr(base64_encode(mt_rand()), 2, 12);
-                                $blockType['elementPlacements'][$tabName][] = $rndKey;
-                                $blockType['elementConfigs'][$rndKey] = $fieldConfig;
-
-                            }
-                        }
-                    }
-                    unset($fields);
-                    unset($blockType['fieldLayout']);
-                    unset($blockType['fieldConfigs']);
-                    unset($blockType['requiredFields']);
+                $configBlockTypes = [];
+                foreach ($item['blockTypes'] as $blockType) {
+                    $configBlockTypes[$blockType['handle']] = $blockType;
                 }
-                unset($blockType);
                 $blockTypes = $field->getBlockTypes();
                 foreach ($blockTypes as &$blockType) {
                     /* @var NeoBlockTypeModel $blockType */
-                    $fieldLayout = FieldLayout::createFromConfig($fieldLayoutConfig);
-                    $fieldLayout->id = $blockType->fieldLayoutId;
-                    $fieldLayout->type = NeoBlock::class;
-                    Craft::$app->fields->saveLayout($fieldLayout);
-                    $blockType->fieldLayoutId = $fieldLayout->id;
+                    if (isset($configBlockTypes[$blockType->handle])) {
+                        $fieldLayout = $this->createFieldLayout($configBlockTypes[$blockType->handle], NeoBlock::class);
+                        $fieldLayout->id = $blockType->fieldLayoutId;
+                        Craft::$app->fields->saveLayout($fieldLayout);
+                        $blockType->fieldLayoutId = $fieldLayout->id;
+                    }
                 }
                 unset($blockType);
                 $field->setBlockTypes($blockTypes);
