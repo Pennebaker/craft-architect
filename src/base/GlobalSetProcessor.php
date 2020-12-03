@@ -92,10 +92,6 @@ class GlobalSetProcessor extends Processor
             'fieldConfigs' => $fieldConfigs,
         ], $attributeObj);
 
-        if (\count($globalSetObj['requiredFields']) <= 0) {
-            unset($globalSetObj['requiredFields']);
-        }
-
         return $this->stripNulls($globalSetObj);
     }
 

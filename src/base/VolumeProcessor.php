@@ -119,10 +119,6 @@ class VolumeProcessor extends Processor
             'fieldConfigs' => $fieldConfigs,
         ], $attributeObj);
 
-        if (\count($volumeObj['requiredFields']) <= 0) {
-            unset($volumeObj['requiredFields']);
-        }
-
         return $this->stripNulls($volumeObj);
     }
 

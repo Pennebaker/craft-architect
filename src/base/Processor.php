@@ -61,7 +61,6 @@ abstract class Processor implements ProcessorInterface
                     }
                     $elementConfig = false;
                     if ($isStandard) {
-                        unset($item['fieldConfigs'][$tab][$fieldHandle]['standard']);
                         if (isset($item['fieldConfigs'][$tab][$fieldHandle])) {
                             $elementConfig = array_merge($standardElementConfigs[$fieldHandle], $item['fieldConfigs'][$tab][$fieldHandle]);
                         } else {
@@ -83,6 +82,12 @@ abstract class Processor implements ProcessorInterface
                             if (isset($item['fieldConfigs'][$tab][$field->handle])) {
                                 $fieldConfig = $item['fieldConfigs'][$tab][$field->handle];
                                 $elementConfig = array_merge($elementConfig, $fieldConfig);
+                            } else if (
+                                isset($item['requiredFields']) &&
+                                is_array($item['requiredFields']) &&
+                                in_array($field->handle, $item['requiredFields'])
+                            ) {
+                                $elementConfig = array_merge($elementConfig, [ 'required' => true ]);
                             }
                         }
                     }

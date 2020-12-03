@@ -122,10 +122,6 @@ class CategoryGroupProcessor extends Processor
             ];
         }
 
-        if (\count($categoryGroupObj['requiredFields']) <= 0) {
-            unset($categoryGroupObj['requiredFields']);
-        }
-
         return $this->stripNulls($categoryGroupObj);
     }
 

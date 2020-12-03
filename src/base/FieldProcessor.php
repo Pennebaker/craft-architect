@@ -132,7 +132,6 @@ class FieldProcessor extends Processor
                 if (\is_array($blockType['requiredFields'])) {
                     $blockType['requiredFields'] = $this->handlesToIds($blockType['requiredFields']);
                 }
-                unset($requiredFields);
             }
             unset($blockType);
         } else if ($item['type'] === SuperTableField::class) {

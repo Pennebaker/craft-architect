@@ -112,10 +112,6 @@ class TagGroupProcessor extends Processor
             'fieldConfigs' => $fieldConfigs,
         ], $attributeObj);
 
-        if (\count($tagGroupObj['requiredFields']) <= 0) {
-            unset($tagGroupObj['requiredFields']);
-        }
-
         return $this->stripNulls($tagGroupObj);
     }
 
