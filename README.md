@@ -102,9 +102,7 @@ Current Working Exports:
 
 ## Architect Roadmap
 
-Some things to do, and ideas for potential features:
-
-* Convert plugin for use with Craft 3
+Some things to do and ideas for potential features:
 
 [2.0.0] ***complete***
 - Importing
@@ -124,7 +122,10 @@ Some things to do, and ideas for potential features:
 - Build order importing
 - Import and Update Fields
 
-[2.4.0 and later] ***brainstorming***
+[2.4.0] ***complete***
+- Craft 3.5 Field Layout
+
+[2.5.0 and later] ***brainstorming***
 - Import and Update (Non Fields)
 - Commerce Support
 - Store for sharing blueprints
