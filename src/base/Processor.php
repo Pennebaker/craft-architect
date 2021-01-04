@@ -408,8 +408,10 @@ abstract class Processor implements ProcessorInterface
      * @return array
      */
     public function exportFieldLayout($fieldLayout) {
-
         $fieldLayoutConfig = $fieldLayout->getConfig();
+        if (!$fieldLayoutConfig) {
+            return [[], []];
+        }
 
         $fieldLayoutObj = [];
         $fieldConfigsObj = [];
