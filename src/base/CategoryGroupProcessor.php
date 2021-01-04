@@ -103,13 +103,14 @@ class CategoryGroupProcessor extends Processor
             $attributeObj[$attribute] = $item->$attribute;
         }
 
+        list ($fieldLayout, $fieldConfigs) = $this->exportFieldLayout($item->getFieldLayout());
         $categoryGroupObj = array_merge([
             'name' => $item->name,
             'handle' => $item->handle,
             'maxLevels' => $item->maxLevels,
             'siteSettings' => [],
-            'fieldLayout' => $this->exportFieldLayout($item->getFieldLayout()),
-            'requiredFields' => $this->exportRequiredFields($item->getFieldLayout()),
+            'fieldLayout' => $fieldLayout,
+            'fieldConfigs' => $fieldConfigs,
         ], $attributeObj);
 
         $siteSettings = $item->getSiteSettings();
@@ -119,10 +120,6 @@ class CategoryGroupProcessor extends Processor
                 'uriFormat' => $siteSetting->uriFormat,
                 'template' => $siteSetting->template,
             ];
-        }
-
-        if (\count($categoryGroupObj['requiredFields']) <= 0) {
-            unset($categoryGroupObj['requiredFields']);
         }
 
         return $this->stripNulls($categoryGroupObj);

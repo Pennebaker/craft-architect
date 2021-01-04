@@ -21,6 +21,8 @@ use craft\models\MatrixBlockType;
 use craft\helpers\Json;
 use verbb\supertable\fields\SuperTableField;
 use benf\neo\Field as Neo;
+use benf\neo\elements\Block as NeoBlock;
+use benf\neo\models\BlockType as NeoBlockTypeModel;
 use benf\neo\records\BlockType as NeoBlockType;
 use benf\neo\records\BlockTypeGroup as NeoBlockTypeGroup;
 
@@ -123,16 +125,29 @@ class FieldProcessor extends Processor
                 if (!array_key_exists('childBlocks', $blockType)) {
                     $blockType['childBlocks'] = null;
                 }
-                foreach ($blockType['fieldLayout'] as &$fields) {
-                    if (is_array($fields)) {
-                        $fields = $this->handlesToIds($fields);
+                if (!array_key_exists('maxSiblingBlocks', $blockType)) {
+                    $blockType['maxSiblingBlocks'] = null;
+                }
+                $blockType['elementPlacements'] = [];
+                $blockType['elementConfigs'] = [];
+                $fieldLayoutConfig = $this->createFieldLayoutConfig($blockType, NeoBlock::class);
+                foreach ($fieldLayoutConfig['tabs'] as $tabConfig) {
+                    $tabName = $tabConfig['name'];
+                    $fieldConfigs = $tabConfig['elements'];
+                    $blockType['elementPlacements'][$tabName] = [];
+                    if (is_array($fieldConfigs)) {
+                        foreach ($fieldConfigs as $fieldConfig) {
+                            $rndKey = substr(base64_encode(mt_rand()), 2, 12);
+                            $blockType['elementPlacements'][$tabName][] = $rndKey;
+                            $blockType['elementConfigs'][$rndKey] = json_encode($fieldConfig);
+
+                        }
                     }
                 }
                 unset($fields);
-                if (\is_array($blockType['requiredFields'])) {
-                    $blockType['requiredFields'] = $this->handlesToIds($blockType['requiredFields']);
-                }
-                unset($requiredFields);
+                unset($blockType['fieldLayout']);
+                unset($blockType['fieldConfigs']);
+                unset($blockType['requiredFields']);
             }
             unset($blockType);
         } else if ($item['type'] === SuperTableField::class) {
@@ -162,11 +177,19 @@ class FieldProcessor extends Processor
                 'groupId' => $groupId
             ]);
 
+            $moveToSettings = [];
             if ($item['type'] === Neo::class) {
-                $fieldObject['settings'] = [
-                    'blockTypes' => $fieldObject['blockTypes']
-                ];
-                unset($fieldObject['blockTypes']);
+                $moveToSettings = ['blockTypes', 'propagationMethod', 'minBlocks', 'maxBlocks', 'maxTopBlocks'];
+            }
+
+            if (\count($moveToSettings)) {
+                $fieldObject['settings'] = [];
+            }
+            foreach ($moveToSettings as $moveKey) {
+                if (isset($fieldObject[$moveKey])) {
+                    $fieldObject['settings'][$moveKey] = $fieldObject[$moveKey];
+                    unset($fieldObject[$moveKey]);
+                }
             }
 
             $field = Craft::$app->fields->createField($fieldObject);
@@ -189,7 +212,7 @@ class FieldProcessor extends Processor
      *
      * @return array
      */
-    public function handlesToIds($fields) : array
+    public function handlesToIds($fields): array
     {
         foreach ($fields as &$fieldHandle) {
             // Replace field handles with their respective IDs
@@ -241,11 +264,25 @@ class FieldProcessor extends Processor
     {
         $field = Craft::$app->fields->getFieldByHandle($item['handle']);
         if ($field) {
-            $fieldId = $field->id;
             if ($item['type'] === Neo::class) {
                 /* @var Neo $field */
                 list($field) = $this->parse($item); // This shouldn't fail because it only got to this point by succeeding the first time.
-                $field['id'] = $fieldId;
+                $configBlockTypes = [];
+                foreach ($item['blockTypes'] as $blockType) {
+                    $configBlockTypes[$blockType['handle']] = $blockType;
+                }
+                $blockTypes = $field->getBlockTypes();
+                foreach ($blockTypes as &$blockType) {
+                    /* @var NeoBlockTypeModel $blockType */
+                    if (isset($configBlockTypes[$blockType->handle])) {
+                        $fieldLayout = $this->createFieldLayout($configBlockTypes[$blockType->handle], NeoBlock::class);
+                        $fieldLayout->id = $blockType->fieldLayoutId;
+                        Craft::$app->fields->saveLayout($fieldLayout);
+                        $blockType->fieldLayoutId = $fieldLayout->id;
+                    }
+                }
+                unset($blockType);
+                $field->setBlockTypes($blockTypes);
                 return $this->save($field, true);
             }
         }
@@ -318,11 +355,10 @@ class FieldProcessor extends Processor
             }
             if ($oldIndex !== false) {
                 $oldFieldLayout = $oldBlockTypes[$oldIndex]->getFieldLayout();
-                $newFields = $blockType['fields'];
             } else {
                 $oldFieldLayout = new FieldLayout();
-                $newFields = [];
             }
+            $newFields = $blockType['fields'];
             $blockType['fields'] = $this->mergeFieldLayout($oldFieldLayout, $newFields);
             if ($oldIndex !== false) {
                 $updatedBlockTypes[$oldBlockTypes[$oldIndex]['id']] = $blockType;
@@ -708,16 +744,18 @@ class FieldProcessor extends Processor
             $fieldObj['groups'] = $blockTypeGroupsObj;
             foreach ($item->getBlockTypes() as $blockType) {
                 /* @var NeoBlockType $blockType */
+                list ($fieldLayout, $fieldConfigs) = $this->exportFieldLayout($blockType->getFieldLayout());
                 $blockTypesObj[] = [
                     'name' => $blockType->name,
                     'handle' => $blockType->handle,
                     'sortOrder' => (int) $blockType->sortOrder,
                     'maxBlocks' => (int) $blockType->maxBlocks,
+                    'maxSiblingBlocks' => (int) $blockType->maxSiblingBlocks,
                     'childBlocks' => Json::decodeIfJson((string) $blockType->childBlocks),
-                    'maxChildBlocks' => (int) $blockType->maxBlocks,
+                    'maxChildBlocks' => (int) $blockType->maxChildBlocks,
                     'topLevel' => (bool) $blockType->topLevel,
-                    'fieldLayout' => $this->exportFieldLayout($blockType->getFieldLayout()),
-                    'requiredFields' => $this->exportRequiredFields($blockType->getFieldLayout()),
+                    'fieldLayout' => $fieldLayout,
+                    'fieldConfigs' => $fieldConfigs,
                 ];
             }
             $fieldObj['blockTypes'] = $blockTypesObj;

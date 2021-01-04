@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.4.0] - 2021-01-04
+### Added
+- Craft 3.5 Field Layout Support
+- Neo Field partial support for 3.5 Field Layout
+
+### Fixed
+- Fix entry type export error
+- Fix Matrix field not updating.
+
 ## [2.3.3] - 2020-04-22
 ### Fixed
 - Fix support for Type Link Field
@@ -186,7 +195,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.3.3...develop
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.4.0...develop
+[2.4.0]: https://github.com/pennebaker/craft-architect/compare/2.3.3...2.4.0
 [2.3.3]: https://github.com/pennebaker/craft-architect/compare/2.3.2...2.3.3
 [2.3.2]: https://github.com/pennebaker/craft-architect/compare/2.3.1...2.3.2
 [2.3.1]: https://github.com/pennebaker/craft-architect/compare/2.3.0...2.3.1

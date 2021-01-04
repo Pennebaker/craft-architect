@@ -14,8 +14,8 @@ use Craft;
 use craft\db\Query;
 use craft\db\Table;
 use craft\errors\SiteNotFoundException;
+use craft\fieldlayoutelements\CustomField;
 use craft\models\FieldLayout;
-use craft\base\Field;
 
 /**
  * Processor
@@ -26,6 +26,77 @@ use craft\base\Field;
  */
 abstract class Processor implements ProcessorInterface
 {
+    public function createFieldLayoutConfig($item, $type)
+    {
+        $tmpFieldLayout = new FieldLayout();
+        $tmpFieldLayout->type = $type;
+        $standardElementConfigs = [];
+        $tmpFieldLayoutConfig = $tmpFieldLayout->getConfig();
+        if ($tmpFieldLayoutConfig) {
+            foreach ($tmpFieldLayoutConfig['tabs'] as $tabConfig) {
+                $fieldLayoutObj[$tabConfig['name']] = [];
+                foreach ($tabConfig['elements'] as $elementConfig) {
+                    $tmpClass = new $elementConfig['type'];
+                    $attribute = $tmpClass->attribute();
+                    $standardElementConfigs[$attribute] = $elementConfig;
+                }
+            }
+        }
+        $fieldLayoutConfig = [ 'tabs' => [] ];
+        if (isset($item['fieldLayout'])) {
+            foreach ($item['fieldLayout'] as $tab => $fields) {
+                $tabConfig = [
+                    'name' => $tab,
+                    'sortOrder' => 1,
+                    'elements' => [],
+                ];
+                foreach ($item['fieldLayout'][$tab] as $fieldHandle) {
+                    $isStandard = false;
+                    if (isset($standardElementConfigs[$fieldHandle])) {
+                        $isStandard = true;
+                    }
+                    $elementConfig = false;
+                    if ($isStandard) {
+                        if (isset($item['fieldConfigs'][$tab][$fieldHandle])) {
+                            $elementConfig = array_merge($standardElementConfigs[$fieldHandle], $item['fieldConfigs'][$tab][$fieldHandle]);
+                        } else {
+                            $elementConfig = $standardElementConfigs[$fieldHandle];
+                        }
+                    } else {
+                        $field = Craft::$app->fields->getFieldByHandle($fieldHandle);
+                        if ($field) {
+                            $elementConfig = [
+                                'type' => CustomField::class,
+                                'label' => '',
+                                'instructions' => '',
+                                'tip' => null,
+                                'warning' => null,
+                                'required' => '',
+                                'width' => 100,
+                                'fieldUid' => $field->uid,
+                            ];
+                            if (isset($item['fieldConfigs'][$tab][$field->handle])) {
+                                $fieldConfig = $item['fieldConfigs'][$tab][$field->handle];
+                                $elementConfig = array_merge($elementConfig, $fieldConfig);
+                            } else if (
+                                isset($item['requiredFields']) &&
+                                is_array($item['requiredFields']) &&
+                                in_array($field->handle, $item['requiredFields'])
+                            ) {
+                                $elementConfig = array_merge($elementConfig, [ 'required' => true ]);
+                            }
+                        }
+                    }
+                    if ($elementConfig !== false) {
+                        $tabConfig['elements'][] = $elementConfig;
+                    }
+                }
+                $fieldLayoutConfig['tabs'][] = $tabConfig;
+            }
+        }
+        return $fieldLayoutConfig;
+    }
+
     /**
      * @param $item
      * @param $type
@@ -34,33 +105,8 @@ abstract class Processor implements ProcessorInterface
      */
     public function createFieldLayout($item, $type): FieldLayout
     {
-        $fieldLayout = new FieldLayout();
-
-        if (isset($item['fieldLayout'])) {
-            foreach ($item['fieldLayout'] as $tab => $fields) {
-                foreach ($item['fieldLayout'][$tab] as $k => $fieldHandle) {
-                    $field = Craft::$app->fields->getFieldByHandle($fieldHandle);
-                    if ($field) {
-                        $item['fieldLayout'][$tab][$k] = $field->id;
-                    } else {
-                        unset($item['fieldLayout'][$tab][$k]);
-                    }
-                }
-            }
-            if (isset($item['requiredFields']) && is_array($item['requiredFields'])) {
-                foreach ($item['requiredFields'] as $k => $fieldHandle) {
-                    $field = Craft::$app->fields->getFieldByHandle($fieldHandle);
-                    if ($field) {
-                        $item['requiredFields'][$k] = $field->id;
-                    } else {
-                        unset($item['requiredFields'][$k]);
-                    }
-                }
-            } else {
-                $item['requiredFields'] = [];
-            }
-            $fieldLayout = Craft::$app->fields->assembleLayout($item['fieldLayout'], $item['requiredFields']);
-        }
+        $fieldLayoutConfig = $this->createFieldLayoutConfig($item, $type);
+        $fieldLayout = FieldLayout::createFromConfig($fieldLayoutConfig);
         $fieldLayout->type = $type;
 
         return $fieldLayout;
@@ -362,40 +408,37 @@ abstract class Processor implements ProcessorInterface
      * @return array
      */
     public function exportFieldLayout($fieldLayout) {
-        $fieldLayoutObj = [];
-        $tabs = $fieldLayout->getTabs();
-        usort($tabs, function($a, $b) {
-            return $a->sortOrder > $b->sortOrder;
-        });
-        foreach ($tabs as $tab) {
-            $fieldLayoutObj[$tab->name] = [];
-            foreach ($tab->getFields() as $field) {
-                array_push($fieldLayoutObj[$tab->name], $field->handle);
-            }
+        $fieldLayoutConfig = $fieldLayout->getConfig();
+        if (!$fieldLayoutConfig) {
+            return [[], []];
         }
-        return $fieldLayoutObj;
-    }
 
-    /**
-     * @param FieldLayout $fieldLayout
-     *
-     * @return array
-     */
-    public function exportRequiredFields($fieldLayout) {
-        $requiredFieldsObj = [];
-        $tabs = $fieldLayout->getTabs();
-        usort($tabs, function($a, $b) {
-            return $a->sortOrder > $b->sortOrder;
-        });
-        foreach ($tabs as $tab) {
-            foreach ($tab->getFields() as $field) {
-                /** @var Field $field */
-                if (boolval($field->required)) {
-                    array_push($requiredFieldsObj, $field->handle);
+        $fieldLayoutObj = [];
+        $fieldConfigsObj = [];
+        foreach ($fieldLayoutConfig['tabs'] as $tabConfig) {
+            $fieldLayoutObj[$tabConfig['name']] = [];
+            foreach ($tabConfig['elements'] as $elementConfig) {
+                $fieldConfig = [
+                    'label' => $elementConfig['label'],
+                    'instructions' => $elementConfig['instructions'],
+                    'width' => $elementConfig['width'],
+                ];
+                if (isset($elementConfig['required']) && $elementConfig['required']) {
+                    $fieldConfig['required'] = (bool) $elementConfig['required'];
+                }
+                if (isset($elementConfig['fieldUid'])) {
+                    $field = Craft::$app->fields->getFieldByUid($elementConfig['fieldUid']);
+                    $fieldLayoutObj[$tabConfig['name']][] = $field->handle;
+                    $fieldConfigsObj[$tabConfig['name']][$field->handle] = $fieldConfig;
+                } else {
+                    $tmpClass = new $elementConfig['type'];
+                    $attribute = $tmpClass->attribute();
+                    $fieldLayoutObj[$tabConfig['name']][] = $attribute;
+                    $fieldConfigsObj[$tabConfig['name']][$attribute] = $fieldConfig;
                 }
             }
         }
-        return $requiredFieldsObj;
+        return [ $fieldLayoutObj, $fieldConfigsObj ];
     }
 
     public function permissionMap() {
