@@ -107,7 +107,7 @@ class VolumeProcessor extends Processor
         }
 
         $hasUrls = (bool) $item->hasUrls;
-        list ($fieldLayout, $fieldConfigs) = $this->exportFieldLayout($blockType->getFieldLayout());
+        list ($fieldLayout, $fieldConfigs) = $this->exportFieldLayout($item->getFieldLayout());
         $volumeObj = array_merge([
             'name' => $item->name,
             'handle' => $item->handle,
