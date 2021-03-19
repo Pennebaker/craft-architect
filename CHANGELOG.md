@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.4.2] - 2021-03-19
+### Fixed
+- Fixed importing entry types into existing sections.
+- Fixed field layout errors for Field Layout UI elements.
+
 ## [2.4.1] - 2021-01-29
 ### Fixed
 - Fixed composer requirements to allow Craft 3.6
@@ -199,7 +204,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.4.1...develop
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.4.2...develop
+[2.4.2]: https://github.com/pennebaker/craft-architect/compare/2.4.1...2.4.2
 [2.4.1]: https://github.com/pennebaker/craft-architect/compare/2.4.0...2.4.1
 [2.4.0]: https://github.com/pennebaker/craft-architect/compare/2.3.3...2.4.0
 [2.3.3]: https://github.com/pennebaker/craft-architect/compare/2.3.2...2.3.3
