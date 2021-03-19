@@ -28,6 +28,7 @@ return [
     'JSON/YAML Data' => 'JSON/YAML Data',
     'Put your json/yaml import data here.' => 'Put your json/yaml import data here.',
     'Section parent "{sectionHandle}" was not imported successfully.' => 'Section parent "{sectionHandle}" was not imported successfully.',
+    'Section parent "{sectionHandle}" does not exist.' => 'Section parent "{sectionHandle}" does not exist.',
     'Architect encountered errors performing an import, there is a database backup located at: {backup}' => 'Architect encountered errors performing an import, there is a database backup located at: {backup}',
     'Too many field types matching "{fieldType}"' => 'Too many field types matching "{fieldType}"',
     'Possible values:' => 'Possible values:',

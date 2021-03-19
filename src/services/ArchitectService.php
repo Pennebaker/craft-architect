@@ -103,6 +103,17 @@ class ArchitectService extends Component
             'users' => [],
             'globalSets' => [],
         ];
+        // Failed imported items needed for various post processing procedures.
+        $failed = [
+            'fields' => [],
+            'sections' => [],
+            'volumes' => [],
+            'tagGroups' => [],
+            'categoryGroups' => [],
+            'userGroups' => [],
+            'users' => [],
+            'globalSets' => [],
+        ];
         /**
          * Things to process field layouts for after importing of fields.
          * Things in this list are needed for fields to import properly but can also use fields in field layouts.
@@ -130,6 +141,13 @@ class ArchitectService extends Component
         ];
         $addedEntryTypes = [];
         $results = [];
+
+        $existingSections = [];
+
+        foreach (Craft::$app->sections->getAllSections() as $section) {
+            $existingSections[] = $section->handle;
+        }
+
         foreach ($parseOrder as $parseKey) {
             if (isset($importObj[$parseKey]) && \is_array($importObj[$parseKey])) {
                 $results[$parseKey] = [];
@@ -151,19 +169,34 @@ class ArchitectService extends Component
                         } else {
                             list($item, $itemErrors) = Architect::$processors->$parseKey->parse($itemObj);
                         }
-                        if ($parseKey === 'entryTypes' && \in_array($itemObj['sectionHandle'], $successful['sections'], false) === false) {
-                            if (!isset($itemObj['name'])) {
-                                $itemObj['name'] = '';
+                        if ($parseKey === 'entryTypes') {
+                            if (\in_array($itemObj['sectionHandle'], $failed['sections'], false) === true) {
+                                if (!isset($itemObj['name'])) {
+                                    $itemObj['name'] = '';
+                                }
+                                if (!isset($itemObj['handle'])) {
+                                    $itemObj['handle'] = $itemObj['sectionHandle'];
+                                }
+                                $item = false;
+                                $itemErrors = [
+                                    'parent' => [
+                                        Architect::t('Section parent "{sectionHandle}" was not imported successfully.', ['sectionHandle' => $itemObj['sectionHandle']])
+                                    ]
+                                ];
+                            } else if (\in_array($itemObj['sectionHandle'], $successful['sections'], false) === false && \in_array($itemObj['sectionHandle'], $existingSections, false) === false) {
+                                if (!isset($itemObj['name'])) {
+                                    $itemObj['name'] = '';
+                                }
+                                if (!isset($itemObj['handle'])) {
+                                    $itemObj['handle'] = $itemObj['sectionHandle'];
+                                }
+                                $item = false;
+                                $itemErrors = [
+                                    'parent' => [
+                                        Architect::t('Section parent "{sectionHandle}" does not exist.', ['sectionHandle' => $itemObj['sectionHandle']])
+                                    ]
+                                ];
                             }
-                            if (!isset($itemObj['handle'])) {
-                                $itemObj['handle'] = $itemObj['sectionHandle'];
-                            }
-                            $item = false;
-                            $itemErrors = [
-                                'parent' => [
-                                    Architect::t('Section parent "{sectionHandle}" was not imported successfully.', [ 'sectionHandle' => $itemObj['sectionHandle'] ])
-                                ]
-                            ];
                         }
 
                         if ($item) {
@@ -283,6 +316,21 @@ class ArchitectService extends Component
                             case 'users':
                             case 'globalSets':
                                 $successful[$parseKey][] = $itemKey;
+                                break;
+                        }
+                    } else {
+                        switch ($parseKey) {
+                            case 'sections':
+                                $failed[$parseKey][] = $item->handle;
+                                break;
+                            case 'fields':
+                            case 'volumes':
+                            case 'tagGroups':
+                            case 'categoryGroups':
+                            case 'userGroups':
+                            case 'users':
+                            case 'globalSets':
+                                $failed[$parseKey][] = $itemKey;
                                 break;
                         }
                     }
