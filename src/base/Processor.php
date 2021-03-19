@@ -50,7 +50,7 @@ abstract class Processor implements ProcessorInterface
                     'sortOrder' => 1,
                     'elements' => [],
                 ];
-                foreach ($item['fieldLayout'][$tab] as $fieldHandle) {
+                foreach ($fields as $fieldHandle) {
                     $isStandard = false;
                     if (isset($standardElementConfigs[$fieldHandle])) {
                         $isStandard = true;
@@ -63,27 +63,31 @@ abstract class Processor implements ProcessorInterface
                             $elementConfig = $standardElementConfigs[$fieldHandle];
                         }
                     } else {
-                        $field = Craft::$app->fields->getFieldByHandle($fieldHandle);
-                        if ($field) {
-                            $elementConfig = [
-                                'type' => CustomField::class,
-                                'label' => '',
-                                'instructions' => '',
-                                'tip' => null,
-                                'warning' => null,
-                                'required' => '',
-                                'width' => 100,
-                                'fieldUid' => $field->uid,
-                            ];
-                            if (isset($item['fieldConfigs'][$tab][$field->handle])) {
-                                $fieldConfig = $item['fieldConfigs'][$tab][$field->handle];
-                                $elementConfig = array_merge($elementConfig, $fieldConfig);
-                            } else if (
-                                isset($item['requiredFields']) &&
-                                is_array($item['requiredFields']) &&
-                                in_array($field->handle, $item['requiredFields'])
-                            ) {
-                                $elementConfig = array_merge($elementConfig, [ 'required' => true ]);
+                        if (strpos($fieldHandle, '__ui_') === 0) {
+                            $elementConfig = $item['fieldConfigs'][$tab][$fieldHandle];
+                        } else {
+                            $field = Craft::$app->fields->getFieldByHandle($fieldHandle);
+                            if ($field) {
+                                $elementConfig = [
+                                    'type' => CustomField::class,
+                                    'label' => '',
+                                    'instructions' => '',
+                                    'tip' => null,
+                                    'warning' => null,
+                                    'required' => '',
+                                    'width' => 100,
+                                    'fieldUid' => $field->uid,
+                                ];
+                                if (isset($item['fieldConfigs'][$tab][$field->handle])) {
+                                    $fieldConfig = $item['fieldConfigs'][$tab][$field->handle];
+                                    $elementConfig = array_merge($elementConfig, $fieldConfig);
+                                } else if (
+                                    isset($item['requiredFields']) &&
+                                    is_array($item['requiredFields']) &&
+                                    in_array($field->handle, $item['requiredFields'])
+                                ) {
+                                    $elementConfig = array_merge($elementConfig, ['required' => true]);
+                                }
                             }
                         }
                     }
@@ -415,26 +419,42 @@ abstract class Processor implements ProcessorInterface
 
         $fieldLayoutObj = [];
         $fieldConfigsObj = [];
+        $count = 0;
         foreach ($fieldLayoutConfig['tabs'] as $tabConfig) {
             $fieldLayoutObj[$tabConfig['name']] = [];
             foreach ($tabConfig['elements'] as $elementConfig) {
-                $fieldConfig = [
-                    'label' => $elementConfig['label'],
-                    'instructions' => $elementConfig['instructions'],
-                    'width' => $elementConfig['width'],
-                ];
-                if (isset($elementConfig['required']) && $elementConfig['required']) {
-                    $fieldConfig['required'] = (bool) $elementConfig['required'];
-                }
-                if (isset($elementConfig['fieldUid'])) {
-                    $field = Craft::$app->fields->getFieldByUid($elementConfig['fieldUid']);
-                    $fieldLayoutObj[$tabConfig['name']][] = $field->handle;
-                    $fieldConfigsObj[$tabConfig['name']][$field->handle] = $fieldConfig;
-                } else {
-                    $tmpClass = new $elementConfig['type'];
-                    $attribute = $tmpClass->attribute();
-                    $fieldLayoutObj[$tabConfig['name']][] = $attribute;
-                    $fieldConfigsObj[$tabConfig['name']][$attribute] = $fieldConfig;
+                switch ($elementConfig['type']) {
+                    case 'craft\\fieldlayoutelements\\CustomField':
+                        $fieldConfig = [
+                            'label' => $elementConfig['label'],
+                            'instructions' => $elementConfig['instructions'],
+                            'width' => $elementConfig['width'],
+                        ];
+                        if (isset($elementConfig['required']) && $elementConfig['required']) {
+                            $fieldConfig['required'] = (bool)$elementConfig['required'];
+                        }
+                        if (isset($elementConfig['fieldUid'])) {
+                            $field = Craft::$app->fields->getFieldByUid($elementConfig['fieldUid']);
+                            $fieldLayoutObj[$tabConfig['name']][] = $field->handle;
+                            $fieldConfigsObj[$tabConfig['name']][$field->handle] = $fieldConfig;
+                        } else {
+                            $tmpClass = new $elementConfig['type'];
+                            $attribute = $tmpClass->attribute();
+                            $fieldLayoutObj[$tabConfig['name']][] = $attribute;
+                            $fieldConfigsObj[$tabConfig['name']][$attribute] = $fieldConfig;
+                        }
+                        break;
+                    default:
+                        $count++;
+                        $fieldLayoutObj[$tabConfig['name']][] = '__ui_' . $count;
+                        $fieldConfigsObj[$tabConfig['name']]['__ui_' . $count] = [
+                            'type' => $elementConfig['type'] ?? null,
+                            'tip' => $elementConfig['tip'] ?? null,
+                            'heading' => $elementConfig['heading'] ?? null,
+                            'style' => $elementConfig['style'] ?? null,
+                            'template' => $elementConfig['template'] ?? null,
+                            'width' => $elementConfig['width'] ?? null,
+                        ];
                 }
             }
         }
