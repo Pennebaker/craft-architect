@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.4.3] - 2021-06-30
+### Fixed
+- Fixed Neo export when using child blocks.
+- Fixed processing of fields inside super table fields.
+
 ## [2.4.2] - 2021-03-19
 ### Fixed
 - Fixed importing entry types into existing sections.
@@ -204,7 +209,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.4.2...develop
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.4.3...develop
+[2.4.3]: https://github.com/pennebaker/craft-architect/compare/2.4.2...2.4.3
 [2.4.2]: https://github.com/pennebaker/craft-architect/compare/2.4.1...2.4.2
 [2.4.1]: https://github.com/pennebaker/craft-architect/compare/2.4.0...2.4.1
 [2.4.0]: https://github.com/pennebaker/craft-architect/compare/2.3.3...2.4.0
