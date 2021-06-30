@@ -751,7 +751,7 @@ class FieldProcessor extends Processor
                     'sortOrder' => (int) $blockType->sortOrder,
                     'maxBlocks' => (int) $blockType->maxBlocks,
                     'maxSiblingBlocks' => (int) $blockType->maxSiblingBlocks,
-                    'childBlocks' => Json::decodeIfJson((string) $blockType->childBlocks),
+                    'childBlocks' => is_string($blockType->childBlocks) ? Json::decodeIfJson((string) $blockType->childBlocks) : $blockType->childBlocks,
                     'maxChildBlocks' => (int) $blockType->maxChildBlocks,
                     'topLevel' => (bool) $blockType->topLevel,
                     'fieldLayout' => $fieldLayout,
