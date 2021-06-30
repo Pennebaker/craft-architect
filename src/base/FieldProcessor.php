@@ -162,10 +162,11 @@ class FieldProcessor extends Processor
             }
             foreach ($blockTypes as $blockKey => &$blockType) {
                 foreach ($blockType['fields'] as $fieldKey => &$field) {
-                    $this->mapSources($field);
-                    if ($field['type'] === Matrix::class) {
-                        $this->convertBlockTypesToNew($field['typesettings']['blockTypes']);
+                    list ($field, $errors) = $this->parse($field, true);
+                    if ($field === null) {
+                        return [$field, $errors];
                     }
+                    $blockType['fields'][$fieldKey] = $field;
                 }
                 unset($field);
             }
