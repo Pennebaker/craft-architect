@@ -138,6 +138,7 @@ class ArchitectService extends Component
          */
         $updateSupport = [
             'fields',
+            'volumes',
         ];
         $addedEntryTypes = [];
         $results = [];
@@ -163,6 +164,7 @@ class ArchitectService extends Component
                                 ];
                                 continue;
                             }
+                            continue;
                         }
                         if ($parseKey === 'fieldGroups' || $parseKey === 'siteGroups') {
                             list($item, $itemErrors) = Architect::$processors->$parseKey->parse(['name' => $itemObj]);
