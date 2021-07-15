@@ -25,7 +25,7 @@ To install the plugin, follow these instructions.
 3.
     a. In the terminal run
        
-               ./craft install/plugin architect
+               ./craft plugin/install architect
 
     ***or***
     
