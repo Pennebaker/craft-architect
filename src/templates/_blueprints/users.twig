@@ -17,9 +17,12 @@
         {% for group in user.getGroups() %}
             {% set utilizedGroups = utilizedGroups | merge([group.id]) %}
         {% endfor %}
-        <tr class="user" data-id="{{ user.id }}" data-name="{{ user }}" data-groups="{% for id in utilizedGroups %}{{ id }} {% endfor %}">
+        <tr class="user" data-id="{{ user.id }}" data-name="{{ user }}"
+            data-groups="{% for id in utilizedGroups %}{{ id }} {% endfor %}">
             <th scope="row">
-                <input type="checkbox" id="user{{ user.id }}" class="checkbox" name="userSelection[]" value="{{ user.id }}"> <label for="user{{ user.id }}">{{ user.firstName }} {{ user.lastName }}</label>
+                <input type="checkbox" id="user{{ user.id }}" class="checkbox" name="userSelection[]"
+                       value="{{ user.id }}"> <label
+                        for="user{{ user.id }}">{{ user.firstName }} {{ user.lastName }}</label>
             </th>
             <td>
                 {{ user.email }}

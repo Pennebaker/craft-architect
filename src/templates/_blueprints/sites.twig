@@ -18,7 +18,8 @@
     {% for site in craft.app.sites.getAllSites() %}
         <tr class="site" data-id="{{ site.id }}" data-name="{{ site }}">
             <th scope="row">
-                <input type="checkbox" id="site{{ site.id }}" class="checkbox" name="siteSelection[]" value="{{ site.id }}"> <label for="site{{ site.id }}">{{ site }}</label>
+                <input type="checkbox" id="site{{ site.id }}" class="checkbox" name="siteSelection[]"
+                       value="{{ site.id }}"> <label for="site{{ site.id }}">{{ site }}</label>
             </th>
             <td>
                 <code>{{ site.handle }}</code>

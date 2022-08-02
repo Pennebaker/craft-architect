@@ -10,13 +10,18 @@
 
 namespace pennebaker\architect\services;
 
-use pennebaker\architect\Architect;
-
 use Craft;
 use craft\base\Component;
+use craft\errors\ShellCommandException;
 use craft\models\Section_SiteSettings;
-use Symfony\Component\Yaml\Yaml;
+use Error;
+use Exception;
+use pennebaker\architect\Architect;
 use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
+use Throwable;
+use function in_array;
+use function is_array;
 
 
 /**
@@ -43,8 +48,8 @@ class ArchitectService extends Component
      *
      * @return mixed
      *
-     * @throws \Throwable
-     * @throws \craft\errors\ShellCommandException
+     * @throws Throwable
+     * @throws ShellCommandException
      * @throws \yii\base\Exception
      */
     public function import($importData, $runBackup = false, $update = false)
@@ -76,6 +81,7 @@ class ArchitectService extends Component
             'sites',
             'routes',
             'sections',
+            'filesystems',
             'volumes',
             'transforms',
             'tagGroups',
@@ -96,6 +102,7 @@ class ArchitectService extends Component
         $successful = [
             'fields' => [],
             'sections' => [],
+            'filesystems' => [],
             'volumes' => [],
             'tagGroups' => [],
             'categoryGroups' => [],
@@ -107,6 +114,7 @@ class ArchitectService extends Component
         $failed = [
             'fields' => [],
             'sections' => [],
+            'filesystems' => [],
             'volumes' => [],
             'tagGroups' => [],
             'categoryGroups' => [],
@@ -149,11 +157,11 @@ class ArchitectService extends Component
         }
 
         foreach ($parseOrder as $parseKey) {
-            if (isset($importObj[$parseKey]) && \is_array($importObj[$parseKey])) {
+            if (isset($importObj[$parseKey]) && is_array($importObj[$parseKey])) {
                 $results[$parseKey] = [];
                 foreach ($importObj[$parseKey] as $itemKey => $itemObj) {
                     try {
-                        if ($update && \in_array($parseKey, $updateSupport, true)) {
+                        if ($update && in_array($parseKey, $updateSupport, true)) {
                             $itemErrors = Architect::$processors->$parseKey->update($itemObj);
                             if ($itemErrors) {
                                 $results[$parseKey][] = [
@@ -170,7 +178,7 @@ class ArchitectService extends Component
                             list($item, $itemErrors) = Architect::$processors->$parseKey->parse($itemObj);
                         }
                         if ($parseKey === 'entryTypes') {
-                            if (\in_array($itemObj['sectionHandle'], $failed['sections'], false) === true) {
+                            if (in_array($itemObj['sectionHandle'], $failed['sections'], false) === true) {
                                 if (!isset($itemObj['name'])) {
                                     $itemObj['name'] = '';
                                 }
@@ -183,7 +191,7 @@ class ArchitectService extends Component
                                         Architect::t('Section parent "{sectionHandle}" was not imported successfully.', ['sectionHandle' => $itemObj['sectionHandle']])
                                     ]
                                 ];
-                            } else if (\in_array($itemObj['sectionHandle'], $successful['sections'], false) === false && \in_array($itemObj['sectionHandle'], $existingSections, false) === false) {
+                            } else if (in_array($itemObj['sectionHandle'], $successful['sections'], false) === false && in_array($itemObj['sectionHandle'], $existingSections, false) === false) {
                                 if (!isset($itemObj['name'])) {
                                     $itemObj['name'] = '';
                                 }
@@ -260,7 +268,7 @@ class ArchitectService extends Component
                         } else {
                             $itemSuccess = false;
                         }
-                    } catch (\Error $e) {
+                    } catch (Error $e) {
                         $item = false;
                         $itemSuccess = false;
                         $itemErrors = [
@@ -268,7 +276,7 @@ class ArchitectService extends Component
                                 $e->getMessage()
                             ]
                         ];
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         $item = false;
                         $itemSuccess = false;
                         $itemErrors = [
@@ -288,7 +296,7 @@ class ArchitectService extends Component
                         $item = $item ?: $itemObj;
                     }
                     if ($itemSuccess) {
-                        if (\in_array($parseKey, $onlyStrings, false)) {
+                        if (in_array($parseKey, $onlyStrings, false)) {
                             $importObj[$parseKey][$itemKey] = [
                                 'name' => $itemObj,
                                 'id' => $item->id
@@ -302,13 +310,14 @@ class ArchitectService extends Component
                             $importObj[$parseKey][$itemKey]['id'] = $item->id;
                         }
                         if ($parseKey === 'entryTypes') {
-                            $addedEntryTypes[] =  Craft::$app->sections->getSectionById((int) $item->sectionId)->handle . ':' . $item->handle;
+                            $addedEntryTypes[] = Craft::$app->sections->getSectionById((int)$item->sectionId)->handle . ':' . $item->handle;
                         }
                         switch ($parseKey) {
                             case 'sections':
                                 $successful[$parseKey][] = $item->handle;
                                 break;
                             case 'fields':
+                            case 'filesystems':
                             case 'volumes':
                             case 'tagGroups':
                             case 'categoryGroups':
@@ -324,6 +333,7 @@ class ArchitectService extends Component
                                 $failed[$parseKey][] = $item->handle;
                                 break;
                             case 'fields':
+                            case 'filesystems':
                             case 'volumes':
                             case 'tagGroups':
                             case 'categoryGroups':
@@ -347,8 +357,8 @@ class ArchitectService extends Component
          * Post Processing to set Field Layouts
          */
         foreach ($postProcessFieldLayouts as $parseKey) {
-            if (isset($importObj[$parseKey]) && \is_array($importObj[$parseKey])) {
-                foreach($successful[$parseKey] as $itemKey) {
+            if (isset($importObj[$parseKey]) && is_array($importObj[$parseKey])) {
+                foreach ($successful[$parseKey] as $itemKey) {
                     $itemObj = $importObj[$parseKey][$itemKey];
                     Architect::$processors->$parseKey->setFieldLayout($itemObj);
                 }
@@ -358,10 +368,10 @@ class ArchitectService extends Component
         /**
          * Post Processing on Users to assign User Groups
          */
-        if (isset($importObj['users']) && \is_array($importObj['users'])) {
+        if (isset($importObj['users']) && is_array($importObj['users'])) {
             foreach ($successful['users'] as $itemKey) {
                 $itemObj = $importObj['users'][$itemKey];
-                if (isset($itemObj['groups']) && \is_array($itemObj['groups'])) {
+                if (isset($itemObj['groups']) && is_array($itemObj['groups'])) {
                     $groupIds = [];
                     foreach ($itemObj['groups'] as $groupHandle) {
                         $group = Craft::$app->userGroups->getGroupByHandle($groupHandle);
@@ -378,8 +388,8 @@ class ArchitectService extends Component
          * Post Processing to set permissions
          */
         foreach ($postProcessPermissions as $parseKey) {
-            if (isset($successful[$parseKey]) && \is_array($successful[$parseKey])) {
-                foreach($successful[$parseKey] as $itemKey) {
+            if (isset($successful[$parseKey]) && is_array($successful[$parseKey])) {
+                foreach ($successful[$parseKey] as $itemKey) {
                     $itemObj = $importObj[$parseKey][$itemKey];
                     Architect::$processors->$parseKey->setPermissions($parseKey, $itemObj);
                 }
@@ -391,19 +401,19 @@ class ArchitectService extends Component
          * This is to loop over all entry types in a section and remove entry types that do not match one that was meant to be created.
          * ex. A section was created for Employees but there is only entry types defined for Board Members & Management
          */
-        if (isset($importObj['sections'], $importObj['entryTypes']) && \is_array($importObj['sections']) && \is_array($importObj['entryTypes'])) {
-            forEach ($successful['sections'] as $sectionHandle) {
+        if (isset($importObj['sections'], $importObj['entryTypes']) && is_array($importObj['sections']) && is_array($importObj['entryTypes'])) {
+            foreach ($successful['sections'] as $sectionHandle) {
                 $section = Craft::$app->sections->getSectionByHandle($sectionHandle);
                 $entryTypes = $section->getEntryTypes();
                 foreach ($entryTypes as $entryType) {
-                    if (\in_array($section->handle . ':' . $entryType->handle, $addedEntryTypes, true) === false) {
+                    if (in_array($section->handle . ':' . $entryType->handle, $addedEntryTypes, true) === false) {
                         Craft::$app->sections->deleteEntryType($entryType);
                     }
                 }
             }
         }
 
-        if (isset($importObj['buildOrder']) && \is_array($importObj['buildOrder'])) {
+        if (isset($importObj['buildOrder']) && is_array($importObj['buildOrder'])) {
             foreach ($importObj['buildOrder'] as $filename) {
                 $importData = file_get_contents(Architect::$configPath . DIRECTORY_SEPARATOR . $filename);
                 list($fileParseError, $fileNoErrors, , $fileResults) = $this->import($importData, false, $update);
@@ -413,7 +423,7 @@ class ArchitectService extends Component
                         'success' => false,
                         'errors' => [
                             'parse' => [
-                                Architect::t('Parse Error: "{filename}".', ['filename' => $filename ])
+                                Architect::t('Parse Error: "{filename}".', ['filename' => $filename])
                             ]
                         ]
                     ];
@@ -434,7 +444,7 @@ class ArchitectService extends Component
             if ($noErrors) {
                 unlink($backup);
             } else {
-                Architect::warning('Architect encountered errors performing an import, there is a database backup located at: {backup}', [ 'backup' => $backup ]);
+                Architect::warning('Architect encountered errors performing an import, there is a database backup located at: {backup}', ['backup' => $backup]);
             }
         }
 

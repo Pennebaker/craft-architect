@@ -11,20 +11,20 @@
 namespace pennebaker\architect\base;
 
 use Craft;
-use craft\models\Site;
-use craft\models\SiteGroup;
+use craft\base\Filesystem;
+use craft\elements\Asset;
 use Throwable;
 use yii\base\InvalidConfigException;
 use function get_class;
 
 /**
- * SiteProcessor
+ * FilesystemProcessor
  *
  * @author    Pennebaker
  * @package   Architect
- * @since     2.0.0
+ * @since     4.0.0
  */
-class SiteProcessor extends Processor
+class FilesystemProcessor extends Processor
 {
     /**
      * @param array $item
@@ -33,26 +33,33 @@ class SiteProcessor extends Processor
      */
     public function parse(array $item): array
     {
-        $item['groupId'] = $this->getGroupByName($item['group'])->id;
-        unset($item['group']);
-        $site = new Site($item);
+        $fileSystem = Craft::$app->fs->createFilesystem([
+            'type' => $item['type'],
+            'name' => $item['name'],
+            'handle' => $item['handle'],
+            'hasUrls' => $item['hasUrls'],
+            'url' => $item['hasUrls'] ? $item['url'] : null,
+            'path' => $item['path'],
+        ]);
 
-        return [$site, null];
+        return [$fileSystem, null];
     }
 
     /**
-     * @param $name
+     * @param array $item
      *
-     * @return SiteGroup|null
+     * @return bool|object
+     *
+     * @throws Throwable
      */
-    private function getGroupByName($name)
+    public function setFieldLayout($item)
     {
-        foreach (Craft::$app->sites->getAllGroups() as $group) {
-            if ($group->name === $name) {
-                return $group;
-            }
-        }
-        return null;
+        $fileSystem = Craft::$app->fs->getFilesystemByHandle($item['handle']);
+
+        $fieldLayout = $this->createFieldLayout($item, Asset::class);
+        $fileSystem->setFieldLayout($fieldLayout);
+
+        return $this->save($fileSystem);
     }
 
     /**
@@ -65,21 +72,21 @@ class SiteProcessor extends Processor
      */
     public function save($item, bool $update = false)
     {
-        return Craft::$app->sites->saveSite($item);
+        return Craft::$app->fs->saveFilesystem($item);
     }
 
     /**
-     * @param $id
+     * @param $handle
      *
      * @return array
      *
      * @throws InvalidConfigException
      */
-    public function exportById($id): array
+    public function exportByHandle($handle): array
     {
-        $site = Craft::$app->sites->getSiteById((int)$id);
+        $fileSystem = Craft::$app->fs->getFilesystemByHandle($handle);
 
-        return $this->export($site);
+        return $this->export($fileSystem);
     }
 
     /**
@@ -92,25 +99,24 @@ class SiteProcessor extends Processor
      */
     public function export($item, array $extraAttributes = []): array
     {
-        /** @var Site $item */
+        /** @var Filesystem $item */
         $attributeObj = [];
         $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
         foreach ($extraAttributes as $attribute) {
             $attributeObj[$attribute] = $item->$attribute;
         }
 
-        $siteObj = array_merge([
-            'groupId' => $item->getGroup()->id,
-            'group' => $item->getGroup()->name,
+        $hasUrls = (bool)$item->hasUrls;
+        $fileSystemObj = array_merge([
             'name' => $item->name,
             'handle' => $item->handle,
-            'language' => $item->language,
-            'primary' => $item->primary,
-            'hasUrls' => (bool)$item->hasUrls,
-            'baseUrl' => $item->baseUrl,
+            'type' => get_class($item),
+            'hasUrls' => $hasUrls,
+            'url' => $hasUrls ? $item->url : null,
+            'path' => $item->path,
         ], $attributeObj);
 
-        return $this->stripNulls($siteObj);
+        return $this->stripNulls($fileSystemObj);
     }
 
     /**
@@ -123,5 +129,10 @@ class SiteProcessor extends Processor
     public function exportByUid($uid)
     {
         // TODO: Implement exportByUid() method.
+    }
+
+    public function exportById($id)
+    {
+        // Filesystems do not have IDs.
     }
 }

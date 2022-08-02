@@ -1,4 +1,4 @@
-# Architect plugin for Craft CMS 3.x
+# Architect plugin for Craft CMS 4.x
 
 A plugin for importing and exporting content models from [Craft CMS](http://craftcms.com/) using JSON.
 
@@ -8,7 +8,7 @@ Related: [Architect for Craft 2.x](https://github.com/Pennebaker/craftcms-thearc
 
 ## Requirements
 
-This plugin requires Craft CMS 3.0.0-RC1 or later.
+This plugin requires Craft CMS 4.
 
 ## Installation
 

@@ -4,7 +4,8 @@
     <tr>
         <th>
             <div class="field checkboxglobal">
-                <input type="checkbox" id="allGlobals" class="checkbox" name="allGlobals" value="all"><label for="allGlobals">&zwnj;</label>
+                <input type="checkbox" id="allGlobals" class="checkbox" name="allGlobals" value="all"><label
+                        for="allGlobals">&zwnj;</label>
                 {{ "Name"|t('app') }}
             </div>
         </th>
@@ -14,14 +15,18 @@
     <tbody class="globals">
     {% for global in craft.app.globals.getAllSets() %}
         {% set utilizedFields = {} %}
-        {% for volumeTab in global.getFieldLayout().getTabs() %}
-            {% for tabField in volumeTab.getFields() %}
-                {% set utilizedFields = utilizedFields | merge([tabField.id]) %}
+        {% for globalTab in global.getFieldLayout().getTabs() %}
+            {% for tabField in globalTab.getElements() %}
+                {% if tabField.className == 'craft\\fieldlayoutelements\\CustomField' %}
+                    {% set utilizedFields = utilizedFields | merge([tabField.getField.id]) %}
+                {% endif %}
             {% endfor %}
         {% endfor %}
-        <tr class="global" data-id="{{ global.id }}" data-name="{{ global }}" data-fields="{% for id in utilizedFields %}{{ id }} {% endfor %}">
+        <tr class="global" data-id="{{ global.id }}" data-name="{{ global }}"
+            data-fields="{% for id in utilizedFields %}{{ id }} {% endfor %}">
             <th scope="row">
-                <input type="checkbox" id="global{{ global.id }}" class="checkbox" name="globalSelection[]" value="{{ global.id }}"> <label for="global{{ global.id }}">{{ global }}</label>
+                <input type="checkbox" id="global{{ global.id }}" class="checkbox" name="globalSelection[]"
+                       value="{{ global.id }}"> <label for="global{{ global.id }}">{{ global }}</label>
             </th>
             <td>
                 <code>{{ global.handle }}</code>

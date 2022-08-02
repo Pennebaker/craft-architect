@@ -10,12 +10,15 @@
 
 namespace pennebaker\architect\base;
 
-use pennebaker\architect\Architect;
-
 use Craft;
 use craft\elements\Tag;
 use craft\models\FieldLayout;
 use craft\models\TagGroup;
+use pennebaker\architect\Architect;
+use Throwable;
+use yii\base\InvalidConfigException;
+use function count;
+use function get_class;
 
 /**
  * TagGroupProcessor
@@ -33,7 +36,7 @@ class TagGroupProcessor extends Processor
      */
     public function parse(array $item): array
     {
-        if (\count($item['fieldLayout']) > 1) {
+        if (count($item['fieldLayout']) > 1) {
             $errors = [
                 'fieldLayout' => [
                     Architect::t('Field layout can only have 1 tab.')
@@ -55,24 +58,11 @@ class TagGroupProcessor extends Processor
     }
 
     /**
-     * @param mixed $item
-     * @param bool $update
-     *
-     * @return bool|object
-     *
-     * @throws \Throwable
-     */
-    public function save($item, bool $update = false)
-    {
-        return Craft::$app->tags->saveTagGroup($item);
-    }
-
-    /**
      * @param array $item
      *
      * @return bool|object
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function setFieldLayout($item)
     {
@@ -89,18 +79,45 @@ class TagGroupProcessor extends Processor
 
     /**
      * @param mixed $item
+     * @param bool $update
+     *
+     * @return bool|object
+     *
+     * @throws Throwable
+     */
+    public function save($item, bool $update = false)
+    {
+        return Craft::$app->tags->saveTagGroup($item);
+    }
+
+    /**
+     * @param $id
+     *
+     * @return array
+     *
+     * @throws InvalidConfigException
+     */
+    public function exportById($id): array
+    {
+        $tagGroup = Craft::$app->tags->getTagGroupById((int)$id);
+
+        return $this->export($tagGroup);
+    }
+
+    /**
+     * @param mixed $item
      * @param array $extraAttributes
      *
      * @return array
      *
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function export($item, array $extraAttributes = []): array
     {
         /** @var TagGroup $item */
         $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)));
-        foreach($extraAttributes as $attribute) {
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        foreach ($extraAttributes as $attribute) {
             $attributeObj[$attribute] = $item->$attribute;
         }
 
@@ -113,20 +130,6 @@ class TagGroupProcessor extends Processor
         ], $attributeObj);
 
         return $this->stripNulls($tagGroupObj);
-    }
-
-    /**
-     * @param $id
-     *
-     * @return array
-     *
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function exportById($id): array
-    {
-        $tagGroup = Craft::$app->tags->getTagGroupById((int) $id);
-
-        return $this->export($tagGroup);
     }
 
     /**

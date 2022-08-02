@@ -12,6 +12,7 @@ namespace pennebaker\architect\base;
 
 use Craft;
 use craft\models\SiteGroup;
+use Throwable;
 
 /**
  * SiteGroupProcessor
@@ -38,11 +39,23 @@ class SiteGroupProcessor extends Processor
      *
      * @return bool|object
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function save($item, bool $update = false)
     {
         return Craft::$app->sites->saveGroup($item);
+    }
+
+    /**
+     * @param $id
+     *
+     * @return string
+     */
+    public function exportById($id): string
+    {
+        $siteGroup = Craft::$app->sites->getGroupById((int)$id);
+
+        return $this->export($siteGroup);
     }
 
     /**
@@ -55,18 +68,6 @@ class SiteGroupProcessor extends Processor
     {
         /** @var SiteGroup $item */
         return $item->name;
-    }
-
-    /**
-     * @param $id
-     *
-     * @return string
-     */
-    public function exportById($id): string
-    {
-        $siteGroup = Craft::$app->sites->getGroupById((int) $id);
-
-        return $this->export($siteGroup);
     }
 
     /**

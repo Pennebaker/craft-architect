@@ -10,9 +10,11 @@
 
 namespace pennebaker\architect\console\controllers;
 
-use pennebaker\architect\Architect;
-
+use craft\errors\ShellCommandException;
 use craft\helpers\Console;
+use pennebaker\architect\Architect;
+use Throwable;
+use yii\base\Exception;
 use yii\console\Controller;
 use yii\console\ExitCode;
 
@@ -49,30 +51,13 @@ class ImportController extends Controller
      *
      * @return int
      *
-     * @throws \Throwable
-     * @throws \craft\errors\ShellCommandException
-     * @throws \yii\base\Exception
+     * @throws Throwable
+     * @throws ShellCommandException
+     * @throws Exception
      */
     public function actionIndex($filename): int
     {
         return $this->import($filename);
-    }
-
-    /**
-     * Import a json/yaml file structure updating any existing elements. (Only fields will update at this time)
-     * ./craft architect/import/update
-     *
-     * @param string $filename
-     *
-     * @return int
-     *
-     * @throws \Throwable
-     * @throws \craft\errors\ShellCommandException
-     * @throws \yii\base\Exception
-     */
-    public function actionUpdate($filename): int
-    {
-        return $this->import($filename, true);
     }
 
     /**
@@ -81,9 +66,9 @@ class ImportController extends Controller
      *
      * @return int
      *
-     * @throws \Throwable
-     * @throws \craft\errors\ShellCommandException
-     * @throws \yii\base\Exception
+     * @throws Throwable
+     * @throws ShellCommandException
+     * @throws Exception
      */
     private function import($filename, $update = false): int
     {
@@ -113,5 +98,22 @@ class ImportController extends Controller
         }
 
         return ExitCode::OK;
+    }
+
+    /**
+     * Import a json/yaml file structure updating any existing elements. (Only fields will update at this time)
+     * ./craft architect/import/update
+     *
+     * @param string $filename
+     *
+     * @return int
+     *
+     * @throws Throwable
+     * @throws ShellCommandException
+     * @throws Exception
+     */
+    public function actionUpdate($filename): int
+    {
+        return $this->import($filename, true);
     }
 }

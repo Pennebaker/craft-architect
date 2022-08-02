@@ -10,19 +10,18 @@
 
 namespace pennebaker\architect;
 
-use pennebaker\architect\base\Processors;
-use pennebaker\architect\services\ArchitectService;
-use pennebaker\architect\variables\ArchitectVariable;
-
 use Craft;
 use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
 use craft\events\RegisterUrlRulesEvent;
 use craft\helpers\FileHelper;
-use craft\web\UrlManager;
 use craft\web\twig\variables\CraftVariable;
-
+use craft\web\UrlManager;
+use pennebaker\architect\base\Processors;
+use pennebaker\architect\services\ArchitectService;
+use pennebaker\architect\variables\ArchitectVariable;
 use yii\base\Event;
+use yii\base\Exception;
 
 /**
  * @author    Pennebaker
@@ -51,83 +50,9 @@ class Architect extends Plugin
     // Public Methods
     // =========================================================================
 
-    /**
-     * Set our $plugin static property to this class so that it can be accessed via
-     * Architect::$plugin
-     *
-     * Called after the plugin class is instantiated; do any one-time initialization
-     * here such as hooks and events.
-     *
-     * If you have a '/vendor/autoload.php' file, it will be loaded for you automatically;
-     * you do not need to load it in your init() method.
-     *
-     * @throws \yii\base\Exception
-     */
-    public function init()
-    {
-        parent::init();
-        self::$plugin = $this;
-        self::$processors = new Processors();
-        self::$configPath = Craft::$app->getPath()->getConfigPath() . DIRECTORY_SEPARATOR . 'architect';
-
-        // Ensure architect config path exists
-        if (!file_exists(self::$configPath)) {
-            FileHelper::createDirectory(self::$configPath);
-        }
-
-        // Add in our console commands
-        if (Craft::$app instanceof ConsoleApplication) {
-            $this->controllerNamespace = 'pennebaker\architect\console\controllers';
-        }
-
-        // Register our variables
-        Event::on(
-            CraftVariable::class,
-            CraftVariable::EVENT_INIT,
-            function (Event $event) {
-                /** @var CraftVariable $variable */
-                $variable = $event->sender;
-                $variable->set('architect', ArchitectVariable::class);
-            }
-        );
-
-        // Register our CP routes
-         Event::on(
-             UrlManager::class,
-             UrlManager::EVENT_REGISTER_CP_URL_RULES,
-             function (RegisterUrlRulesEvent $event) {
-                 $event->rules['architect/'] = 'architect/cp';
-                 $event->rules['GET architect/import'] = 'architect/cp/import';
-                 $event->rules['GET architect/export'] = 'architect/cp/export';
-                 $event->rules['GET architect/blueprints'] = 'architect/cp/blueprints';
-                 $event->rules['POST architect/import'] = 'architect/default/import';
-                 $event->rules['POST architect/export'] = 'architect/default/export';
-                 $event->rules['POST architect/blueprints'] = 'architect/default/blueprints';
-             }
-         );
-
-        self::info('{name} plugin loaded', ['name' => $this->name]);
-    }
-
-    /**
-     * @param string $message
-     * @param array  $params
-     *
-     * @return string
-     */
-    public static function t($message, array $params = []): string
-    {
-        return Craft::t('architect', $message, $params);
-    }
-
     public static function debug($message, array $params = [])
     {
         Craft::debug(self::t($message, $params), __METHOD__);
-    }
-
-    public static function info($message, array $params = [])
-    {
-        Craft::info(self::t($message, $params), __METHOD__);
     }
 
     public static function warning($message, array $params = [])
@@ -151,41 +76,6 @@ class Architect extends Plugin
                 }
             }
         }
-    }
-
-    public static function createRouteUriPattern($uriParts)
-    {
-        // Compile the URI parts into a regex pattern
-        $uriPattern = '';
-        $uriParts = array_filter($uriParts);
-        $subpatternNameCounts = [];
-
-        foreach ($uriParts as $part) {
-            if (is_string($part)) {
-                $uriPattern .= $part;
-            } else if (is_array($part)) {
-                // Is the name a valid handle?
-                if (preg_match('/^[a-zA-Z]\w*$/', $part[0])) {
-                    $subpatternName = $part[0];
-                } else {
-                    $subpatternName = 'any';
-                }
-
-                // Make sure it's unique
-                if (isset($subpatternNameCounts[$subpatternName])) {
-                    $subpatternNameCounts[$subpatternName]++;
-
-                    // Append the count to the end of the name
-                    $subpatternName .= $subpatternNameCounts[$subpatternName];
-                } else {
-                    $subpatternNameCounts[$subpatternName] = 1;
-                }
-
-                // Add the var as a named subpattern
-                $uriPattern .= "<{$subpatternName}:{$part[1]}>";
-            }
-        }
-        return $uriPattern;
     }
 
     public static function createRouteUriDisplay($uriParts)
@@ -234,6 +124,115 @@ class Architect extends Plugin
             }
         }
         return false;
+    }
+
+    public static function createRouteUriPattern($uriParts)
+    {
+        // Compile the URI parts into a regex pattern
+        $uriPattern = '';
+        $uriParts = array_filter($uriParts);
+        $subpatternNameCounts = [];
+
+        foreach ($uriParts as $part) {
+            if (is_string($part)) {
+                $uriPattern .= $part;
+            } else if (is_array($part)) {
+                // Is the name a valid handle?
+                if (preg_match('/^[a-zA-Z]\w*$/', $part[0])) {
+                    $subpatternName = $part[0];
+                } else {
+                    $subpatternName = 'any';
+                }
+
+                // Make sure it's unique
+                if (isset($subpatternNameCounts[$subpatternName])) {
+                    $subpatternNameCounts[$subpatternName]++;
+
+                    // Append the count to the end of the name
+                    $subpatternName .= $subpatternNameCounts[$subpatternName];
+                } else {
+                    $subpatternNameCounts[$subpatternName] = 1;
+                }
+
+                // Add the var as a named subpattern
+                $uriPattern .= "<{$subpatternName}:{$part[1]}>";
+            }
+        }
+        return $uriPattern;
+    }
+
+    /**
+     * Set our $plugin static property to this class so that it can be accessed via
+     * Architect::$plugin
+     *
+     * Called after the plugin class is instantiated; do any one-time initialization
+     * here such as hooks and events.
+     *
+     * If you have a '/vendor/autoload.php' file, it will be loaded for you automatically;
+     * you do not need to load it in your init() method.
+     *
+     * @throws Exception
+     */
+    public function init()
+    {
+        parent::init();
+        self::$plugin = $this;
+        self::$processors = new Processors();
+        self::$configPath = Craft::$app->getPath()->getConfigPath() . DIRECTORY_SEPARATOR . 'architect';
+
+        // Ensure architect config path exists
+        if (!file_exists(self::$configPath)) {
+            FileHelper::createDirectory(self::$configPath);
+        }
+
+        // Add in our console commands
+        if (Craft::$app instanceof ConsoleApplication) {
+            $this->controllerNamespace = 'pennebaker\architect\console\controllers';
+        }
+
+        // Register our variables
+        Event::on(
+            CraftVariable::class,
+            CraftVariable::EVENT_INIT,
+            function (Event $event) {
+                /** @var CraftVariable $variable */
+                $variable = $event->sender;
+                $variable->set('architect', ArchitectVariable::class);
+            }
+        );
+
+        // Register our CP routes
+        Event::on(
+            UrlManager::class,
+            UrlManager::EVENT_REGISTER_CP_URL_RULES,
+            function (RegisterUrlRulesEvent $event) {
+                $event->rules['architect/'] = 'architect/cp';
+                $event->rules['GET architect/import'] = 'architect/cp/import';
+                $event->rules['GET architect/export'] = 'architect/cp/export';
+                $event->rules['GET architect/blueprints'] = 'architect/cp/blueprints';
+                $event->rules['POST architect/import'] = 'architect/default/import';
+                $event->rules['POST architect/export'] = 'architect/default/export';
+                $event->rules['POST architect/blueprints'] = 'architect/default/blueprints';
+            }
+        );
+
+        self::info('{name} plugin loaded', ['name' => $this->name]);
+    }
+
+    public static function info($message, array $params = [])
+    {
+        Craft::info(self::t($message, $params), __METHOD__);
+    }
+
+    /**
+     * @param string $message
+     * @param array $params
+     *
+     * @return string
+     */
+    public static function t($message, array $params = []): string
+    {
+        return Craft::t('architect', $message, $params);
     }
 
     // Protected Methods

@@ -4,7 +4,8 @@
     <tr>
         <th>
             <div class="field checkboxfield">
-                <input type="checkbox" id="allFields" class="checkbox" name="allFields" value="all"><label for="allFields">&zwnj;</label>
+                <input type="checkbox" id="allFields" class="checkbox" name="allFields" value="all"><label
+                        for="allFields">&zwnj;</label>
                 {{ "Name"|t('app') }}
             </div>
         </th>
@@ -16,9 +17,11 @@
     <tbody class="fields">
     {% for field in craft.app.fields.getAllFields() %}
         {% set utilizedFields = {} %}
-        <tr class="field" data-id="{{ field.id }}" data-groupid="{{ field.group.id }}" data-name="{{ field }}" data-fields="{% for id in utilizedFields %}{{ id }} {% endfor %}">
+        <tr class="field" data-id="{{ field.id }}" data-groupid="{{ field.group.id }}" data-name="{{ field }}"
+            data-fields="{% for id in utilizedFields %}{{ id }} {% endfor %}">
             <th scope="row">
-                <input type="checkbox" id="field{{ field.id }}" class="checkbox" name="fieldSelection[]" value="{{ field.id }}"> <label for="field{{ field.id }}">{{ field }}</label>
+                <input type="checkbox" id="field{{ field.id }}" class="checkbox" name="fieldSelection[]"
+                       value="{{ field.id }}"> <label for="field{{ field.id }}">{{ field }}</label>
             </th>
             <td>
                 <code>{{ field.handle }}</code>

@@ -4,7 +4,8 @@
     <tr>
         <th>
             <div class="field checkboxcategory">
-                <input type="checkbox" id="allCategories" class="checkbox" name="allCategories" value="all"><label for="allCategories">&zwnj;</label>
+                <input type="checkbox" id="allCategories" class="checkbox" name="allCategories" value="all"><label
+                        for="allCategories">&zwnj;</label>
                 {{ "Name"|t('app') }}
             </div>
         </th>
@@ -15,13 +16,17 @@
     {% for category in craft.app.categories.getAllGroups() %}
         {% set utilizedFields = {} %}
         {% for categoryTab in category.getFieldLayout().getTabs() %}
-            {% for tabField in categoryTab.getFields() %}
-                {% set utilizedFields = utilizedFields | merge([tabField.id]) %}
+            {% for tabField in categoryTab.getElements() %}
+                {% if tabField.className == 'craft\\fieldlayoutelements\\CustomField' %}
+                    {% set utilizedFields = utilizedFields | merge([tabField.getField.id]) %}
+                {% endif %}
             {% endfor %}
         {% endfor %}
-        <tr class="category" data-id="{{ category.id }}" data-name="{{ category }}" data-fields="{% for id in utilizedFields %}{{ id }} {% endfor %}">
+        <tr class="category" data-id="{{ category.id }}" data-name="{{ category }}"
+            data-fields="{% for id in utilizedFields %}{{ id }} {% endfor %}">
             <th scope="row">
-                <input type="checkbox" id="category{{ category.id }}" class="checkbox" name="categorySelection[]" value="{{ category.id }}"> <label for="category{{ category.id }}">{{ category }}</label>
+                <input type="checkbox" id="category{{ category.id }}" class="checkbox" name="categorySelection[]"
+                       value="{{ category.id }}"> <label for="category{{ category.id }}">{{ category }}</label>
             </th>
             <td>
                 <code>{{ category.handle }}</code>

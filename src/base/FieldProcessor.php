@@ -173,7 +173,7 @@ class FieldProcessor extends Processor
             unset($blockType);
         }
 
-        if ($groupId && Craft::$app->fields->getGroupById((int) $groupId)) {
+        if ($groupId && Craft::$app->fields->getGroupById((int)$groupId)) {
             $fieldObject = array_merge($item, [
                 'groupId' => $groupId
             ]);
@@ -245,7 +245,7 @@ class FieldProcessor extends Processor
             }
             if ($field) {
                 if (\get_class($item) !== \get_class($field)) {
-                    $error = Architect::t('Type does not match existing type: "{fieldType}".', ['fieldType' => \get_class($field) ]);
+                    $error = Architect::t('Type does not match existing type: "{fieldType}".', ['fieldType' => \get_class($field)]);
                     $item->addError('type', $error);
                     return false;
                 }
@@ -311,7 +311,7 @@ class FieldProcessor extends Processor
             if ($itemObj['type'] !== \get_class($field)) {
                 $errors = [
                     'type' => [
-                        Architect::t('Type does not match existing type: "{fieldType}".', ['fieldType' => \get_class($field) ])
+                        Architect::t('Type does not match existing type: "{fieldType}".', ['fieldType' => \get_class($field)])
                     ]
                 ];
                 return $errors;
@@ -344,8 +344,12 @@ class FieldProcessor extends Processor
      */
     private function mergeBlockTypes(array $oldBlockTypes, array $newBlockTypes): array
     {
-        $oldIDs = array_map(function($a) { return $a['id']; }, $oldBlockTypes);
-        $oldHandles = array_map(function($a) { return $a['handle']; }, $oldBlockTypes);
+        $oldIDs = array_map(function ($a) {
+            return $a['id'];
+        }, $oldBlockTypes);
+        $oldHandles = array_map(function ($a) {
+            return $a['handle'];
+        }, $oldBlockTypes);
         $updatedBlockTypes = [];
         $newCount = 1;
         foreach ($newBlockTypes as $newIndex => $blockType) {
@@ -382,8 +386,12 @@ class FieldProcessor extends Processor
     private function mergeFieldLayout(FieldLayout $oldFieldLayout, array $newFields): array
     {
         $oldFields = $oldFieldLayout->getFields();
-        $oldIDs = array_map(function($a) { return $a['id']; }, $oldFields);
-        $oldHandles = array_map(function($a) { return $a['handle']; }, $oldFields);
+        $oldIDs = array_map(function ($a) {
+            return $a['id'];
+        }, $oldFields);
+        $oldHandles = array_map(function ($a) {
+            return $a['handle'];
+        }, $oldFields);
         $updatedFields = [];
         $newCount = 1;
         foreach ($newFields as $newIndex => $field) {
@@ -441,8 +449,12 @@ class FieldProcessor extends Processor
      */
     private function mergeNeoBlockTypes(array $oldBlockTypes, array $newBlockTypes): array
     {
-        $oldIDs = array_map(function($a) { return $a['id']; }, $oldBlockTypes);
-        $oldHandles = array_map(function($a) { return $a['handle']; }, $oldBlockTypes);
+        $oldIDs = array_map(function ($a) {
+            return $a['id'];
+        }, $oldBlockTypes);
+        $oldHandles = array_map(function ($a) {
+            return $a['handle'];
+        }, $oldBlockTypes);
         $updatedBlockTypes = [];
         $newCount = 1;
         foreach ($newBlockTypes as $newIndex => $blockType) {
@@ -472,7 +484,7 @@ class FieldProcessor extends Processor
      */
     private function getMatchingFieldTypes($fieldType): array
     {
-        return array_filter(Craft::$app->fields->getAllFieldTypes(), function($haystack) use ($fieldType) {
+        return array_filter(Craft::$app->fields->getAllFieldTypes(), function ($haystack) use ($fieldType) {
             return (strpos($haystack, $fieldType) !== false);
         });
     }
@@ -525,7 +537,7 @@ class FieldProcessor extends Processor
                 $newFields = [];
                 $fieldCount = 1;
                 foreach ($blockType['fields'] as $field) {
-                    $newFields['new'.$fieldCount] = $field;
+                    $newFields['new' . $fieldCount] = $field;
                     $fieldCount++;
                 }
                 $blockType['fields'] = $newFields;
@@ -670,18 +682,18 @@ class FieldProcessor extends Processor
      */
     public function export($item, array $extraAttributes = ['group'], bool $useTypeSettings = false): array
     {
-        /** @var Field $item*/
+        /** @var Field $item */
         $attributeObj = [];
         $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)));
         if (\count($item::supportedTranslationMethods()) > 1) {
             $extraAttributes = array_merge($extraAttributes, ['translationMethod', 'translationKeyFormat']);
         }
-        foreach($extraAttributes as $attribute) {
+        foreach ($extraAttributes as $attribute) {
             if ($attribute === 'group') {
                 $attributeObj[$attribute] = $item->$attribute->name;
                 $attributeObj[$attribute . 'Id'] = $item->$attribute->id;
             } else if ($attribute === 'required') {
-                $attributeObj[$attribute] = (bool) $item->$attribute;
+                $attributeObj[$attribute] = (bool)$item->$attribute;
             } else {
                 $attributeObj[$attribute] = $item->$attribute;
             }
@@ -719,7 +731,7 @@ class FieldProcessor extends Processor
                     'fields' => [],
                 ];
                 foreach ($blockType->getFields() as $blockField) {
-                    $blockTypeObj['fields'][] = $this->export($blockField, [ 'required' ], true);
+                    $blockTypeObj['fields'][] = $this->export($blockField, ['required'], true);
                 }
                 $blockTypesObj[] = $blockTypeObj;
             }
@@ -739,7 +751,7 @@ class FieldProcessor extends Processor
                 /* @var NeoBlockTypeGroup $blockType */
                 $blockTypeGroupsObj[] = [
                     'name' => $group->name,
-                    'sortOrder' => (int) $group->sortOrder
+                    'sortOrder' => (int)$group->sortOrder
                 ];
             }
             $fieldObj['groups'] = $blockTypeGroupsObj;
@@ -749,12 +761,12 @@ class FieldProcessor extends Processor
                 $blockTypesObj[] = [
                     'name' => $blockType->name,
                     'handle' => $blockType->handle,
-                    'sortOrder' => (int) $blockType->sortOrder,
-                    'maxBlocks' => (int) $blockType->maxBlocks,
-                    'maxSiblingBlocks' => (int) $blockType->maxSiblingBlocks,
-                    'childBlocks' => is_string($blockType->childBlocks) ? Json::decodeIfJson((string) $blockType->childBlocks) : $blockType->childBlocks,
-                    'maxChildBlocks' => (int) $blockType->maxChildBlocks,
-                    'topLevel' => (bool) $blockType->topLevel,
+                    'sortOrder' => (int)$blockType->sortOrder,
+                    'maxBlocks' => (int)$blockType->maxBlocks,
+                    'maxSiblingBlocks' => (int)$blockType->maxSiblingBlocks,
+                    'childBlocks' => is_string($blockType->childBlocks) ? Json::decodeIfJson((string)$blockType->childBlocks) : $blockType->childBlocks,
+                    'maxChildBlocks' => (int)$blockType->maxChildBlocks,
+                    'topLevel' => (bool)$blockType->topLevel,
                     'fieldLayout' => $fieldLayout,
                     'fieldConfigs' => $fieldConfigs,
                 ];
@@ -766,17 +778,17 @@ class FieldProcessor extends Processor
              */
             if ($useTypeSettings) {
                 $fieldObj['typesettings']['dateTime'] = 'show' . (
-                    ((bool) $fieldObj['typesettings']['showDate'] === false) ? 'Time' : (
-                        ((bool) $fieldObj['typesettings']['showTime'] === false) ? 'Date' : 'Both'
+                    ((bool)$fieldObj['typesettings']['showDate'] === false) ? 'Time' : (
+                    ((bool)$fieldObj['typesettings']['showTime'] === false) ? 'Date' : 'Both'
                     )
-                );
+                    );
                 unset($fieldObj['typesettings']['showDate'], $fieldObj['typesettings']['showTime']);
             } else {
                 $fieldObj['dateTime'] = 'show' . (
-                    ((bool) $fieldObj['showDate']) === false ? 'Time' : (
-                        ((bool) $fieldObj['showTime']) === false ? 'Date' : 'Both'
+                    ((bool)$fieldObj['showDate']) === false ? 'Time' : (
+                    ((bool)$fieldObj['showTime']) === false ? 'Date' : 'Both'
                     )
-                );
+                    );
                 unset($fieldObj['showDate'], $fieldObj['showTime']);
             }
         } else if ($item instanceof SuperTableField) {
@@ -786,12 +798,12 @@ class FieldProcessor extends Processor
             if ($useTypeSettings) {
                 $fieldObj['typesettings']['blockTypes'] = [];
                 foreach ($item->getBlockTypeFields() as $blockTypeField) {
-                    $fieldObj['typesettings']['blockTypes'][] = $this->export($blockTypeField, [ 'required' ], true);
+                    $fieldObj['typesettings']['blockTypes'][] = $this->export($blockTypeField, ['required'], true);
                 }
             } else {
                 $fieldObj['blockTypes'] = [];
                 foreach ($item->getBlockTypeFields() as $blockTypeField) {
-                    $fieldObj['blockTypes'][] = $this->export($blockTypeField, [ 'required' ], true);
+                    $fieldObj['blockTypes'][] = $this->export($blockTypeField, ['required'], true);
                 }
             }
             unset(
@@ -812,7 +824,7 @@ class FieldProcessor extends Processor
      */
     public function exportById($id): array
     {
-        $field = Craft::$app->fields->getFieldById((int) $id);
+        $field = Craft::$app->fields->getFieldById((int)$id);
 
         return $this->export($field);
     }

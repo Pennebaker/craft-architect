@@ -11,7 +11,9 @@
 namespace pennebaker\architect\base;
 
 use Craft;
-use craft\models\AssetTransform;
+use craft\models\ImageTransform;
+use Throwable;
+use function get_class;
 
 /**
  * TransformProcessor
@@ -29,7 +31,7 @@ class TransformProcessor extends Processor
      */
     public function parse(array $item): array
     {
-        $transform = new AssetTransform();
+        $transform = new ImageTransform();
 
         foreach ($item as $k => $v) {
             $transform->$k = $v;
@@ -44,11 +46,23 @@ class TransformProcessor extends Processor
      *
      * @return bool|object
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function save($item, bool $update = false)
     {
-        return Craft::$app->assetTransforms->saveTransform($item);
+        return Craft::$app->imageTransforms->saveTransform($item);
+    }
+
+    /**
+     * @param $id
+     *
+     * @return array
+     */
+    public function exportById($id): array
+    {
+        $transform = Craft::$app->imageTransforms->getTransformById((int)$id);
+
+        return $this->export($transform);
     }
 
     /**
@@ -59,10 +73,10 @@ class TransformProcessor extends Processor
      */
     public function export($item, array $extraAttributes = []): array
     {
-        /** @var AssetTransform $item */
+        /** @var ImageTransform $item */
         $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)));
-        foreach($extraAttributes as $attribute) {
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        foreach ($extraAttributes as $attribute) {
             $attributeObj[$attribute] = $item->$attribute;
         }
 
@@ -71,26 +85,14 @@ class TransformProcessor extends Processor
             'handle' => $item->handle,
             'mode' => $item->mode,
             'position' => $item->position,
-            'width' => (int) $item->width,
-            'height' => (int) $item->height,
-            'quality' => (int) $item->quality,
+            'width' => (int)$item->width,
+            'height' => (int)$item->height,
+            'quality' => (int)$item->quality,
             'interlace' => $item->interlace,
             'format' => $item->format,
         ], $attributeObj);
 
         return $this->stripNulls($transformObj);
-    }
-
-    /**
-     * @param $id
-     *
-     * @return array
-     */
-    public function exportById($id): array
-    {
-        $transform = Craft::$app->assetTransforms->getTransformById((int) $id);
-
-        return $this->export($transform);
     }
 
     /**

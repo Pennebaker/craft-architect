@@ -3,8 +3,9 @@
     <thead>
     <tr>
         <th>
-            <div class="field checkboxassettransform">
-                <input type="checkbox" id="allAssetTransforms" class="checkbox" name="allAssetTransforms" value="all"><label for="allAssetTransforms">&zwnj;</label>
+            <div class="field checkboximagetransform">
+                <input type="checkbox" id="allImageTransforms" class="checkbox" name="allImageTransforms"
+                       value="all"><label for="allImageTransforms">&zwnj;</label>
                 {{ "Name"|t('app') }}
             </div>
         </th>
@@ -14,23 +15,25 @@
         <th>{{ "Format"|t('app') }}</th>
     </tr>
     </thead>
-    <tbody class="assetTransforms">
-    {% for assetTransform in craft.app.assetTransforms.getAllTransforms() %}
+    <tbody class="imageTransforms">
+    {% for imageTransform in craft.app.imageTransforms.getAllTransforms() %}
         <tr>
             <th scope="row">
-                <input type="checkbox" id="assetTransform{{ assetTransform.id }}" class="checkbox" name="assetTransformSelection[]" value="{{ assetTransform.id }}"> <label for="assetTransform{{ assetTransform.id }}">{{ assetTransform }}</label>
+                <input type="checkbox" id="imageTransform{{ imageTransform.id }}" class="checkbox"
+                       name="imageTransformSelection[]" value="{{ imageTransform.id }}"> <label
+                        for="imageTransform{{ imageTransform.id }}">{{ imageTransform }}</label>
             </th>
             <td>
-                <code>{{ assetTransform.handle }}</code>
+                <code>{{ imageTransform.handle }}</code>
             </td>
             <td>
-                {{ assetTransform.mode }}
+                {{ imageTransform.mode }}
             </td>
             <td>
-                <code>{{ assetTransform.width }} &times; {{ assetTransform.height }}</code>
+                <code>{{ imageTransform.width }} &times; {{ imageTransform.height }}</code>
             </td>
             <td>
-                {{ (assetTransform.format) ? assetTransform.format : 'auto' }}
+                {{ (imageTransform.format) ? imageTransform.format : 'auto' }}
             </td>
         </tr>
     {% endfor %}

@@ -11,7 +11,9 @@
 namespace pennebaker\architect\base;
 
 use Craft;
+use craft\errors\WrongEditionException;
 use craft\models\UserGroup;
+use function get_class;
 
 /**
  * SiteProcessor
@@ -44,11 +46,24 @@ class UserGroupProcessor extends Processor
      *
      * @return bool|object
      *
-     * @throws \craft\errors\WrongEditionException
+     * @throws WrongEditionException
      */
     public function save($item, bool $update = false)
     {
         return Craft::$app->userGroups->saveGroup($item);
+    }
+
+    /**
+     * Gets an object from the passed in ID for export.
+     *
+     * @param $id
+     *
+     * @return mixed
+     */
+    public function exportById($id)
+    {
+        $userGroup = Craft::$app->userGroups->getGroupById($id);
+        return $this->export($userGroup);
     }
 
     /**
@@ -63,13 +78,9 @@ class UserGroupProcessor extends Processor
     {
         /** @var UserGroup $item */
         $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)));
-        foreach($extraAttributes as $attribute) {
-            if ($attribute === 'propagateEntries') {
-                $attributeObj[$attribute] = (bool) $item->$attribute;
-            } else {
-                $attributeObj[$attribute] = $item->$attribute;
-            }
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        foreach ($extraAttributes as $attribute) {
+            $attributeObj[$attribute] = $item->$attribute;
         }
 
         $userObj = array_merge([
@@ -86,19 +97,6 @@ class UserGroupProcessor extends Processor
         $this->unmapPermissions($userObj['permissions']);
 
         return $this->stripNulls($userObj);
-    }
-
-    /**
-     * Gets an object from the passed in ID for export.
-     *
-     * @param $id
-     *
-     * @return mixed
-     */
-    public function exportById($id)
-    {
-        $userGroup = Craft::$app->userGroups->getGroupById($id);
-        return $this->export($userGroup);
     }
 
     /**

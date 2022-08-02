@@ -16,6 +16,8 @@ use craft\db\Table;
 use craft\errors\SiteNotFoundException;
 use craft\fieldlayoutelements\CustomField;
 use craft\models\FieldLayout;
+use Exception;
+use stdClass;
 
 /**
  * Processor
@@ -26,6 +28,21 @@ use craft\models\FieldLayout;
  */
 abstract class Processor implements ProcessorInterface
 {
+    /**
+     * @param $item
+     * @param $type
+     *
+     * @return FieldLayout
+     */
+    public function createFieldLayout($item, $type): FieldLayout
+    {
+        $fieldLayoutConfig = $this->createFieldLayoutConfig($item, $type);
+        $fieldLayout = FieldLayout::createFromConfig($fieldLayoutConfig);
+        $fieldLayout->type = $type;
+
+        return $fieldLayout;
+    }
+
     public function createFieldLayoutConfig($item, $type)
     {
         $tmpFieldLayout = new FieldLayout();
@@ -42,7 +59,7 @@ abstract class Processor implements ProcessorInterface
                 }
             }
         }
-        $fieldLayoutConfig = [ 'tabs' => [] ];
+        $fieldLayoutConfig = ['tabs' => []];
         if (isset($item['fieldLayout'])) {
             foreach ($item['fieldLayout'] as $tab => $fields) {
                 $tabConfig = [
@@ -102,25 +119,10 @@ abstract class Processor implements ProcessorInterface
     }
 
     /**
-     * @param $item
-     * @param $type
-     *
-     * @return FieldLayout
-     */
-    public function createFieldLayout($item, $type): FieldLayout
-    {
-        $fieldLayoutConfig = $this->createFieldLayoutConfig($item, $type);
-        $fieldLayout = FieldLayout::createFromConfig($fieldLayoutConfig);
-        $fieldLayout->type = $type;
-
-        return $fieldLayout;
-    }
-
-    /**
      * @param array $obj
      * @return array
      */
-    public function stripNulls(array $obj):array
+    public function stripNulls(array $obj): array
     {
         $allowedNulls = [
             'maxLevels'
@@ -133,6 +135,38 @@ abstract class Processor implements ProcessorInterface
             }
         }
         return $obj;
+    }
+
+    /**
+     * @param array|string|null $obj
+     * @param string $expectedType
+     * @param bool $prefix
+     */
+    public function map(&$obj, $expectedType, $prefix = true)
+    {
+        if (is_string($obj)) {
+            if ($obj !== '*' && $obj !== '') {
+                try {
+                    list($type, $handle) = explode(':', $obj);
+                } catch (Exception $e) {
+                    $type = $expectedType;
+                    $handle = $obj;
+                }
+                $this->mapService($obj, $type, $handle, $prefix);
+            }
+        } else if (is_array($obj)) {
+            foreach ($obj as $k => &$item) {
+                try {
+                    list($type, $handle) = explode(':', $item);
+                } catch (Exception $e) {
+                    $type = $expectedType;
+                    $handle = $item;
+                }
+                $this->mapService($item, $type, $handle, $prefix);
+            }
+        } else {
+            $obj = null;
+        }
     }
 
     /**
@@ -172,7 +206,7 @@ abstract class Processor implements ProcessorInterface
                 $service = Craft::$app->tags->getTagGroupByHandle($handle);
                 break;
             case 'transform':
-                $service = Craft::$app->assetTransforms->getTransformByHandle($handle);
+                $service = Craft::$app->imageTransforms->getTransformByHandle($handle);
                 break;
             default:
                 break;
@@ -188,30 +222,24 @@ abstract class Processor implements ProcessorInterface
 
     /**
      * @param array|string|null $obj
-     * @param string $expectedType
-     * @param bool $prefix
+     * @param stdClass|null $expectedType
      */
-    public function map(&$obj, $expectedType, $prefix = true)
+    public function unmap(&$obj, $expectedType = null)
     {
         if (is_string($obj)) {
             if ($obj !== '*' && $obj !== '') {
-                try {
-                    list($type, $handle) = explode(':', $obj);
-                } catch (\Exception $e) {
-                    $type = $expectedType;
-                    $handle = $obj;
-                }
-                $this->mapService($obj, $type, $handle, $prefix);
+                list($type, $uid) = explode(':', $obj);
+                $this->unmapService($obj, $type, $uid);
             }
         } else if (is_array($obj)) {
             foreach ($obj as $k => &$item) {
                 try {
-                    list($type, $handle) = explode(':', $item);
-                } catch (\Exception $e) {
+                    list($type, $uid) = explode(':', $item);
+                } catch (Exception $e) {
                     $type = $expectedType;
-                    $handle = $item;
+                    $uid = $item;
                 }
-                $this->mapService($item, $type, $handle, $prefix);
+                $this->unmapService($item, $type, $uid);
             }
         } else {
             $obj = null;
@@ -246,7 +274,7 @@ abstract class Processor implements ProcessorInterface
                 $service = Craft::$app->tags->getTagGroupByUid($uid);
                 break;
             case 'transform':
-                $service = Craft::$app->assetTransforms->getTransformByUid($uid);
+                $service = Craft::$app->imageTransforms->getTransformByUid($uid);
                 break;
             default:
                 break;
@@ -254,36 +282,10 @@ abstract class Processor implements ProcessorInterface
         if ($service) {
             try {
                 $handle = $service->handle;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $handle = $service->name;
             }
             $item = $type . ':' . $handle;
-        }
-    }
-
-    /**
-     * @param array|string|null $obj
-     * @param \stdClass|null $expectedType
-     */
-    public function unmap(&$obj, $expectedType = null)
-    {
-        if (is_string($obj)) {
-            if ($obj !== '*' && $obj !== '') {
-                list($type, $uid) = explode(':', $obj);
-                $this->unmapService($obj, $type, $uid);
-            }
-        } else if (is_array($obj)) {
-            foreach ($obj as $k => &$item) {
-                try {
-                    list($type, $uid) = explode(':', $item);
-                } catch (\Exception $e) {
-                    $type = $expectedType;
-                    $uid = $item;
-                }
-                $this->unmapService($item, $type, $uid);
-            }
-        } else {
-            $obj = null;
         }
     }
 
@@ -334,7 +336,7 @@ abstract class Processor implements ProcessorInterface
                     $site = Craft::$app->sites->getSiteByUid($siteRef);
                     $sites[$k] = $site->handle;
                 } catch (SiteNotFoundException $e) {
-                    $site = Craft::$app->sites->getSiteById((int) $siteRef);
+                    $site = Craft::$app->sites->getSiteById((int)$siteRef);
                     if ($site) {
                         $sites[$k] = $site->handle;
                     } else {
@@ -350,7 +352,7 @@ abstract class Processor implements ProcessorInterface
                 $site = Craft::$app->sites->getSiteByUid($sites);
                 $sites = $site->handle;
             } catch (SiteNotFoundException $e) {
-                $site = Craft::$app->sites->getSiteById((int) $sites);
+                $site = Craft::$app->sites->getSiteById((int)$sites);
                 if ($site) {
                     $sites = $site->handle;
                 } else {
@@ -401,7 +403,8 @@ abstract class Processor implements ProcessorInterface
      *
      * @return array|mixed
      */
-    public function additionalAttributes(string $class) {
+    public function additionalAttributes(string $class)
+    {
         $additionalAttributes = [];
         return (isset($additionalAttributes[$class])) ? $additionalAttributes[$class] : [];
     }
@@ -411,7 +414,8 @@ abstract class Processor implements ProcessorInterface
      *
      * @return array
      */
-    public function exportFieldLayout($fieldLayout) {
+    public function exportFieldLayout($fieldLayout)
+    {
         $fieldLayoutConfig = $fieldLayout->getConfig();
         if (!$fieldLayoutConfig) {
             return [[], []];
@@ -458,37 +462,14 @@ abstract class Processor implements ProcessorInterface
                 }
             }
         }
-        return [ $fieldLayoutObj, $fieldConfigsObj ];
-    }
-
-    public function permissionMap() {
-        return [
-            'assignusergroup' => 'userGroup',
-            'editsite' => 'site',
-            'editentries' => 'section',
-            'createentries' => 'section',
-            'publishentries' => 'section',
-            'deleteentries' => 'section',
-            'editpeerentries' => 'section',
-            'publishpeerentries' => 'section',
-            'deletepeerentries' => 'section',
-            'editpeerentrydrafts' => 'section',
-            'publishpeerentrydrafts' => 'section',
-            'deletepeerentrydrafts' => 'section',
-            'editglobalset' => 'globalSet',
-            'editcategories' => 'category',
-            'viewvolume' => 'volume',
-            'saveassetinvolume' => 'volume',
-            'createfoldersinvolume' => 'volume',
-            'deletefilesandfoldersinvolume' => 'volume',
-            'utility' => 'utility',
-        ];
+        return [$fieldLayoutObj, $fieldConfigsObj];
     }
 
     /**
      * @param array $permissions
      */
-    public function unmapPermissions(&$permissions) {
+    public function unmapPermissions(&$permissions)
+    {
         $permissionMap = $this->permissionMap();
         foreach ($permissions as $key => $permission) {
             if (strpos($permission, ':') > 0) {
@@ -520,8 +501,49 @@ abstract class Processor implements ProcessorInterface
                             $permissionHandle = $permissionId;
                             break;
                     }
-                    $permissions[$key] = $permissionName . ':'. $permissionHandle;
-                } catch (\Exception $e) {}
+                    $permissions[$key] = $permissionName . ':' . $permissionHandle;
+                } catch (Exception $e) {
+                }
+            }
+        }
+    }
+
+    public function permissionMap()
+    {
+        return [
+            'assignusergroup' => 'userGroup',
+            'editsite' => 'site',
+            'editentries' => 'section',
+            'createentries' => 'section',
+            'publishentries' => 'section',
+            'deleteentries' => 'section',
+            'editpeerentries' => 'section',
+            'publishpeerentries' => 'section',
+            'deletepeerentries' => 'section',
+            'editpeerentrydrafts' => 'section',
+            'publishpeerentrydrafts' => 'section',
+            'deletepeerentrydrafts' => 'section',
+            'editglobalset' => 'globalSet',
+            'editcategories' => 'category',
+            'viewvolume' => 'volume',
+            'saveassetinvolume' => 'volume',
+            'createfoldersinvolume' => 'volume',
+            'deletefilesandfoldersinvolume' => 'volume',
+            'utility' => 'utility',
+        ];
+    }
+
+    public function setPermissions($type, $item)
+    {
+        if (array_key_exists('permissions', $item)) {
+            $this->mapPermissions($item['permissions']);
+            switch ($type) {
+                case 'users':
+                    Craft::$app->userPermissions->saveUserPermissions($item['id'], $item['permissions']);
+                    break;
+                case 'userGroups':
+                    Craft::$app->userPermissions->saveGroupPermissions($item['id'], $item['permissions']);
+                    break;
             }
         }
     }
@@ -529,7 +551,8 @@ abstract class Processor implements ProcessorInterface
     /**
      * @param array $permissions
      */
-    public function mapPermissions(&$permissions) {
+    public function mapPermissions(&$permissions)
+    {
         $permissionMap = $this->permissionMap();
         foreach ($permissions as $key => $permission) {
             if (strpos($permission, ':') > 0) {
@@ -558,21 +581,10 @@ abstract class Processor implements ProcessorInterface
                             $permissionId = $permissionHandle;
                             break;
                     }
-                    $permissions[$key] = $permissionName . ':'. $permissionId;
-                } catch (\Exception $e) {}
+                    $permissions[$key] = $permissionName . ':' . $permissionId;
+                } catch (Exception $e) {
+                }
             }
-        }
-    }
-
-    public function setPermissions($type, $item) {
-        $this->mapPermissions($item['permissions']);
-        switch ($type) {
-            case 'users':
-                Craft::$app->userPermissions->saveUserPermissions($item['id'], $item['permissions']);
-                break;
-            case 'userGroups':
-                Craft::$app->userPermissions->saveGroupPermissions($item['id'], $item['permissions']);
-                break;
         }
     }
 }

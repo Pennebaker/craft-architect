@@ -1,0 +1,35 @@
+<h1>{{ "Filesystems"|t('app') }}</h1>
+<table class="data fullwidth collapsible">
+    <thead>
+    <tr>
+        <th>
+            <div class="field checkboxfilesystem">
+                <input type="checkbox" id="allFilesystems" class="checkbox" name="allFilesystems" value="all"><label
+                        for="allFilesystems">&zwnj;</label>
+                {{ "Name"|t('app') }}
+            </div>
+        </th>
+        <th>{{ "Handle"|t('app') }}</th>
+        <th>{{ "Type"|t('app') }}</th>
+    </tr>
+    </thead>
+    <tbody class="filesystems">
+    {% for filesystem in craft.app.fs.allFilesystems() %}
+        <tr class="filesystem" data-handle="{{ filesystem.handle }}" data-name="{{ filesystem.name }}">
+            <th scope="row">
+                <input type="checkbox" id="filesystem{{ filesystem.handle }}" class="checkbox"
+                       name="filesystemSelection[]"
+                       value="{{ filesystem.handle }}"> <label
+                        for="filesystem{{ filesystem.handle }}">{{ filesystem.name }}</label>
+            </th>
+            <td>
+                <code>{{ filesystem.handle }}</code>
+            </td>
+            <td>
+                {{ className(filesystem) }}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+

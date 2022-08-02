@@ -22,17 +22,18 @@
 {# The content of the CP Section #}
 {% set content %}
     <h2>{{ "Blueprints"|t('app') }}</h2>
-    {% spaceless %}
     {% for file in files %}
         <div class="file">
             <div class="file__title"><a href="{{ cpUrl('architect/import', { 'file': file }) }}">{{ file }}</a></div>
             <div class="file__content">
                 {% for group, items in craft.architect.getData(file) %}
                     <div class="section">
-                        <div class="section__title"><span class="icon icon--{{ group }}">{{ svg(craft.architect.getIcon(group), sanitize=true, namespace=true) }}</span><span>{{ group }}</span></div>
+                        <div class="section__title"><span
+                                    class="icon icon--{{ group }}">{{ svg(craft.architect.getIcon(group), sanitize=true, namespace=true) }}</span><span>{{ group }}</span>
+                        </div>
                         <div class="section__content">
                             {% for item in items %}
-                                    <div class="section__item">{{ item }}</div>
+                                <div class="section__item">{{ item }}</div>
                             {% endfor %}
                         </div>
                     </div>
@@ -59,5 +60,4 @@
         <br clear="all">
         #}
     {% endfor %}
-    {% endspaceless %}
 {% endset %}

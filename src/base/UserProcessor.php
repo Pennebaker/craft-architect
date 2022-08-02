@@ -12,6 +12,11 @@ namespace pennebaker\architect\base;
 
 use Craft;
 use craft\elements\User;
+use craft\errors\ElementNotFoundException;
+use Throwable;
+use yii\base\Exception;
+use function get_class;
+use function in_array;
 
 /**
  * SiteProcessor
@@ -49,14 +54,27 @@ class UserProcessor extends Processor
      *
      * @return bool|object
      *
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \yii\base\Exception
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws Exception
      */
     public function save($item, bool $update = false)
     {
         /** @var User $item */
         return Craft::$app->getElements()->saveElement($item);
+    }
+
+    /**
+     * Gets an object from the passed in ID for export.
+     *
+     * @param $id
+     *
+     * @return array
+     */
+    public function exportById($id): array
+    {
+        $user = Craft::$app->users->getUserById($id);
+        return $this->export($user);
     }
 
     /**
@@ -71,13 +89,9 @@ class UserProcessor extends Processor
     {
         /** @var User $item */
         $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)));
-        foreach($extraAttributes as $attribute) {
-            if ($attribute === 'propagateEntries') {
-                $attributeObj[$attribute] = (bool) $item->$attribute;
-            } else {
-                $attributeObj[$attribute] = $item->$attribute;
-            }
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        foreach ($extraAttributes as $attribute) {
+            $attributeObj[$attribute] = $item->$attribute;
         }
 
         $userObj = array_merge([
@@ -85,11 +99,11 @@ class UserProcessor extends Processor
             'email' => $item->email,
             'firstName' => $item->firstName,
             'lastName' => $item->lastName,
-            'admin' => (bool) $item->admin,
+            'admin' => (bool)$item->admin,
             'permissions' => [],
         ], $attributeObj);
 
-        if ((bool) $item->admin) {
+        if ((bool)$item->admin) {
             $userObj['permissions'] = null;
         } else {
             $permissionsFromGroup = [];
@@ -104,14 +118,14 @@ class UserProcessor extends Processor
                 $userObj['groups'][] = $group->handle;
                 $groupPermissions = Craft::$app->userPermissions->getPermissionsByGroupId($group->id);
                 foreach ($groupPermissions as $permission) {
-                    if (\in_array($permission, $permissionsFromGroup, false) === false) {
+                    if (in_array($permission, $permissionsFromGroup, false) === false) {
                         $permissionsFromGroup[] = $permission;
                     }
                 }
             }
             $permissions = Craft::$app->userPermissions->getPermissionsByUserId($item->id);
             foreach ($permissions as $permission) {
-                if (\in_array($permission, $permissionsFromGroup, false) === false) {
+                if (in_array($permission, $permissionsFromGroup, false) === false) {
                     $userObj['permissions'][] = $permission;
                 }
             }
@@ -120,19 +134,6 @@ class UserProcessor extends Processor
         }
 
         return $this->stripNulls($userObj);
-    }
-
-    /**
-     * Gets an object from the passed in ID for export.
-     *
-     * @param $id
-     *
-     * @return array
-     */
-    public function exportById($id): array
-    {
-        $user = Craft::$app->users->getUserById($id);
-        return $this->export($user);
     }
 
     /**

@@ -12,6 +12,8 @@ namespace pennebaker\architect\base;
 
 use Craft;
 use craft\elements\GlobalSet;
+use Throwable;
+use function get_class;
 
 /**
  * GlobalSetProcessor
@@ -38,24 +40,11 @@ class GlobalSetProcessor extends Processor
     }
 
     /**
-     * @param mixed $item
-     * @param bool $update
-     *
-     * @return bool|object
-     *
-     * @throws \Throwable
-     */
-    public function save($item, bool $update = false)
-    {
-        return Craft::$app->globals->saveSet($item);
-    }
-
-    /**
      * @param array $item
      *
      * @return bool|object
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function setFieldLayout($item)
     {
@@ -70,6 +59,31 @@ class GlobalSetProcessor extends Processor
     }
 
     /**
+     * @param mixed $item
+     * @param bool $update
+     *
+     * @return bool|object
+     *
+     * @throws Throwable
+     */
+    public function save($item, bool $update = false)
+    {
+        return Craft::$app->globals->saveSet($item);
+    }
+
+    /**
+     * @param $id
+     *
+     * @return array
+     */
+    public function exportById($id): array
+    {
+        $globalSet = Craft::$app->globals->getSetById((int)$id);
+
+        return $this->export($globalSet);
+    }
+
+    /**
      * @param $item
      * @param array $extraAttributes
      *
@@ -79,8 +93,8 @@ class GlobalSetProcessor extends Processor
     {
         /** @var GlobalSet $item */
         $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)));
-        foreach($extraAttributes as $attribute) {
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        foreach ($extraAttributes as $attribute) {
             $attributeObj[$attribute] = $item->$attribute;
         }
 
@@ -93,18 +107,6 @@ class GlobalSetProcessor extends Processor
         ], $attributeObj);
 
         return $this->stripNulls($globalSetObj);
-    }
-
-    /**
-     * @param $id
-     *
-     * @return array
-     */
-    public function exportById($id): array
-    {
-        $globalSet = Craft::$app->globals->getSetById((int) $id);
-
-        return $this->export($globalSet);
     }
 
     /**

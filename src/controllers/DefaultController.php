@@ -12,8 +12,11 @@ namespace pennebaker\architect\controllers;
 
 use Craft;
 use craft\web\Controller;
-
 use pennebaker\architect\Architect;
+use Throwable;
+use function count;
+use function in_array;
+use function is_array;
 
 /**
  * Default Controller
@@ -32,14 +35,14 @@ class DefaultController extends Controller
      * Handle importing json object,
      * e.g.: actions/architect/default/import
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function actionImport()
     {
         // Load posted json data into a variable.
         $importData = Craft::$app->request->getBodyParam('importData');
 
-        $updateExisting = (bool) Craft::$app->request->getBodyParam('updateExisting');
+        $updateExisting = (bool)Craft::$app->request->getBodyParam('updateExisting');
 
         list($parseError, $noErrors, $backup, $results) = Architect::$plugin->architectService->import($importData, false, $updateExisting);
 
@@ -66,13 +69,15 @@ class DefaultController extends Controller
      * Handle exporting structures,
      * e.g.: actions/architect/default/export
      */
-    public function actionExport() {
+    public function actionExport()
+    {
         // Initialize export array.
         $data = [
             'siteGroups' => [],
             'sites' => [],
             'routes' => [],
             'fieldGroups' => [],
+            'filesystems' => [],
             'volumes' => [],
             'transforms' => [],
             'tagGroups' => [],
@@ -101,11 +106,14 @@ class DefaultController extends Controller
             'routes' => [
                 'bodyParam' => 'routeSelection',
             ],
+            'filesystems' => [
+                'bodyParam' => 'filesystemSelection',
+            ],
             'volumes' => [
                 'bodyParam' => 'volumeSelection',
             ],
             'transforms' => [
-                'bodyParam' => 'assetTransformSelection',
+                'bodyParam' => 'imageTransformSelection',
             ],
             'tagGroups' => [
                 'bodyParam' => 'tagSelection',
@@ -136,6 +144,8 @@ class DefaultController extends Controller
                 foreach ($exportIds as $exportId) {
                     if ($processorName === 'routes') {
                         $exportObj = Architect::$processors->$processorName->exportByUid($exportId);
+                    } else if ($processorName === 'filesystems') {
+                        $exportObj = Architect::$processors->$processorName->exportByHandle($exportId);
                     } else {
                         $exportObj = Architect::$processors->$processorName->exportById($exportId);
                     }
@@ -145,13 +155,13 @@ class DefaultController extends Controller
                             switch ($postProcessKey) {
                                 case 'groupId':
                                     $groupName = Architect::$processors->$postProcessorName->exportById($exportObj[$postProcessKey]);
-                                    if (\in_array($groupName, $data[$postProcessorName], false) === false) {
+                                    if (in_array($groupName, $data[$postProcessorName], false) === false) {
                                         $data[$postProcessorName][] = $groupName;
                                     }
                                     unset($exportObj[$postProcessKey]);
                                     break;
                                 case 'entryTypes':
-                                    if (isset($exportObj[$postProcessKey]) && \is_array($exportObj[$postProcessKey])) {
+                                    if (isset($exportObj[$postProcessKey]) && is_array($exportObj[$postProcessKey])) {
                                         $data[$postProcessorName] = array_merge($data[$postProcessorName], $exportObj[$postProcessKey]);
                                         unset($exportObj[$postProcessKey]);
                                     }
@@ -166,11 +176,11 @@ class DefaultController extends Controller
         }
 
         foreach ($data as $key => $value) {
-            if (\count($value) <= 0) {
+            if (count($value) <= 0) {
                 unset($data[$key]);
             }
         }
 
-        $this->renderTemplate('architect/export_results', [ 'dump' => json_encode($data, JSON_PRETTY_PRINT) ]);
+        $this->renderTemplate('architect/export_results', ['dump' => json_encode($data, JSON_PRETTY_PRINT)]);
     }
 }

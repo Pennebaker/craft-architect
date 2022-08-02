@@ -10,12 +10,10 @@
 
 namespace pennebaker\architect\variables;
 
-use pennebaker\architect\Architect;
-
-use Craft;
 use craft\elements\User;
-use Symfony\Component\Yaml\Yaml;
+use pennebaker\architect\Architect;
 use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 
 class ArchitectVariable
 {
@@ -71,6 +69,7 @@ class ArchitectVariable
             'routes' => '@app/icons/routes.svg',
             'sections' => '@app/icons/newspaper.svg',
             'volumes' => '@app/icons/photo.svg',
+            'filesystems' => '@app/icons/folder-open.svg',
             'transforms' => '@app/icons/photo.svg',
             'tagGroups' => '@app/icons/tags.svg',
             'categoryGroups' => '@app/icons/folder-open.svg',

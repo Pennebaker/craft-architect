@@ -10,12 +10,16 @@
 
 namespace pennebaker\architect\base;
 
-use pennebaker\architect\Architect;
-
 use Craft;
+use craft\base\Volume;
 use craft\elements\Asset;
 use craft\models\FieldLayout;
-use craft\base\Volume;
+use pennebaker\architect\Architect;
+use Throwable;
+use yii\base\InvalidConfigException;
+use function count;
+use function get_class;
+
 
 /**
  * VolumeProcessor
@@ -33,7 +37,7 @@ class VolumeProcessor extends Processor
      */
     public function parse(array $item): array
     {
-        if (\count($item['fieldLayout']) > 1) {
+        if (count($item['fieldLayout']) > 1) {
             $errors = [
                 'fieldLayout' => [
                     Architect::t('Field layout can only have 1 tab.')
@@ -43,13 +47,14 @@ class VolumeProcessor extends Processor
             return [null, $errors];
         }
 
-        $volume = Craft::$app->volumes->createVolume([
-            'type' => $item['type'],
+        $volume = new $item['type']([
             'name' => $item['name'],
             'handle' => $item['handle'],
-            'hasUrls' => $item['hasUrls'],
-            'url' => $item['hasUrls'] ? $item['url'] : null,
-            'settings' => $item['settings'],
+            'fsHandle' => $item['fsHandle'],
+            'transformFsHandle' => $item['transformFsHandle'] ?? null,
+            'transformSubpath' => $item['transformSubpath'] ?? null,
+            'titleTranslationMethod' => $item['titleTranslationMethod'] ?? 'site',
+            'titleTranslationKeyFormat' => $item['titleTranslationKeyFormat'] ?? null,
         ]);
         $fieldLayout = new FieldLayout();
         $fieldLayout->type = Asset::class;
@@ -60,24 +65,11 @@ class VolumeProcessor extends Processor
     }
 
     /**
-     * @param mixed $item
-     * @param bool $update
-     *
-     * @return bool|object
-     *
-     * @throws \Throwable
-     */
-    public function save($item, bool $update = false)
-    {
-        return Craft::$app->volumes->saveVolume($item);
-    }
-
-    /**
      * @param array $item
      *
      * @return bool|object
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function setFieldLayout($item)
     {
@@ -90,36 +82,16 @@ class VolumeProcessor extends Processor
     }
 
     /**
-     * @param $item
-     * @param array $extraAttributes
+     * @param mixed $item
+     * @param bool $update
      *
-     * @return array
+     * @return bool|object
      *
-     * @throws \yii\base\InvalidConfigException
+     * @throws Throwable
      */
-    public function export($item, array $extraAttributes = []): array
+    public function save($item, bool $update = false)
     {
-        /** @var Volume $item */
-        $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)));
-        foreach($extraAttributes as $attribute) {
-            $attributeObj[$attribute] = $item->$attribute;
-        }
-
-        $hasUrls = (bool) $item->hasUrls;
-        list ($fieldLayout, $fieldConfigs) = $this->exportFieldLayout($item->getFieldLayout());
-        $volumeObj = array_merge([
-            'name' => $item->name,
-            'handle' => $item->handle,
-            'type' => \get_class($item),
-            'hasUrls' => $hasUrls,
-            'url' => $hasUrls ? $item->url : null,
-            'settings' => $item->settings,
-            'fieldLayout' => $fieldLayout,
-            'fieldConfigs' => $fieldConfigs,
-        ], $attributeObj);
-
-        return $this->stripNulls($volumeObj);
+        return Craft::$app->volumes->saveVolume($item);
     }
 
     /**
@@ -127,13 +99,47 @@ class VolumeProcessor extends Processor
      *
      * @return array
      *
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function exportById($id): array
     {
-        $volume = Craft::$app->volumes->getVolumeById((int) $id);
+        $volume = Craft::$app->volumes->getVolumeById((int)$id);
 
         return $this->export($volume);
+    }
+
+    /**
+     * @param $item
+     * @param array $extraAttributes
+     *
+     * @return array
+     *
+     * @throws InvalidConfigException
+     */
+    public function export($item, array $extraAttributes = []): array
+    {
+        /** @var Volume $item */
+        $attributeObj = [];
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        foreach ($extraAttributes as $attribute) {
+            $attributeObj[$attribute] = $item->$attribute;
+        }
+
+        list ($fieldLayout, $fieldConfigs) = $this->exportFieldLayout($item->getFieldLayout());
+        $volumeObj = array_merge([
+            'name' => $item->name,
+            'handle' => $item->handle,
+            'type' => get_class($item),
+            'fsHandle' => $item->fsHandle,
+            'transformFsHandle' => $item->transformFsHandle,
+            'transformSubpath' => $item->transformSubpath,
+            'titleTranslationMethod' => $item->titleTranslationMethod,
+            'titleTranslationKeyFormat' => $item->titleTranslationKeyFormat,
+            'fieldLayout' => $fieldLayout,
+            'fieldConfigs' => $fieldConfigs,
+        ], $attributeObj);
+
+        return $this->stripNulls($volumeObj);
     }
 
     /**

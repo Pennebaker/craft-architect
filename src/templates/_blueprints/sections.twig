@@ -4,7 +4,8 @@
     <tr>
         <th>
             <div class="field checkboxsection">
-                <input type="checkbox" id="allSections" class="checkbox" name="allSections" value="all"><label for="allSections">&zwnj;</label>
+                <input type="checkbox" id="allSections" class="checkbox" name="allSections" value="all"><label
+                        for="allSections">&zwnj;</label>
                 {{ "Name"|t('app') }}
             </div>
         </th>
@@ -17,15 +18,19 @@
     {% for section in craft.app.sections.getAllSections() %}
         {% set utilizedFields = {} %}
         {% for entryType in section.getEntryTypes() %}
-            {% if entryType.fieldLayoutId %}
-                {% for fieldId in craft.app.fields.getLayoutById(entryType.fieldLayoutId).getFieldIds() %}
-                    {% set utilizedFields = utilizedFields | merge([fieldId]) %}
+            {% for sectionTab in entryType.getFieldLayout().getTabs() %}
+                {% for tabField in sectionTab.getElements() %}
+                    {% if tabField.className == 'craft\\fieldlayoutelements\\CustomField' %}
+                        {% set utilizedFields = utilizedFields | merge([tabField.getField.id]) %}
+                    {% endif %}
                 {% endfor %}
-            {% endif %}
+            {% endfor %}
         {% endfor %}
-        <tr class="section" data-id="{{ section.id }}" data-name="{{ section }}" data-fields="{% for id in utilizedFields %}{{ id }} {% endfor %}">
+        <tr class="section" data-id="{{ section.id }}" data-name="{{ section }}"
+            data-fields="{% for id in utilizedFields %}{{ id }} {% endfor %}">
             <th scope="row">
-                <input type="checkbox" id="section{{ section.id }}" class="checkbox" name="sectionSelection[]" value="{{ section.id }}"> <label for="section{{ section.id }}">{{ section }}</label>
+                <input type="checkbox" id="section{{ section.id }}" class="checkbox" name="sectionSelection[]"
+                       value="{{ section.id }}"> <label for="section{{ section.id }}">{{ section }}</label>
             </th>
             <td>
                 <code>{{ section.handle }}</code>
@@ -37,7 +42,9 @@
                 {# {{ section.uriFormat }} #}
                 <ul>
                     {% for siteSetting in section.siteSettings %}
-                        <li><i>{{ craft.app.sites.getSiteById(siteSetting.siteId).handle }}</i>: {{ siteSetting.uriFormat }}</li>
+                        <li>
+                            <i>{{ craft.app.sites.getSiteById(siteSetting.siteId).handle }}</i>: {{ siteSetting.uriFormat }}
+                        </li>
                     {% endfor %}
                 </ul>
             </td>

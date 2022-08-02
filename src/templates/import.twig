@@ -28,25 +28,25 @@
 {% set content %}
     <h2>{{ "Import"|t('architect') }}</h2>
 
-    {#{% if importData is not defined %}#}
-        {#{% set importData = source('architect/test.json') %}#}
-    {#{% endif %}#}
+    {# {% if importData is not defined %} #}
+    {# {% set importData = source('architect/test.json') %} #}
+    {# {% endif %} #}
 
     {% if invalidJSON %}
         <p class="error">JSON:
             {% switch invalidJSON -%}
-                {%- case 1 -%}
-                    {{ "The maximum stack depth has been exceeded."|t('architect') }}
-                {%- case 2 -%}
-                    {{ "Invalid or malformed JSON."|t('architect') }}
-                {%- case 3 -%}
-                    {{ "Control character error, possibly incorrectly encoded."|t('architect') }}
-                {%- case 4 -%}
-                    {{ "Syntax error."|t('architect') }}
-                {%- case 5 -%}
-                    {{ "Malformed UTF-8 characters, possibly incorrectly encoded."|t('architect') }}
-                {%- case 6 -%}
-                    {{ "One or more recursive references in the value to be encoded."|t('architect') }}
+            {%- case 1 -%}
+                {{ "The maximum stack depth has been exceeded."|t('architect') }}
+            {%- case 2 -%}
+                {{ "Invalid or malformed JSON."|t('architect') }}
+            {%- case 3 -%}
+                {{ "Control character error, possibly incorrectly encoded."|t('architect') }}
+            {%- case 4 -%}
+                {{ "Syntax error."|t('architect') }}
+            {%- case 5 -%}
+                {{ "Malformed UTF-8 characters, possibly incorrectly encoded."|t('architect') }}
+            {%- case 6 -%}
+                {{ "One or more recursive references in the value to be encoded."|t('architect') }}
             {%- endswitch -%}
         </p>
         <p class="error">YAML: {{ invalidYAML }}</p>

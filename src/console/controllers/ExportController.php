@@ -10,11 +10,7 @@
 
 namespace pennebaker\architect\console\controllers;
 
-use pennebaker\architect\Architect;
-
-use Craft;
 use yii\console\Controller;
-use yii\helpers\Console;
 
 /**
  * Default Command

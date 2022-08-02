@@ -11,9 +11,14 @@
 namespace pennebaker\architect\base;
 
 use Craft;
+use craft\errors\SectionNotFoundException;
+use craft\errors\SiteNotFoundException;
 use craft\models\Section;
 use craft\models\Section_SiteSettings;
 use pennebaker\architect\Architect;
+use Throwable;
+use yii\base\InvalidConfigException;
+use function get_class;
 
 /**
  * SectionProcessor
@@ -29,15 +34,16 @@ class SectionProcessor extends Processor
      *
      * @return array
      *
-     * @throws \craft\errors\SiteNotFoundException
+     * @throws SiteNotFoundException
      */
     public function parse(array $item): array
     {
+        $this->preProcess($item);
         foreach ($item['siteSettings'] as $settingKey => $settings) {
             $siteSettings = new Section_SiteSettings(array_merge($settings, [
                 'siteId' => isset($settings['siteId']) ? Craft::$app->sites->getSiteByHandle($settings['siteId'])->id : Craft::$app->sites->getPrimarySite()->id,
             ]));
-            if (isset($siteSettings['hasUrls']) && (bool) $siteSettings['hasUrls'] === false) {
+            if (isset($siteSettings['hasUrls']) && (bool)$siteSettings['hasUrls'] === false) {
                 $siteSettings['uriFormat'] = null;
             }
             $item['siteSettings'][$settingKey] = $siteSettings;
@@ -48,13 +54,27 @@ class SectionProcessor extends Processor
     }
 
     /**
+     * @param array $item
+     */
+    public function preProcess(array &$item)
+    {
+        if (array_key_exists('propagateEntries', $item)) {
+            if ($item['propagateEntries']) {
+                $item['propagationMethod'] = 'all';
+            } else {
+                $item['propagationMethod'] = 'none';
+            }
+        }
+    }
+
+    /**
      * @param $item
      * @param bool $update
      *
      * @return bool|object
      *
-     * @throws \Throwable
-     * @throws \craft\errors\SectionNotFoundException
+     * @throws Throwable
+     * @throws SectionNotFoundException
      */
     public function save($item, bool $update = false)
     {
@@ -62,20 +82,17 @@ class SectionProcessor extends Processor
     }
 
     /**
-     * @param string $class
+     * @param $id
      *
-     * @return array|mixed
+     * @return array
+     *
+     * @throws InvalidConfigException
      */
-    public function additionalAttributes(string $class) {
-        $additionalAttributes = [
-            'structure' => [
-                'maxLevels',
-            ],
-            'channel' => [
-                'propagateEntries'
-            ],
-        ];
-        return $additionalAttributes[$class] ?? [];
+    public function exportById($id): array
+    {
+        $section = Craft::$app->sections->getSectionById((int)$id);
+
+        return $this->export($section);
     }
 
     /**
@@ -84,42 +101,43 @@ class SectionProcessor extends Processor
      *
      * @return array
      *
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function export($item, array $extraAttributes = []): array
     {
         /** @var Section $item */
         $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)), $this->additionalAttributes($item->type));
-        foreach($extraAttributes as $attribute) {
-            if ($attribute === 'propagateEntries') {
-                $attributeObj[$attribute] = (bool) $item->$attribute;
-            } else {
-                $attributeObj[$attribute] = $item->$attribute;
-            }
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)), $this->additionalAttributes($item->type));
+        foreach ($extraAttributes as $attribute) {
+            $attributeObj[$attribute] = $item->$attribute;
         }
 
-        $sectionObj = array_merge([
-            'name' => $item->name,
-            'handle' => $item->handle,
-            'type' => $item->type,
-            'enableVersioning' => (bool) $item->enableVersioning,
-        ], $attributeObj);
+        $sectionObj = [...array_merge(
+            [
+                'name' => $item->name,
+                'handle' => $item->handle,
+                'type' => $item->type,
+                'enableVersioning' => (bool)$item->enableVersioning,
+            ],
+            $attributeObj,
+            [
+                'siteSettings' => [],
+                'entryTypes' => [],
+            ]
+        )];
 
         $siteSettings = $item->getSiteSettings();
-        $sectionObj['siteSettings'] = [];
         foreach ($siteSettings as $siteSetting) {
-            $hasUrls = (bool) $siteSetting->hasUrls;
+            $hasUrls = (bool)$siteSetting->hasUrls;
             $sectionObj['siteSettings'][] = [
                 'siteId' => $siteSetting->getSite()->primary ? null : $siteSetting->getSite()->handle,
                 'hasUrls' => $hasUrls,
                 'uriFormat' => $hasUrls ? $siteSetting->uriFormat : null,
                 'template' => $siteSetting->template,
-                'enabledByDefault' => (bool) $siteSetting->enabledByDefault,
+                'enabledByDefault' => (bool)$siteSetting->enabledByDefault,
             ];
         }
         $entryTypes = $item->getEntryTypes();
-        $sectionObj['entryTypes'] = [];
         foreach ($entryTypes as $entryType) {
             $sectionObj['entryTypes'][] = Architect::$processors->entryTypes->export($entryType);
         }
@@ -128,17 +146,21 @@ class SectionProcessor extends Processor
     }
 
     /**
-     * @param $id
+     * @param string $class
      *
-     * @return array
-     *
-     * @throws \yii\base\InvalidConfigException
+     * @return array|mixed
      */
-    public function exportById($id): array
+    public function additionalAttributes(string $class)
     {
-        $section = Craft::$app->sections->getSectionById((int) $id);
-
-        return $this->export($section);
+        $additionalAttributes = [
+            'structure' => [
+                'maxLevels',
+            ],
+            'channel' => [
+                'propagationMethod'
+            ],
+        ];
+        return $additionalAttributes[$class] ?? [];
     }
 
     /**

@@ -10,11 +10,10 @@
 
 namespace pennebaker\architect\controllers;
 
-use pennebaker\architect\Architect;
-
 use Craft;
-use craft\web\Controller;
 use craft\helpers\FileHelper;
+use craft\web\Controller;
+use pennebaker\architect\Architect;
 
 /**
  * Cp Controller
@@ -54,7 +53,7 @@ class CpController extends Controller
         if (is_file($filename)) {
             $fileContents = file_get_contents($filename);
         }
-        return $this->renderTemplate('architect/import', [ 'importData' => $fileContents, 'invalidJSON' => false ]);
+        return $this->renderTemplate('architect/import', ['importData' => $fileContents, 'invalidJSON' => false]);
     }
 
     /**

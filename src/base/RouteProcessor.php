@@ -11,7 +11,9 @@
 namespace pennebaker\architect\base;
 
 use Craft;
+use craft\errors\SiteNotFoundException;
 use craft\records\Route;
+use Exception;
 use pennebaker\architect\Architect;
 
 /**
@@ -36,9 +38,10 @@ class RouteProcessor extends Processor
         try {
             $site = Craft::$app->sites->getSiteByHandle($item['siteId']);
             $siteUid = $site->uid;
-        } catch (\Exception $e) {}
+        } catch (Exception $e) {
+        }
         return [
-            [ $item['uriParts'], $item['template'], $siteUid ],
+            [$item['uriParts'], $item['template'], $siteUid],
             false
         ];
     }
@@ -58,36 +61,6 @@ class RouteProcessor extends Processor
             return Architect::getRouteByUid($routeUid);
         }
         return false;
-    }
-
-    /**
-     * Exports an object into an array.
-     *
-     * @param mixed $item The item to save
-     * @param array $extraAttributes
-     *
-     * @return mixed
-     */
-    public function export($item, array $extraAttributes = [])
-    {
-        $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes('route'));
-        foreach($extraAttributes as $attribute) {
-            $attributeObj[$attribute] = $item->$attribute;
-        }
-
-        $routeObj = array_merge([
-            'template' => $item['template'],
-            'uriParts' => $item['uriParts'],
-        ], $attributeObj);
-
-        if ($item['siteUid']) {
-            try {
-                $routeObj['siteId'] = Craft::$app->sites->getSiteByUid($item['siteUid'])->handle;
-            } catch (\craft\errors\SiteNotFoundException $e) {}
-        }
-
-        return $this->stripNulls($routeObj);
     }
 
     /**
@@ -112,5 +85,36 @@ class RouteProcessor extends Processor
     public function exportByUid($uid)
     {
         return $this->export(Architect::getRouteByUid($uid));
+    }
+
+    /**
+     * Exports an object into an array.
+     *
+     * @param mixed $item The item to save
+     * @param array $extraAttributes
+     *
+     * @return mixed
+     */
+    public function export($item, array $extraAttributes = [])
+    {
+        $attributeObj = [];
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes('route'));
+        foreach ($extraAttributes as $attribute) {
+            $attributeObj[$attribute] = $item->$attribute;
+        }
+
+        $routeObj = array_merge([
+            'template' => $item['template'],
+            'uriParts' => $item['uriParts'],
+        ], $attributeObj);
+
+        if ($item['siteUid']) {
+            try {
+                $routeObj['siteId'] = Craft::$app->sites->getSiteByUid($item['siteUid'])->handle;
+            } catch (SiteNotFoundException $e) {
+            }
+        }
+
+        return $this->stripNulls($routeObj);
     }
 }

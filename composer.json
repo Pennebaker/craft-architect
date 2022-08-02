@@ -2,7 +2,7 @@
     "name": "pennebaker/craft-architect",
     "description": "CraftCMS plugin to generate content models from JSON/YAML data.",
     "type": "craft-plugin",
-    "version": "2.4.3",
+    "version": "4.0.0",
     "keywords": [
         "craft",
         "cms",
@@ -23,8 +23,8 @@
     ],
     "require": {
         "ext-json": "*",
-        "craftcms/cms": "^3.1",
-        "symfony/yaml": "^3.2|^4.0|^5.0"
+        "craftcms/cms": "^4",
+        "symfony/yaml": "^5.0"
     },
     "autoload": {
         "psr-4": {
@@ -44,8 +44,18 @@
         },
         "class": "pennebaker\\architect\\Architect"
     },
+  "config": {
+    "sort-packages": true,
+    "platform": {
+      "php": "8.0.2"
+    },
+    "allow-plugins": {
+        "yiisoft/yii2-composer": true,
+        "craftcms/plugin-installer": true
+    }
+  },
     "require-dev": {
-        "verbb/super-table": "^2.0",
-        "spicyweb/craft-neo": "^2.0"
+        "spicyweb/craft-neo": "^3.1",
+        "verbb/super-table": "3.0.0-beta.6"
     }
 }

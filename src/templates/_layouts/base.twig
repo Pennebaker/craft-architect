@@ -20,17 +20,22 @@
 
     <nav class="architect">
         <ul>
-            {#<li class="heading"><span>{{"Export"|t('architect') }}</span></li>#}
+            {# <li class="heading"><span>{{"Export"|t('architect') }}</span></li> #}
             <li>
-                <a  href="{{ cpUrl('architect/import') }}" {% if selectedSubnavItem|default('') == 'import' %}class="sel"{% endif %}><span class="icon icon-mask">{{ svg(importIcon) }}</span>&nbsp;{{"Import"|t('architect')}}
+                <a href="{{ cpUrl('architect/import') }}"
+                   {% if selectedSubnavItem|default('') == 'import' %}class="sel"{% endif %}><span
+                            class="icon icon-mask">{{ svg(importIcon) }}</span>&nbsp;{{ "Import"|t('architect') }}
                 </a>
             </li>
             <li>
-                <a  href="{{ cpUrl('architect/export') }}" {% if selectedSubnavItem == 'export' %}class="sel"{% endif %}><span class="icon icon-mask">{{ svg(exportIcon) }}</span>&nbsp;{{"Export"|t('architect')}}
+                <a href="{{ cpUrl('architect/export') }}" {% if selectedSubnavItem == 'export' %}class="sel"{% endif %}><span
+                            class="icon icon-mask">{{ svg(exportIcon) }}</span>&nbsp;{{ "Export"|t('architect') }}
                 </a>
             </li>
             <li>
-                <a  href="{{ cpUrl('architect/blueprints') }}" {% if selectedSubnavItem == 'blueprints' %}class="sel"{% endif %}><span class="icon icon-mask">{{ svg(migrationIcon) }}</span>&nbsp;{{"Blueprints"|t('app')}}
+                <a href="{{ cpUrl('architect/blueprints') }}"
+                   {% if selectedSubnavItem == 'blueprints' %}class="sel"{% endif %}><span
+                            class="icon icon-mask">{{ svg(migrationIcon) }}</span>&nbsp;{{ "Blueprints"|t('app') }}
                 </a>
             </li>
 
@@ -43,7 +48,7 @@
 {# Get a URL to an image in our AssetBundle #}
 {% set iconUrl = view.getAssetManager().getPublishedUrl('@pennebaker/architect/assetbundles/indexcpsection/dist', true) ~ '/img/Index-icon.svg' %}
 
-{# Content that should appear in the page header#}
+{# Content that should appear in the page header #}
 {% block contextMenu %}
-    <img src="{{ iconUrl }}" height="32" width="32" />
-{% endblock%}
+    <img src="{{ iconUrl }}" height="32" width="32"/>
+{% endblock %}

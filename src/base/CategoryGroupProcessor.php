@@ -12,8 +12,12 @@ namespace pennebaker\architect\base;
 
 use Craft;
 use craft\elements\Tag;
+use craft\errors\SiteNotFoundException;
 use craft\models\CategoryGroup;
 use craft\models\CategoryGroup_SiteSettings;
+use Throwable;
+use yii\base\InvalidConfigException;
+use function get_class;
 
 /**
  * CategoryGroupProcessor
@@ -29,7 +33,7 @@ class CategoryGroupProcessor extends Processor
      *
      * @return array
      *
-     * @throws \craft\errors\SiteNotFoundException
+     * @throws SiteNotFoundException
      */
     public function parse(array $item): array
     {
@@ -54,24 +58,11 @@ class CategoryGroupProcessor extends Processor
     }
 
     /**
-     * @param mixed $item
-     * @param bool $update
-     *
-     * @return bool|object
-     *
-     * @throws \Throwable
-     */
-    public function save($item, bool $update = false)
-    {
-        return Craft::$app->categories->saveGroup($item);
-    }
-
-    /**
      * @param array $item
      *
      * @return bool|object
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function setFieldLayout($item)
     {
@@ -87,19 +78,46 @@ class CategoryGroupProcessor extends Processor
     }
 
     /**
+     * @param mixed $item
+     * @param bool $update
+     *
+     * @return bool|object
+     *
+     * @throws Throwable
+     */
+    public function save($item, bool $update = false)
+    {
+        return Craft::$app->categories->saveGroup($item);
+    }
+
+    /**
+     * @param $id
+     *
+     * @return array
+     *
+     * @throws InvalidConfigException
+     */
+    public function exportById($id): array
+    {
+        $categoryGroup = Craft::$app->categories->getGroupById((int)$id);
+
+        return $this->export($categoryGroup);
+    }
+
+    /**
      * @param $item
      * @param array $extraAttributes
      *
      * @return array
      *
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function export($item, array $extraAttributes = []): array
     {
         /** @var CategoryGroup $item */
         $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)));
-        foreach($extraAttributes as $attribute) {
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        foreach ($extraAttributes as $attribute) {
             $attributeObj[$attribute] = $item->$attribute;
         }
 
@@ -123,20 +141,6 @@ class CategoryGroupProcessor extends Processor
         }
 
         return $this->stripNulls($categoryGroupObj);
-    }
-
-    /**
-     * @param $id
-     *
-     * @return array
-     *
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function exportById($id): array
-    {
-        $categoryGroup = Craft::$app->categories->getGroupById((int) $id);
-
-        return $this->export($categoryGroup);
     }
 
     /**

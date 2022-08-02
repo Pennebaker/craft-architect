@@ -12,6 +12,7 @@ namespace pennebaker\architect\base;
 
 use Craft;
 use craft\models\FieldGroup;
+use Throwable;
 
 /**
  * FieldGroupProcessor
@@ -38,11 +39,23 @@ class FieldGroupProcessor extends Processor
      *
      * @return bool|object
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function save($item, bool $update = false)
     {
         return Craft::$app->fields->saveGroup($item);
+    }
+
+    /**
+     * @param $id
+     *
+     * @return string
+     */
+    public function exportById($id): string
+    {
+        $fieldGroup = Craft::$app->fields->getGroupById((int)$id);
+
+        return $this->export($fieldGroup);
     }
 
     /**
@@ -55,18 +68,6 @@ class FieldGroupProcessor extends Processor
     {
         /** @var FieldGroup $item */
         return $item->name;
-    }
-
-    /**
-     * @param $id
-     *
-     * @return string
-     */
-    public function exportById($id): string
-    {
-        $fieldGroup = Craft::$app->fields->getGroupById((int) $id);
-
-        return $this->export($fieldGroup);
     }
 
     /**

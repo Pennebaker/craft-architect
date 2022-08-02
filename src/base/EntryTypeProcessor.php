@@ -12,7 +12,11 @@ namespace pennebaker\architect\base;
 
 use Craft;
 use craft\elements\Entry;
+use craft\errors\EntryTypeNotFoundException;
 use craft\models\EntryType;
+use Throwable;
+use yii\base\InvalidConfigException;
+use function get_class;
 
 /**
  * EntryTypeProcessor
@@ -47,12 +51,12 @@ class EntryTypeProcessor extends Processor
             }
         }
 
-        $entryType = isset($item['id']) ? Craft::$app->sections->getEntryTypeById((int) $item['id']) : new EntryType();
+        $entryType = isset($item['id']) ? Craft::$app->sections->getEntryTypeById((int)$item['id']) : new EntryType();
         $entryType->sectionId = $section->id;
         $entryType->name = $item['name'];
         $entryType->handle = $item['handle'];
         $entryType->hasTitleField = $item['hasTitleField'];
-        if (!(bool) $item['hasTitleField']) {
+        if (!(bool)$item['hasTitleField']) {
             $entryType->titleFormat = $item['titleFormat'];
         }
 
@@ -71,12 +75,26 @@ class EntryTypeProcessor extends Processor
      *
      * @return bool|object
      *
-     * @throws \Throwable
-     * @throws \craft\errors\EntryTypeNotFoundException
+     * @throws Throwable
+     * @throws EntryTypeNotFoundException
      */
     public function save($item, bool $update = false)
     {
         return Craft::$app->sections->saveEntryType($item);
+    }
+
+    /**
+     * @param $id
+     *
+     * @return array
+     *
+     * @throws InvalidConfigException
+     */
+    public function exportById($id): array
+    {
+        $entryType = Craft::$app->sections->getEntryTypeById((int)$id);
+
+        return $this->export($entryType);
     }
 
     /**
@@ -85,17 +103,17 @@ class EntryTypeProcessor extends Processor
      *
      * @return array
      *
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function export($item, array $extraAttributes = []): array
     {
         /** @var EntryType $item */
         $attributeObj = [];
-        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(\get_class($item)));
-        foreach($extraAttributes as $attribute) {
+        $extraAttributes = array_merge($extraAttributes, $this->additionalAttributes(get_class($item)));
+        foreach ($extraAttributes as $attribute) {
             $attributeObj[$attribute] = $item->$attribute;
         }
-        $hasTitleField = (bool) $item->hasTitleField;
+        $hasTitleField = (bool)$item->hasTitleField;
 
         list ($fieldLayout, $fieldConfigs) = $this->exportFieldLayout($item->getFieldLayout());
         $entryTypeObj = array_merge([
@@ -109,20 +127,6 @@ class EntryTypeProcessor extends Processor
         ], $attributeObj);
 
         return $this->stripNulls($entryTypeObj);
-    }
-
-    /**
-     * @param $id
-     *
-     * @return array
-     *
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function exportById($id): array
-    {
-        $entryType = Craft::$app->sections->getEntryTypeById((int) $id);
-
-        return $this->export($entryType);
     }
 
     /**

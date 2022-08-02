@@ -19,13 +19,13 @@ namespace pennebaker\architect\base;
  */
 class Processors
 {
-
     public $siteGroups;
     public $sites;
     public $sections;
     public $routes;
     public $entryTypes;
     public $volumes;
+    public $filesystems;
     public $transforms;
     public $tagGroups;
     public $categoryGroups;
@@ -43,6 +43,7 @@ class Processors
         $this->routes = new RouteProcessor();
         $this->entryTypes = new EntryTypeProcessor();
         $this->volumes = new VolumeProcessor();
+        $this->filesystems = new FilesystemProcessor();
         $this->transforms = new TransformProcessor();
         $this->tagGroups = new TagGroupProcessor();
         $this->categoryGroups = new CategoryGroupProcessor();

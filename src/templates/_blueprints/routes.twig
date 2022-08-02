@@ -3,22 +3,24 @@
     <thead>
     <tr>
         <th>
-            <div class="route checkboxfield">
-                <input type="checkbox" id="allRoutes" class="checkbox" name="allRoutes" value="all"><label for="allRoutes">&zwnj;</label>
-                {{ "URI Parts"|t('app') }}
-            </div>
+            <div class="route checkboxfield"><input type="checkbox" id="allRoutes" class="checkbox" name="allRoutes"
+                                                    value="all"><label for="allRoutes">&zwnj;</label></div>
         </th>
+        <th>{{ "URI Parts"|t('app') }}</th>
         <th>{{ "Templates"|t('app') }}</th>
         <th>{{ "Site"|t('app') }}</th>
     </tr>
     </thead>
-    <tbody class="routes">
+    <tbody class="routes" id="routes">
     {% for route in craft.routes.getProjectConfigRoutes() %}
         <tr class="route" data-id="{{ route.uid }}">
             <th scope="row" class="checkbox-cell template">
-                <input type="checkbox" id="route{{ route.uid }}" class="checkbox" name="routeSelection[]" value="{{ route.uid }}"> <label for="route{{ route.uid }}"></label>
-                <span class="uri">{{ route.uriDisplayHtml|raw }}</span>
+                <input type="checkbox" id="route{{ route.uid }}" class="checkbox" name="routeSelection[]"
+                       value="{{ route.uid }}"> <label for="route{{ route.uid }}"></label>
             </th>
+            <td>
+                <span class="uri">{{ route.uriDisplayHtml|raw }}</span>
+            </td>
             <td>
                 <code>{{ route.template }}</code>
             </td>
