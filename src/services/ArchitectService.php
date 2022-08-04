@@ -360,7 +360,20 @@ class ArchitectService extends Component
             if (isset($importObj[$parseKey]) && is_array($importObj[$parseKey])) {
                 foreach ($successful[$parseKey] as $itemKey) {
                     $itemObj = $importObj[$parseKey][$itemKey];
-                    Architect::$processors->$parseKey->setFieldLayout($itemObj);
+                    $success = Architect::$processors->$parseKey->setFieldLayout($itemObj);
+                    if (!$success) {
+                        foreach ($results[$parseKey] as &$result) {
+                            if ($result['item']->handle === $itemObj['handle']) {
+                                $result['success'] = false;
+                                $result['errors'] = [
+                                    'fieldLayout' => [
+                                        Architect::t('Failed to set Field Layout.')
+                                    ]
+                                ];
+                            }
+                        }
+                        unset($result);
+                    }
                 }
             }
         }
