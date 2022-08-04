@@ -10,6 +10,7 @@
 
 namespace pennebaker\architect\base;
 
+use craft\base\FieldInterface;
 use pennebaker\architect\Architect;
 
 use Craft;
@@ -128,23 +129,18 @@ class FieldProcessor extends Processor
                 if (!array_key_exists('maxSiblingBlocks', $blockType)) {
                     $blockType['maxSiblingBlocks'] = null;
                 }
+
+                if (!array_key_exists('conditions', $blockType)) {
+                    $blockType['conditions'] = [];
+                }
+
+                if (!array_key_exists('description', $blockType)) {
+                    $blockType['description'] = '';
+                }
+
                 $blockType['elementPlacements'] = [];
                 $blockType['elementConfigs'] = [];
-                $fieldLayoutConfig = $this->createFieldLayoutConfig($blockType, NeoBlock::class);
-                foreach ($fieldLayoutConfig['tabs'] as $tabConfig) {
-                    $tabName = $tabConfig['name'];
-                    $fieldConfigs = $tabConfig['elements'];
-                    $blockType['elementPlacements'][$tabName] = [];
-                    if (is_array($fieldConfigs)) {
-                        foreach ($fieldConfigs as $fieldConfig) {
-                            $rndKey = substr(base64_encode(mt_rand()), 2, 12);
-                            $blockType['elementPlacements'][$tabName][] = $rndKey;
-                            $blockType['elementConfigs'][$rndKey] = json_encode($fieldConfig);
 
-                        }
-                    }
-                }
-                unset($fields);
                 unset($blockType['fieldLayout']);
                 unset($blockType['fieldConfigs']);
                 unset($blockType['requiredFields']);
@@ -228,14 +224,14 @@ class FieldProcessor extends Processor
     }
 
     /**
-     * @param $item
+     * @param FieldInterface $item
      * @param bool $update Attempt to update an existing field instead of making a new one.
      *
      * @return bool|object|array
      *
      * @throws \Throwable
      */
-    public function save($item, bool $update = false)
+    public function save($item, bool $update = false, bool $runValidation = true)
     {
         if ($update || $item->id) {
             if ($item->id) {
@@ -251,7 +247,14 @@ class FieldProcessor extends Processor
                 }
             }
         }
-        return Craft::$app->fields->saveField($item);
+
+        $saved = Craft::$app->fields->saveField($item, $runValidation);
+        if (!$saved) {
+            /* @var Neo $item */
+//            Craft::dd($item->errors);
+        }
+
+        return $saved;
     }
 
     /**
@@ -280,12 +283,16 @@ class FieldProcessor extends Processor
                         $fieldLayout->id = $blockType->fieldLayoutId;
                         Craft::$app->fields->saveLayout($fieldLayout);
                         $blockType->fieldLayoutId = $fieldLayout->id;
+                        $blockType->setFieldLayout($fieldLayout);
                     }
                 }
                 unset($blockType);
+
                 $field->setBlockTypes($blockTypes);
+
                 return $this->save($field, true);
             }
+            return true;
         }
         return false;
     }
@@ -699,20 +706,27 @@ class FieldProcessor extends Processor
             }
         }
         if ($useTypeSettings) {
-            $fieldObj = array_merge($attributeObj, [
-                'name' => $item->name,
-                'handle' => $item->handle,
-                'instructions' => $item->instructions,
-                'type' => \get_class($item),
-                'typesettings' => $item->getSettings(),
-            ]);
+            $fieldObj = array_merge(
+                $attributeObj,
+                [
+                    'name' => $item->name,
+                    'handle' => $item->handle,
+                    'instructions' => $item->instructions,
+                    'type' => \get_class($item),
+                    'typesettings' => $item->getSettings(),
+                ]
+            );
         } else {
-            $fieldObj = array_merge($attributeObj, [
-                'name' => $item->name,
-                'handle' => $item->handle,
-                'instructions' => $item->instructions,
-                'type' => \get_class($item),
-            ], $item->getSettings());
+            $fieldObj = array_merge(
+                $attributeObj,
+                [
+                    'name' => $item->name,
+                    'handle' => $item->handle,
+                    'instructions' => $item->instructions,
+                    'type' => \get_class($item),
+                ],
+                $item->getSettings()
+            );
         }
 
         if (isset($fieldObj['translationMethod']) && $fieldObj['translationMethod'] === 'none') {
@@ -730,7 +744,7 @@ class FieldProcessor extends Processor
                     'handle' => $blockType->handle,
                     'fields' => [],
                 ];
-                foreach ($blockType->getFields() as $blockField) {
+                foreach ($blockType->getCustomFields() as $blockField) {
                     $blockTypeObj['fields'][] = $this->export($blockField, ['required'], true);
                 }
                 $blockTypesObj[] = $blockTypeObj;
@@ -769,6 +783,7 @@ class FieldProcessor extends Processor
                     'topLevel' => (bool)$blockType->topLevel,
                     'fieldLayout' => $fieldLayout,
                     'fieldConfigs' => $fieldConfigs,
+                    'conditions' => $this->mapFieldUidsToHandles($this->stripUids($blockType->conditions)),
                 ];
             }
             $fieldObj['blockTypes'] = $blockTypesObj;

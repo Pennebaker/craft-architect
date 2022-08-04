@@ -112,7 +112,7 @@ class SectionProcessor extends Processor
             $attributeObj[$attribute] = $item->$attribute;
         }
 
-        $sectionObj = [...array_merge(
+        $sectionObj = array_merge(
             [
                 'name' => $item->name,
                 'handle' => $item->handle,
@@ -124,7 +124,7 @@ class SectionProcessor extends Processor
                 'siteSettings' => [],
                 'entryTypes' => [],
             ]
-        )];
+        );
 
         $siteSettings = $item->getSiteSettings();
         foreach ($siteSettings as $siteSetting) {

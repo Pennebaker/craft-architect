@@ -115,22 +115,21 @@ abstract class Processor implements ProcessorInterface
                 $fieldLayoutConfig['tabs'][] = $tabConfig;
             }
         }
-        return $fieldLayoutConfig;
+
+        return $this->mapFieldHandlesToUids($fieldLayoutConfig);
     }
 
     /**
      * @param array $obj
      * @return array
      */
-    public function stripNulls(array $obj): array
+    public function mapFieldHandlesToUids(array $obj): array
     {
-        $allowedNulls = [
-            'maxLevels'
-        ];
         foreach ($obj as $key => $value) {
             if (is_array($value)) {
-                $obj[$key] = $this->stripNulls($value);
-            } else if ($value === null && !in_array($key, $allowedNulls)) {
+                $obj[$key] = $this->mapFieldHandlesToUids($value);
+            } else if ($key === 'fieldHandle') {
+                $obj['fieldUid'] = Craft::$app->fields->getFieldByHandle($value)->uid;
                 unset($obj[$key]);
             }
         }
@@ -376,7 +375,7 @@ abstract class Processor implements ProcessorInterface
                         $newField = [
                             'name' => $field['name'],
                             'handle' => $field['handle'],
-                            'instructions' => $field['instructions'],
+                            'instructions' => $field['instructions'] ?? '',
                             'required' => $field['required'],
                             'type' => $field['type'],
                         ];
@@ -437,6 +436,15 @@ abstract class Processor implements ProcessorInterface
                         if (isset($elementConfig['required']) && $elementConfig['required']) {
                             $fieldConfig['required'] = (bool)$elementConfig['required'];
                         }
+
+                        if (isset($elementConfig['userCondition'])) {
+                            $fieldConfig['userCondition'] = $this->stripUids($elementConfig['userCondition']);
+                        }
+
+                        if (isset($elementConfig['elementCondition'])) {
+                            $fieldConfig['elementCondition'] = $this->mapFieldUidsToHandles($this->stripUids($elementConfig['elementCondition']));
+                        }
+
                         if (isset($elementConfig['fieldUid'])) {
                             $field = Craft::$app->fields->getFieldByUid($elementConfig['fieldUid']);
                             $fieldLayoutObj[$tabConfig['name']][] = $field->handle;
@@ -463,6 +471,58 @@ abstract class Processor implements ProcessorInterface
             }
         }
         return [$fieldLayoutObj, $fieldConfigsObj];
+    }
+
+    /**
+     * @param array $obj
+     * @return array
+     */
+    public function stripUids(array $obj): array
+    {
+        foreach ($obj as $key => $value) {
+            if (is_array($value)) {
+                $obj[$key] = $this->stripUids($value);
+            } else if ($key === 'uid') {
+                unset($obj[$key]);
+            }
+        }
+        return $obj;
+    }
+
+    /**
+     * @param array $obj
+     * @return array
+     */
+    public function mapFieldUidsToHandles(array $obj): array
+    {
+        foreach ($obj as $key => $value) {
+            if (is_array($value)) {
+                $obj[$key] = $this->mapFieldUidsToHandles($value);
+            } else if ($key === 'fieldUid') {
+                $obj['fieldHandle'] = Craft::$app->fields->getFieldByUid($value)->handle;
+                unset($obj[$key]);
+            }
+        }
+        return $obj;
+    }
+
+    /**
+     * @param array $obj
+     * @return array
+     */
+    public function stripNulls(array $obj): array
+    {
+        $allowedNulls = [
+            'maxLevels'
+        ];
+        foreach ($obj as $key => $value) {
+            if (is_array($value)) {
+                $obj[$key] = $this->stripNulls($value);
+            } else if ($value === null && !in_array($key, $allowedNulls)) {
+                unset($obj[$key]);
+            }
+        }
+        return $obj;
     }
 
     /**
