@@ -13,6 +13,13 @@ namespace pennebaker\architect\base;
 use Craft;
 use craft\db\Query;
 use craft\db\Table;
+use craft\elements\conditions\assets\VolumeConditionRule;
+use craft\elements\conditions\categories\GroupConditionRule as CategoryGroupConditionRule;
+use craft\elements\conditions\entries\AuthorGroupConditionRule;
+use craft\elements\conditions\entries\SectionConditionRule;
+use craft\elements\conditions\entries\TypeConditionRule;
+use craft\elements\conditions\tags\GroupConditionRule as TagGroupConditionRule;
+use craft\elements\conditions\users\GroupConditionRule as UserGroupConditionRule;
 use craft\errors\SiteNotFoundException;
 use craft\fieldlayoutelements\CustomField;
 use craft\models\FieldLayout;
@@ -131,6 +138,52 @@ abstract class Processor implements ProcessorInterface
             } else if ($key === 'fieldHandle') {
                 $obj['fieldUid'] = Craft::$app->fields->getFieldByHandle($value)->uid;
                 unset($obj[$key]);
+            }
+        }
+        if (array_key_exists('class', $obj) && array_key_exists('values', $obj) && is_array($obj['values'])) {
+            $newValues = [];
+            switch ($obj['class']) {
+                case VolumeConditionRule::class:
+                    foreach ($obj['values'] as $handle) {
+                        $newValues[] = Craft::$app->volumes->getVolumeByHandle($handle)->uid;
+                    }
+                    break;
+                case CategoryGroupConditionRule::class:
+                    foreach ($obj['values'] as $handle) {
+                        $newValues[] = Craft::$app->categories->getGroupByHandle($handle)->uid;
+                    }
+                    break;
+                case TagGroupConditionRule::class:
+                    foreach ($obj['values'] as $handle) {
+                        $newValues[] = Craft::$app->tags->getTagGroupByHandle($handle)->uid;
+                    }
+                    break;
+                case UserGroupConditionRule::class:
+                case AuthorGroupConditionRule::class:
+                    foreach ($obj['values'] as $handle) {
+                        $newValues[] = Craft::$app->userGroups->getGroupByHandle($handle)->uid;
+                    }
+                    break;
+                case SectionConditionRule::class:
+                    foreach ($obj['values'] as $handle) {
+                        $newValues[] = Craft::$app->sections->getSectionByHandle($handle)->uid;
+                    }
+                    break;
+                case TypeConditionRule::class:
+                    foreach ($obj['values'] as $handles) {
+                        list ($sectionHandle, $typeHandle) = explode('::', $handles);
+                        $entryTypes = Craft::$app->sections->getEntryTypesByHandle($typeHandle);
+                        foreach ($entryTypes as $entryType) {
+                            if ($entryType->getSection()->handle === $sectionHandle) {
+                                $newValues[] = $entryType->uid;
+                            }
+                        }
+
+                    }
+                    break;
+            }
+            if (count($newValues) > 0) {
+                $obj['values'] = $newValues;
             }
         }
         return $obj;
@@ -493,14 +546,54 @@ abstract class Processor implements ProcessorInterface
      * @param array $obj
      * @return array
      */
-    public function mapFieldUidsToHandles(array $obj): array
+    public function mapFieldUidsToHandles(array $obj, string $depth = ''): array
     {
         foreach ($obj as $key => $value) {
             if (is_array($value)) {
-                $obj[$key] = $this->mapFieldUidsToHandles($value);
+                $obj[$key] = $this->mapFieldUidsToHandles($value, $depth . '-');
             } else if ($key === 'fieldUid') {
                 $obj['fieldHandle'] = Craft::$app->fields->getFieldByUid($value)->handle;
                 unset($obj[$key]);
+            }
+        }
+        if (array_key_exists('class', $obj) && array_key_exists('values', $obj) && is_array($obj['values'])) {
+            $newValues = [];
+            switch ($obj['class']) {
+                case VolumeConditionRule::class:
+                    foreach ($obj['values'] as $uid) {
+                        $newValues[] = Craft::$app->volumes->getVolumeByUid($uid)->handle;
+                    }
+                    break;
+                case CategoryGroupConditionRule::class:
+                    foreach ($obj['values'] as $uid) {
+                        $newValues[] = Craft::$app->categories->getGroupByUid($uid)->handle;
+                    }
+                    break;
+                case TagGroupConditionRule::class:
+                    foreach ($obj['values'] as $uid) {
+                        $newValues[] = Craft::$app->tags->getTagGroupByUid($uid)->handle;
+                    }
+                    break;
+                case UserGroupConditionRule::class:
+                case AuthorGroupConditionRule::class:
+                    foreach ($obj['values'] as $uid) {
+                        $newValues[] = Craft::$app->userGroups->getGroupByUid($uid)->handle;
+                    }
+                    break;
+                case SectionConditionRule::class:
+                    foreach ($obj['values'] as $uid) {
+                        $newValues[] = Craft::$app->sections->getSectionByUid($uid)->handle;
+                    }
+                    break;
+                case TypeConditionRule::class:
+                    foreach ($obj['values'] as $uid) {
+                        $entryType = Craft::$app->sections->getEntryTypeByUid($uid);
+                        $newValues[] = $entryType->getSection()->handle . '::' . $entryType->handle;
+                    }
+                    break;
+            }
+            if (count($newValues) > 0) {
+                $obj['values'] = $newValues;
             }
         }
         return $obj;

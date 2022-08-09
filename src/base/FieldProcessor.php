@@ -44,6 +44,7 @@ class FieldProcessor extends Processor
      */
     public function parse(array $item, bool $subField = false): array
     {
+        $item = $this->mapFieldHandlesToUids($item);
         $groupId = false;
         if ($subField === false) {
             // Attempt to find and set group id.
