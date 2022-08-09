@@ -11,6 +11,7 @@
 namespace pennebaker\architect\base;
 
 use craft\base\FieldInterface;
+use craft\fieldlayoutelements\entries\EntryTitleField;
 use pennebaker\architect\Architect;
 
 use Craft;
@@ -141,6 +142,8 @@ class FieldProcessor extends Processor
 
                 $blockType['elementPlacements'] = [];
                 $blockType['elementConfigs'] = [];
+
+                $blockType['handle'] = $blockType['handle'] . '_MissingFieldLayout';
 
                 unset($blockType['fieldLayout']);
                 unset($blockType['fieldConfigs']);
@@ -277,19 +280,23 @@ class FieldProcessor extends Processor
                     $configBlockTypes[$blockType['handle']] = $blockType;
                 }
                 $blockTypes = $field->getBlockTypes();
-                foreach ($blockTypes as &$blockType) {
+                $newBlockTypes = [];
+                foreach ($blockTypes as $blockType) {
                     /* @var NeoBlockTypeModel $blockType */
+                    $blockType->handle = str_replace('_MissingFieldLayout', '', $blockType->handle);
                     if (isset($configBlockTypes[$blockType->handle])) {
                         $fieldLayout = $this->createFieldLayout($configBlockTypes[$blockType->handle], NeoBlock::class);
                         $fieldLayout->id = $blockType->fieldLayoutId;
-                        Craft::$app->fields->saveLayout($fieldLayout);
+                        if (!Craft::$app->fields->saveLayout($fieldLayout)) {
+                            return false;
+                        }
                         $blockType->fieldLayoutId = $fieldLayout->id;
                         $blockType->setFieldLayout($fieldLayout);
                     }
+                    $newBlockTypes[] = $blockType;
                 }
-                unset($blockType);
 
-                $field->setBlockTypes($blockTypes);
+                $field->setBlockTypes($newBlockTypes);
 
                 return $this->save($field, true);
             }
