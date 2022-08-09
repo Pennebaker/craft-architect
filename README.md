@@ -16,16 +16,16 @@ To install the plugin, follow these instructions.
 
 1. Open your terminal and go to your Craft project:
 
-        cd /path/to/project
+       cd /path/to/project
 
 2. Then tell Composer to load the plugin:
 
-        composer require pennebaker/craft-architect
+       composer require pennebaker/craft-architect
 
 3.
     a. In the terminal run
-       
-               ./craft install/plugin architect
+
+       ./craft plugin/install architect
 
     ***or***
     
