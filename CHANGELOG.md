@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [4.0.0] - 2022-08-10
+### Added
+- CraftCMS 4 support.
+
 ## [2.4.3] - 2021-06-30
 ### Fixed
 - Fixed Neo export when using child blocks.
@@ -209,7 +213,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Field Group Importing
 - Field Importing
 
-[Unreleased]: https://github.com/pennebaker/craft-architect/compare/2.4.3...develop
+[Unreleased]: https://github.com/pennebaker/craft-architect/compare/4.0.0...develop
+[4.0.0]: https://github.com/pennebaker/craft-architect/compare/2.4.3...4.0.0
 [2.4.3]: https://github.com/pennebaker/craft-architect/compare/2.4.2...2.4.3
 [2.4.2]: https://github.com/pennebaker/craft-architect/compare/2.4.1...2.4.2
 [2.4.1]: https://github.com/pennebaker/craft-architect/compare/2.4.0...2.4.1

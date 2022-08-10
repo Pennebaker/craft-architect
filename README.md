@@ -125,7 +125,7 @@ Some things to do and ideas for potential features:
 [2.4.0] ***complete***
 - Craft 3.5 Field Layout
 
-[2.5.0 and later] ***brainstorming***
+[x.5.0 and later] ***brainstorming***
 - Import and Update (Non Fields)
 - Commerce Support
 - Store for sharing blueprints
