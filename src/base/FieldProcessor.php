@@ -12,6 +12,8 @@ namespace pennebaker\architect\base;
 
 use craft\base\FieldInterface;
 use craft\fieldlayoutelements\entries\EntryTitleField;
+use craft\fieldlayoutelements\Heading;
+use craft\helpers\StringHelper;
 use pennebaker\architect\Architect;
 
 use Craft;
@@ -252,13 +254,7 @@ class FieldProcessor extends Processor
             }
         }
 
-        $saved = Craft::$app->fields->saveField($item, $runValidation);
-        if (!$saved) {
-            /* @var Neo $item */
-//            Craft::dd($item->errors);
-        }
-
-        return $saved;
+        return Craft::$app->fields->saveField($item, $runValidation);
     }
 
     /**
@@ -295,7 +291,6 @@ class FieldProcessor extends Processor
                     }
                     $newBlockTypes[] = $blockType;
                 }
-
                 $field->setBlockTypes($newBlockTypes);
 
                 return $this->save($field, true);
