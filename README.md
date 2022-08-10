@@ -1,4 +1,4 @@
-# Architect plugin for Craft CMS 3.x
+# Architect plugin for Craft CMS 4.x
 
 A plugin for importing and exporting content models from [Craft CMS](http://craftcms.com/) using JSON.
 
@@ -8,7 +8,7 @@ Related: [Architect for Craft 2.x](https://github.com/Pennebaker/craftcms-thearc
 
 ## Requirements
 
-This plugin requires Craft CMS 3.0.0-RC1 or later.
+This plugin requires Craft CMS 4.
 
 ## Installation
 
@@ -16,16 +16,16 @@ To install the plugin, follow these instructions.
 
 1. Open your terminal and go to your Craft project:
 
-        cd /path/to/project
+       cd /path/to/project
 
 2. Then tell Composer to load the plugin:
 
-        composer require pennebaker/craft-architect
+       composer require pennebaker/craft-architect
 
 3.
     a. In the terminal run
-       
-               ./craft install/plugin architect
+
+       ./craft plugin/install architect
 
     ***or***
     
@@ -125,7 +125,7 @@ Some things to do and ideas for potential features:
 [2.4.0] ***complete***
 - Craft 3.5 Field Layout
 
-[2.5.0 and later] ***brainstorming***
+[x.5.0 and later] ***brainstorming***
 - Import and Update (Non Fields)
 - Commerce Support
 - Store for sharing blueprints
