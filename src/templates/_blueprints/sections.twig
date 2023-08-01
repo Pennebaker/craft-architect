@@ -42,8 +42,9 @@
                 {# {{ section.uriFormat }} #}
                 <ul>
                     {% for siteSetting in section.siteSettings %}
+                        {% set site = craft.app.sites.getSiteById(siteSetting.siteId) %}
                         <li>
-                            <i>{{ craft.app.sites.getSiteById(siteSetting.siteId).handle }}</i>: {{ siteSetting.uriFormat }}
+                            <i>{{ site ? site.handle : siteSetting.siteId }}</i>: {{ siteSetting.uriFormat }}
                         </li>
                     {% endfor %}
                 </ul>
