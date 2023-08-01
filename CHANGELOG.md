@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [4.0.1] - 2023-08-01
+### Fixed
+- Fixed retrieving site handle in template. Fallback to siteId if site lookup fails.
+
 ## [4.0.0] - 2022-08-10
 ### Added
 - CraftCMS 4 support.

@@ -1,61 +1,61 @@
 {
-    "name": "pennebaker/craft-architect",
-    "description": "CraftCMS plugin to generate content models from JSON/YAML data.",
-    "type": "craft-plugin",
-    "version": "4.0.0",
-    "keywords": [
-        "craft",
-        "cms",
-        "craftcms",
-        "craft-plugin",
-        "architect"
-    ],
-    "support": {
-        "docs": "https://github.com/Pennebaker/craft-architect/blob/master/README.md",
-        "issues": "https://github.com/Pennebaker/craft-architect/issues"
+  "name": "pennebaker/craft-architect",
+  "description": "CraftCMS plugin to generate content models from JSON/YAML data.",
+  "type": "craft-plugin",
+  "version": "4.0.1",
+  "keywords": [
+    "craft",
+    "cms",
+    "craftcms",
+    "craft-plugin",
+    "architect"
+  ],
+  "support": {
+    "docs": "https://github.com/Pennebaker/craft-architect/blob/master/README.md",
+    "issues": "https://github.com/Pennebaker/craft-architect/issues"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Pennebaker",
+      "homepage": "https://pennebaker.com"
+    }
+  ],
+  "require": {
+    "ext-json": "*",
+    "craftcms/cms": "^4",
+    "symfony/yaml": "^5.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "pennebaker\\architect\\": "src/"
+    }
+  },
+  "extra": {
+    "name": "Architect",
+    "handle": "architect",
+    "schemaVersion": "2.0.0",
+    "developer": "Pennebaker",
+    "hasCpSettings": false,
+    "hasCpSection": true,
+    "changelogUrl": "https://raw.githubusercontent.com/Pennebaker/craft-architect/master/CHANGELOG.md",
+    "components": {
+      "architectService": "pennebaker\\architect\\services\\ArchitectService"
     },
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Pennebaker",
-            "homepage": "https://pennebaker.com"
-        }
-    ],
-    "require": {
-        "ext-json": "*",
-        "craftcms/cms": "^4",
-        "symfony/yaml": "^5.0"
-    },
-    "autoload": {
-        "psr-4": {
-          "pennebaker\\architect\\": "src/"
-        }
-    },
-    "extra": {
-        "name": "Architect",
-        "handle": "architect",
-        "schemaVersion": "2.0.0",
-        "developer": "Pennebaker",
-        "hasCpSettings": false,
-        "hasCpSection": true,
-        "changelogUrl": "https://raw.githubusercontent.com/Pennebaker/craft-architect/master/CHANGELOG.md",
-        "components": {
-            "architectService": "pennebaker\\architect\\services\\ArchitectService"
-        },
-        "class": "pennebaker\\architect\\Architect"
-    },
+    "class": "pennebaker\\architect\\Architect"
+  },
   "config": {
     "sort-packages": true,
     "platform": {
       "php": "8.0.2"
     },
     "allow-plugins": {
-        "yiisoft/yii2-composer": true,
-        "craftcms/plugin-installer": true
+      "yiisoft/yii2-composer": true,
+      "craftcms/plugin-installer": true
     }
   },
-    "require-dev": {
-        "spicyweb/craft-neo": "^3.1",
-        "verbb/super-table": "3.0.0-beta.6"
-    }
+  "require-dev": {
+    "spicyweb/craft-neo": "^3.1",
+    "verbb/super-table": "3.0.0-beta.6"
+  }
 }
